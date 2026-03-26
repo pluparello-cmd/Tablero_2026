@@ -555,6 +555,10 @@ td.bold{color:var(--text);font-weight:500}
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
         <span>Gestionar objetivos</span>
       </button>
+      <button class="nav-btn" id="nav-usuarios" style="display:none" onclick="showPage('usuarios');closeSidebar()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+        <span>Usuarios</span>
+      </button>
 
     </div>
 
@@ -816,6 +820,26 @@ td.bold{color:var(--text);font-weight:500}
       </div>
     </div>
 
+    <!-- GESTIONAR USUARIOS (solo admin) -->
+    <div id="page-usuarios" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Usuarios</div><div class="page-subtitle">Gestionar accesos y contraseñas — solo administrador</div></div>
+        <span class="q-badge">Admin</span>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Usuarios del sistema</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Usuario</th><th>Gerencia</th><th>Rol</th><th>Contraseña actual</th><th>Acción</th>
+            </tr></thead>
+            <tbody id="usuarios-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -960,6 +984,8 @@ function startSession(user) {
   if (cfgBtn) cfgBtn.style.display = user.rol === 'admin' ? 'block' : 'none';
   const gstBtn = document.getElementById('nav-gestionar');
   if (gstBtn) gstBtn.style.display = user.rol === 'admin' ? 'flex' : 'none';
+  const usrBtn = document.getElementById('nav-usuarios');
+  if (usrBtn) usrBtn.style.display = user.rol === 'admin' ? 'flex' : 'none';
   // Mostrar secciones admin-only
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = user.rol === 'admin' ? 'flex' : 'none';
@@ -1103,6 +1129,7 @@ function renderCurrentPage() {
     case 'carga': renderCarga(); break;
     case 'riesgos-carga': renderRiesgosCarga(); break;
     case 'gestionar': renderGestionar(); break;
+    case 'usuarios': renderUsuarios(); break;
   }
 }
 
@@ -1588,7 +1615,7 @@ async function ejecutarDiagnostico() {
   }
 }
 
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeSidebar(); cerrarModalEliminar(); cerrarEditarKPI(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeSidebar(); cerrarModalEliminar(); cerrarEditarKPI(); cerrarModalClave(); } });
 
 // ═══════════════════════════════════════════════════════
 // RENDER CARGA DE AVANCE
@@ -2227,6 +2254,129 @@ async function guardarNuevoKPI() {
   } finally { btn.disabled=false; }
 }
 // ═══════════════════════════════════════════════════════
+// GESTIONAR USUARIOS (solo admin)
+// ═══════════════════════════════════════════════════════
+
+// Lista local de usuarios — se actualiza desde Sheets
+const USUARIOS_DEFAULT = [
+  {usuario:'admin',        password:'sooft2026',  gerencia:'Dirección',    rol:'admin'},
+  {usuario:'rrhh',         password:'rrhh2026',   gerencia:'PEOPLE_RRHH',  rol:'gerente'},
+  {usuario:'admin_ger',    password:'admin2026',  gerencia:'ADMIN',        rol:'gerente'},
+  {usuario:'finanzas',     password:'fin2026',    gerencia:'FINANZAS',     rol:'gerente'},
+  {usuario:'marketing',    password:'mkt2026',    gerencia:'MARKETING',    rol:'gerente'},
+  {usuario:'operaciones',  password:'ops2026',    gerencia:'OPERACIONES',  rol:'gerente'},
+  {usuario:'comercial_ar', password:'comar2026',  gerencia:'COMERCIAL_AR', rol:'gerente'},
+  {usuario:'comercial_cl', password:'comcl2026',  gerencia:'COMERCIAL_CL', rol:'gerente'},
+  {usuario:'calidad',      password:'cal2026',    gerencia:'CALIDAD',      rol:'gerente'},
+  {usuario:'reclutamiento',password:'rec2026',    gerencia:'RECLUTAMIENTO',rol:'gerente'},
+];
+
+let _usuarioEditar = null;
+
+function renderUsuarios() {
+  if (!SESSION || SESSION.rol !== 'admin') return;
+  const tbody = document.getElementById('usuarios-tbody');
+  if (!tbody) return;
+
+  // Try to load users from Sheets data, fallback to defaults
+  const d = getData();
+  const usuarios = (d?.usuarios && d.usuarios.length > 0) ? d.usuarios : USUARIOS_DEFAULT;
+
+  tbody.innerHTML = usuarios.map((u, i) => {
+    const bg = i % 2 === 0 ? 'background:var(--surface2)' : '';
+    const rolBadge = u.rol === 'admin'
+      ? `<span style="padding:2px 8px;border-radius:4px;background:rgba(110,231,183,.15);border:1px solid #6ee7b7;color:#059669;font-size:11px;font-weight:600">${u.rol}</span>`
+      : `<span style="padding:2px 8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);font-size:11px">${u.rol}</span>`;
+    const pwDisplay = u.password ? '•'.repeat(Math.min(u.password.length, 10)) : '—';
+    return `<tr style="${bg}">
+      <td class="bold" data-label="Usuario" style="font-family:'DM Mono',monospace">${u.usuario}</td>
+      <td data-label="Gerencia">${u.gerencia}</td>
+      <td data-label="Rol">${rolBadge}</td>
+      <td data-label="Contraseña" style="font-family:'DM Mono',monospace;color:var(--text3)">${pwDisplay}</td>
+      <td data-label="Acción">
+        <button onclick="abrirModalClave('${u.usuario}','${u.gerencia}')"
+          style="padding:4px 12px;border-radius:5px;border:1px solid var(--accent);
+          background:rgba(110,231,183,.08);color:var(--accent);font-size:11px;cursor:pointer;
+          font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .15s"
+          onmouseover="this.style.background='var(--accent)';this.style.color='#1f2937'"
+          onmouseout="this.style.background='rgba(110,231,183,.08)';this.style.color='var(--accent)'">
+          Cambiar clave
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function abrirModalClave(usuario, gerencia) {
+  _usuarioEditar = { usuario, gerencia };
+  document.getElementById('modal-clave-sub').textContent = `${usuario} · ${gerencia}`;
+  document.getElementById('nueva-clave').value = '';
+  document.getElementById('confirmar-clave').value = '';
+  document.getElementById('msg-clave').textContent = '';
+  document.getElementById('btn-guardar-clave').disabled = false;
+  document.getElementById('modal-clave').style.display = 'flex';
+  setTimeout(() => document.getElementById('nueva-clave').focus(), 100);
+}
+
+function cerrarModalClave() {
+  document.getElementById('modal-clave').style.display = 'none';
+  _usuarioEditar = null;
+}
+
+async function guardarClave() {
+  if (!SESSION || SESSION.rol !== 'admin') return;
+  if (!_usuarioEditar) return;
+
+  const nuevaClave    = document.getElementById('nueva-clave').value.trim();
+  const confirmarClave = document.getElementById('confirmar-clave').value.trim();
+  const msg = document.getElementById('msg-clave');
+  const btn = document.getElementById('btn-guardar-clave');
+
+  if (!nuevaClave) { msg.textContent = '✗ Ingresá la nueva contraseña'; msg.style.color = 'var(--rojo)'; return; }
+  if (nuevaClave.length < 6) { msg.textContent = '✗ Mínimo 6 caracteres'; msg.style.color = 'var(--rojo)'; return; }
+  if (nuevaClave !== confirmarClave) { msg.textContent = '✗ Las contraseñas no coinciden'; msg.style.color = 'var(--rojo)'; return; }
+
+  btn.disabled = true;
+  msg.textContent = 'Guardando...';
+  msg.style.color = 'var(--text3)';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    // Demo mode — only update local DEMO array
+    const demoArr = document.querySelector ? null : null;
+    msg.textContent = '✓ Guardado localmente (modo demo)';
+    msg.style.color = 'var(--verde)';
+    toast(`Contraseña de ${_usuarioEditar.usuario} actualizada (demo)`);
+    btn.disabled = false;
+    setTimeout(cerrarModalClave, 1200);
+    return;
+  }
+
+  try {
+    const res = await apiPost({
+      accion: 'cambiar_clave',
+      usuario: SESSION.usuario,
+      password: sessionStorage.getItem('sooft_pass') || '',
+      target_usuario: _usuarioEditar.usuario,
+      nueva_password: nuevaClave,
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje || 'Error desconocido');
+    msg.textContent = '✓ Contraseña actualizada';
+    msg.style.color = 'var(--verde)';
+    toast(`Contraseña de ${_usuarioEditar.usuario} actualizada en Google Sheets ✓`);
+    // Update local cache too
+    localStorage.removeItem(DATA_KEY);
+    localStorage.removeItem(DATA_TS_KEY);
+    setTimeout(() => { cerrarModalClave(); syncData(); }, 800);
+  } catch(e) {
+    msg.textContent = '✗ ' + e.message;
+    msg.style.color = 'var(--rojo)';
+    btn.disabled = false;
+    toast(e.message, 'err');
+  }
+}
+
+// ═══════════════════════════════════════════════════════
 // MOBILE SIDEBAR
 // ═══════════════════════════════════════════════════════
 function toggleSidebar() {
@@ -2449,6 +2599,44 @@ init();
     </div>
     <div id="diag-result" style="font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;white-space:pre-wrap;max-height:420px;overflow-y:auto;color:var(--text2);line-height:1.6">
       Ingresá un KPI ID y gerencia para diagnosticar.
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL CAMBIAR CONTRASEÑA ── -->
+<div id="modal-clave" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:960;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:400px;max-width:92vw">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)">Cambiar contraseña</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px" id="modal-clave-sub">usuario</div>
+      </div>
+      <button onclick="cerrarModalClave()" style="background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label class="form-label">Nueva contraseña *</label>
+      <input type="text" class="form-input" id="nueva-clave" placeholder="Mínimo 6 caracteres" autocomplete="off">
+    </div>
+    <div style="margin-bottom:20px">
+      <label class="form-label">Confirmar contraseña *</label>
+      <input type="text" class="form-input" id="confirmar-clave" placeholder="Repetí la contraseña" autocomplete="off">
+    </div>
+
+    <div style="padding:10px 14px;background:var(--blueLt,#eff6ff);border:1px solid #bfdbfe;border-radius:7px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+      <strong style="color:#1d4ed8">ℹ</strong> El cambio se guarda en Google Sheets y en el HTML del tablero. El usuario deberá usar la nueva clave en su próximo ingreso.
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <button id="btn-guardar-clave" onclick="guardarClave()"
+        style="padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;
+        font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+        Guardar contraseña
+      </button>
+      <button onclick="cerrarModalClave()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
+        Cancelar
+      </button>
+      <span id="msg-clave" style="font-size:12px"></span>
     </div>
   </div>
 </div>
