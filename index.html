@@ -920,6 +920,7 @@ async function doLogin() {
     ];
     const u = DEMO.find(u => u.usuario === usuario && u.password === password);
     if (!u) { errEl.textContent = 'Usuario o contraseña incorrectos'; return; }
+    sessionStorage.setItem('sooft_pass', password);
     startSession(u);
     toast('Modo demo — conectá Google Sheets para guardar cambios reales', 'err');
     return;
@@ -930,6 +931,7 @@ async function doLogin() {
   try {
     const res = await apiPost({ accion: 'login', usuario, password });
     if (res.status !== 'ok') throw new Error(res.mensaje || 'Error de login');
+    sessionStorage.setItem('sooft_pass', password);
     startSession(res.user);
     syncData();
   } catch(e) {
@@ -968,6 +970,7 @@ function startSession(user) {
 function doLogout() {
   SESSION = null;
   sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem('sooft_pass');
   document.getElementById('app-screen').classList.remove('visible');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('inp-password').value = '';
@@ -2030,13 +2033,17 @@ async function ejecutarEliminarKPI() {
     toast('Modo demo — conectá Google Sheets para eliminar en la planilla'); return;
   }
   try {
-    const res=await apiPost({ accion:'eliminar_kpi', usuario:SESSION.usuario,
-      password:sessionStorage.getItem('sooft_pass')||'', kpi_id:kpiId, gerencia });
+    const elimPayload = { accion:'eliminar_kpi', usuario:SESSION.usuario,
+      password:sessionStorage.getItem('sooft_pass')||'', kpi_id:kpiId, gerencia };
+    console.log('[ELIMINAR] Payload:', JSON.stringify(elimPayload));
+    const res=await apiPost(elimPayload);
+    console.log('[ELIMINAR] Respuesta:', JSON.stringify(res));
     if(res.status!=='ok') throw new Error(res.mensaje||'Error desconocido');
-    msg.textContent='✓ Eliminado'; msg.style.color='var(--verde)';
+    msg.textContent='✓ '+(res.mensaje||'Eliminado'); msg.style.color='var(--verde)';
     toast(`KPI ${kpiId} eliminado ✓`);
     setTimeout(()=>{ cerrarModalEliminar(); syncData(); },800);
   } catch(e) {
+    console.log('[ELIMINAR] Error:', e.message);
     msg.textContent='✗ '+e.message; msg.style.color='var(--rojo)';
     btn.disabled=false; toast(e.message,'err');
   }
@@ -2133,7 +2140,7 @@ async function guardarEditarKPI() {
   }
 
   try {
-    const res = await apiPost({
+    const payload = {
       accion: 'editar_kpi',
       usuario: SESSION.usuario,
       password: sessionStorage.getItem('sooft_pass') || '',
@@ -2143,13 +2150,17 @@ async function guardarEditarKPI() {
       meta_anual: metaAnual,
       meta_q1: metaQ1, meta_q2: metaQ2, meta_q3: metaQ3, meta_q4: metaQ4,
       frecuencia, notas
-    });
+    };
+    console.log('[EDITAR] Payload enviado:', JSON.stringify(payload));
+    const res = await apiPost(payload);
+    console.log('[EDITAR] Respuesta recibida:', JSON.stringify(res));
     if (res.status !== 'ok') throw new Error(res.mensaje || 'Error desconocido');
-    msg.textContent = '✓ KPI actualizado';
+    msg.textContent = '✓ ' + (res.mensaje || 'KPI actualizado');
     msg.className = 'save-msg ok';
     toast(`KPI ${kpiId} actualizado en Google Sheets ✓`);
     setTimeout(() => { cerrarEditarKPI(); syncData(); }, 800);
   } catch(e) {
+    console.log('[EDITAR] Error:', e.message);
     msg.textContent = '✗ ' + e.message;
     msg.className = 'save-msg err';
     btn.disabled = false;
