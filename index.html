@@ -1069,8 +1069,28 @@ function logroSem(v) { return v >= 0.9 ? 'VERDE' : v >= 0.7 ? 'AMARILLO' : 'ROJO
 
 function semBadge(s) {
   if (!s || s === '-') return '<span class="badge badge-neutro">—</span>';
+  if (s === 'NA' || s === 'N/A') return naBadge();
   const cls = s === 'VERDE' ? 'verde' : s === 'AMARILLO' ? 'amarillo' : 'rojo';
   return `<span class="badge badge-${cls}"><span class="dot dot-${cls}"></span>${s}</span>`;
+}
+
+function naBadge() {
+  return '<span class="badge badge-neutro" style="color:var(--text3);font-size:11px">&#8901; N/A</span>';
+}
+
+// Determina si un KPI/Q debe mostrarse como N/A (no aplica aún)
+function esNA(frecuencia, metaQ, estadoSheet) {
+  // Si ya tiene un estado real cargado en Sheets, respetar ese valor
+  if (estadoSheet && estadoSheet !== '' && estadoSheet !== 'N/A' && estadoSheet !== 'NA') return false;
+  // Milestone o Anual: N/A si meta Q es 0 o vacía
+  if (frecuencia === 'Milestone' || frecuencia === 'Anual' || frecuencia === 'Q4') {
+    const m = parseFloat(metaQ);
+    if (isNaN(m) || m === 0) return true;
+  }
+  // Meta Q = 0 explícita (cualquier frecuencia)
+  const m = parseFloat(metaQ);
+  if (!isNaN(m) && m === 0) return true;
+  return false;
 }
 
 function progressBar(v, cls) {
@@ -1435,11 +1455,23 @@ function renderDrawerContent() {
               if (unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
               return n+(unidad?' '+unidad:'');
             };
-            const mini = v => v===null ? '<span style="color:var(--text3);font-size:11px">—</span>' :
-              `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            const mini = (v, kpiRow, q) => {
+              if (v === null) return '<span style="color:var(--text3);font-size:11px">—</span>';
+              // Check N/A for this specific Q row
+              if (kpiRow) {
+                const qRow = (d.carga_q||[]).find(r=>(r['KPI_ID']||'')===kpiRow&&r['Q']===q&&(r['Responsable']||'')===drawerGerencia);
+                if (qRow) {
+                  const sinActual = (qRow['Actual_Q (cargar)']??qRow['Actual_Q']??'') === '';
+                  if (sinActual && esNA(qRow['Frecuencia']||'', qRow['Meta_Q (editable)']??qRow['Meta_Q'], qRow['Estado']||'')) {
+                    return '<span style="color:var(--text3);font-size:11px">N/A</span>';
+                  }
+                }
+              }
+              return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
                 <div class="q-mini-bar" style="width:48px"><div class="q-mini-fill fill-${semColor(v)}" style="width:${Math.min(v*100,100)}%"></div></div>
                 <div class="q-mini-pct" style="color:var(--${semColor(v)});font-size:10px;font-family:'DM Mono',monospace">${pct(v)}</div>
               </div>`;
+            };
             return `<tr>
               <td class="kpi-id">${kid}</td>
               <td class="kpi-name">${firstRow['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${firstRow['Métrica']||''}</span></td>
@@ -1644,15 +1676,22 @@ function renderCarga() {
   document.getElementById('carga-grid').innerHTML = kpis.map(k => {
     const key = k['KEY'] || `${k['Q']}|${k['KPI_ID']}`;
     const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
-    const estado = k['Estado_lookup']||k['Estado']||logroSem(logro);
-    const cls = semColor(logro);
+    const estadoSheet = k['Estado_lookup']||k['Estado']||'';
     const meta = k['Meta_Q (editable)'] ?? k['Meta_Q'];
     const actual = k['Actual_Q (cargar)'] ?? k['Actual_Q'];
+    const frecuencia = k['Frecuencia'] || '';
     const comentarios = k['Comentarios']||'';
     const evidencia = k['Evidencia (URL)']||'';
     const comparador = k['Comparador']||'>=';
     const unidad = k['Unidad']||'';
     const resp = k['Responsable']||'';
+
+    // N/A: milestone o anual con meta=0 y sin actual cargado
+    const sinActual = actual === '' || actual === null || actual === undefined;
+    const naQ = sinActual && esNA(frecuencia, meta, estadoSheet);
+    const estado = naQ ? 'NA' : (estadoSheet || logroSem(logro));
+    const cls = naQ ? 'neutro' : semColor(logro);
+    const logroDisplay = naQ ? '' : pct(logro);
 
     return `<div class="kpi-carga-card" id="card-${key}">
       <div class="kpi-carga-header" onclick="toggleCard('${key}')">
@@ -1660,7 +1699,7 @@ function renderCarga() {
         <div class="kpi-carga-name">${k['Objetivo']||''}</div>
         <div style="display:flex;align-items:center;gap:10px">
           ${semBadge(estado)}
-          <div class="kpi-carga-meta">${pct(logro)}</div>
+          <div class="kpi-carga-meta">${logroDisplay}</div>
           <div class="kpi-carga-expand">▾</div>
         </div>
       </div>
