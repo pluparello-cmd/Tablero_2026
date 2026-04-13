@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero SOOFT 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f3f4f6; --surface:#ffffff; --surface2:#f9fafb; --surface3:#f1f2f4;
+  --border:rgba(0,0,0,0.09); --text:#111827; --text2:#4b5563; --text3:#9ca3af;
+  --sidebar-bg:#1f2937; --sidebar-text:#e5e7eb; --sidebar-text2:#9ca3af;
+  --sidebar-active-bg:#111827; --sidebar-accent:#6ee7b7;
+  --accent:#6ee7b7; --accent2:#34d399;
+  --verde:#16a34a; --verde-bg:rgba(22,163,74,0.08); --verde-border:rgba(22,163,74,0.25);
+  --amarillo:#d97706; --amarillo-bg:rgba(217,119,6,0.08); --amarillo-border:rgba(217,119,6,0.25);
+  --rojo:#dc2626; --rojo-bg:rgba(220,38,38,0.08); --rojo-border:rgba(220,38,38,0.25);
+  --neutro:#6b7280; --radius:10px; --radius-lg:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;line-height:1.5}
+body::before{display:none}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:800;background:var(--bg)}
+#login-screen.hidden{display:none}
+.login-box{width:380px;max-width:90vw}
+.login-logo{font-family:'DM Serif Display',serif;font-size:32px;letter-spacing:-1px;margin-bottom:4px}
+.login-sub{color:var(--text3);font-size:12px;margin-bottom:32px;text-transform:uppercase;letter-spacing:0.8px}
+.login-field{margin-bottom:14px}
+.login-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px;display:block}
+.login-input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color .15s}
+.login-input:focus{border-color:#059669}
+.login-error{color:var(--rojo);font-size:12px;margin-bottom:12px;min-height:18px}
+.login-btn{width:100%;padding:12px;border-radius:8px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s;margin-top:4px}
+.login-btn:hover{opacity:.85}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+.login-config{margin-top:20px;text-align:center;font-size:11px;color:var(--text3)}
+.login-config a{color:var(--accent);cursor:pointer;text-decoration:none}
+.login-config a:hover{text-decoration:underline}
+
+/* ── APP ── */
+.app{display:flex;min-height:100vh}
+#app-screen{display:none;width:100%}
+#app-screen.visible{display:flex}
+
+/* ── SIDEBAR ── */
+.sidebar{width:224px;flex-shrink:0;background:#1f2937;border-right:1px solid #374151;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid #374151}
+.logo-name{font-family:'DM Serif Display',serif;font-size:19px;letter-spacing:-.5px;color:#f9fafb}
+.logo-sub{font-size:10px;color:#6b7280;letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+.sidebar-section{padding:12px 0;border-bottom:1px solid #374151}
+.sidebar-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;padding:0 20px 8px}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:8px 20px;background:none;border:none;color:#9ca3af;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.nav-btn:hover{background:#374151;color:#f9fafb}
+.nav-btn.active{background:#111827;color:#6ee7b7}
+.nav-icon{width:15px;opacity:.7;flex-shrink:0}
+.nav-btn.active .nav-icon{opacity:1;filter:brightness(1.2)}
+
+.q-selector{padding:14px 20px;border-top:1px solid #374151}
+.q-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;margin-bottom:8px}
+.q-pills{display:flex;flex-direction:column;gap:4px}
+.q-pill{padding:7px 12px;border-radius:6px;border:1px solid #374151;background:none;color:#9ca3af;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all .15s;text-align:left}
+.q-pill:hover{border-color:#6ee7b7;color:#f9fafb}
+.q-pill.active{background:rgba(110,231,183,.1);border-color:#6ee7b7;color:#6ee7b7}
+
+/* User card en sidebar */
+.user-card{margin:12px 14px;padding:12px;border-radius:8px;border:1px solid #374151;background:#111827}
+.user-name{font-size:12px;font-weight:600;color:#f9fafb}
+.user-ger{font-size:11px;color:#6b7280;margin-top:2px}
+.user-rol{display:inline-block;margin-top:6px;font-size:10px;padding:2px 7px;border-radius:3px;background:rgba(110,231,183,.1);border:1px solid #6ee7b7;color:#6ee7b7;font-family:'DM Mono',monospace}
+.logout-btn{margin-top:8px;width:100%;padding:5px;border-radius:5px;border:1px solid #374151;background:none;color:#6b7280;font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.logout-btn:hover{border-color:var(--rojo);color:var(--rojo)}
+
+/* Sync bar */
+.sync-bar{margin:10px 14px 14px;padding:10px 12px;border-radius:8px;border:1px solid #374151;background:#111827;font-size:11px}
+.sync-status{display:flex;align-items:center;gap:6px;color:#6b7280}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.sync-dot.ok{background:#16a34a;box-shadow:0 0 4px rgba(22,163,74,.4)}
+.sync-dot.loading{background:var(--amarillo);animation:pulse 1s infinite}
+.sync-dot.error{background:var(--rojo)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sync-time{color:var(--text3);font-size:10px;margin-top:3px}
+.sync-btn{margin-top:7px;width:100%;padding:5px;border-radius:5px;border:1px solid #374151;background:none;color:#9ca3af;font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.sync-btn:hover{border-color:#6ee7b7;color:#6ee7b7}
+.sync-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:26px 30px;max-width:calc(100vw - 224px)}
+.page{display:none}
+.page.active{display:block;animation:fadeIn .25s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.page-title{font-family:'DM Serif Display',serif;font-size:24px;letter-spacing:-.5px}
+.page-subtitle{color:var(--text3);font-size:12px;margin-top:2px}
+.q-badge{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:4px;background:rgba(110,231,183,.1);border:1px solid #059669;color:#059669}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s;user-select:none}
+.stat-card:hover{border-color:rgba(0,0,0,.18);box-shadow:0 2px 8px rgba(0,0,0,.07);transform:translateY(-1px)}
+.stat-card.active-verde{border-color:var(--verde);background:var(--verde-bg)}
+.stat-card.active-amarillo{border-color:var(--amarillo);background:var(--amarillo-bg)}
+.stat-card.active-rojo{border-color:var(--rojo);background:var(--rojo-bg)}
+.stat-card.active-accent{border-color:var(--accent);background:rgba(110,231,183,.07)}
+.stat-num{font-family:'DM Mono',monospace;font-size:26px;font-weight:500}
+.stat-num.accent{color:var(--accent)} .stat-num.verde{color:var(--verde)} .stat-num.amarillo{color:var(--amarillo)} .stat-num.rojo{color:var(--rojo)}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.stat-hint{font-size:10px;color:var(--text3);margin-top:6px;opacity:.7}
+/* Stat drill-down panel */
+.stat-panel{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s;opacity:0;margin-bottom:0}
+.stat-panel.open{max-height:600px;opacity:1;margin-bottom:22px}
+.stat-panel-inner{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:0}
+.stat-panel-header{padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);display:flex;align-items:center;justify-content:space-between}
+.stat-panel-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+.stat-panel-close:hover{color:var(--text)}
+.stat-panel-rows{max-height:440px;overflow-y:auto}
+
+/* Section */
+.section{margin-bottom:28px}
+.section-title{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap}
+.badge-verde{background:var(--verde-bg);border:1px solid var(--verde-border);color:var(--verde)}
+.badge-amarillo{background:var(--amarillo-bg);border:1px solid var(--amarillo-border);color:var(--amarillo)}
+.badge-rojo{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo)}
+.badge-neutro{background:rgba(107,114,128,.08);border:1px solid rgba(107,114,128,.2);color:var(--neutro)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-verde{background:var(--verde);box-shadow:0 0 6px var(--verde)}
+.dot-amarillo{background:var(--amarillo);box-shadow:0 0 6px var(--amarillo)}
+.dot-rojo{background:var(--rojo);box-shadow:0 0 6px var(--rojo)}
+
+/* Progress */
+.progress-wrap{display:flex;align-items:center;gap:10px}
+.progress-bar{flex:1;height:8px;background:var(--surface3);border-radius:4px;min-width:70px;overflow:hidden;cursor:default;position:relative}
+.progress-bar:hover .progress-fill{filter:brightness(1.1)}
+.progress-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1),filter .2s}
+.fill-verde{background:linear-gradient(90deg,#16a34a,#22c55e)} .fill-amarillo{background:linear-gradient(90deg,#d97706,#f59e0b)} .fill-rojo{background:linear-gradient(90deg,#dc2626,#f87171)}
+.progress-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:38px;text-align:right;font-weight:500}
+
+/* Tables */
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;background:var(--surface)}
+thead th{background:#f9fafb;padding:9px 13px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+td{padding:9px 13px;font-size:12px;color:var(--text2);white-space:nowrap}
+td.text-wrap{white-space:normal;min-width:160px;max-width:280px}
+td.mono{font-family:'DM Mono',monospace;font-size:11px}
+td.bold{color:var(--text);font-weight:500}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.filter-select{padding:6px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;outline:none}
+.filter-select:focus{border-color:var(--accent)}
+.filter-count{font-size:11px;color:var(--text3);margin-left:auto}
+
+/* Dir obj */
+.dir-obj-grid{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.dir-obj-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;display:grid;grid-template-columns:75px 1fr 120px 120px 70px 70px 70px 70px;gap:10px;align-items:center;transition:border-color .2s,box-shadow .2s,background .15s}
+.dir-obj-row:hover{border-color:rgba(110,231,183,.35);background:rgba(110,231,183,.03);box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.dir-obj-row.header{background:var(--surface2);padding:7px 16px}
+.dir-obj-row.header span{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
+.obj-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
+.obj-name{font-size:12px;color:var(--text);white-space:normal;line-height:1.3}
+.area-tag{font-size:10px;padding:2px 6px;border-radius:3px;font-family:'DM Mono',monospace;background:var(--surface3);color:var(--text3)}
+
+/* Gerencias */
+.gerencias-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px;margin-bottom:24px}
+.gerencia-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;transition:border-color .2s,transform .2s,box-shadow .2s}
+.gerencia-card:hover{border-color:rgba(110,231,183,.35);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.gerencia-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.gerencia-name{font-weight:600;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px}
+.gerencia-kpis{font-size:11px;color:var(--text3)}
+.gerencia-q-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.q-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);width:20px}
+.mini-rojo{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo);font-family:'DM Mono',monospace;font-size:10px;padding:1px 5px;border-radius:3px}
+
+/* Risk panels */
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:24px}
+.risk-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.risk-panel-header{padding:13px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.risk-panel-title{font-size:13px;font-weight:600;color:var(--text)}
+.risk-counters{display:flex;gap:10px}
+.risk-counter{font-size:11px;font-family:'DM Mono',monospace}
+.risk-counter.rojo{color:var(--rojo)} .risk-counter.amarillo{color:var(--amarillo)} .risk-counter.verde{color:var(--verde)}
+.risk-list{padding:4px 0}
+.risk-item{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);transition:background .1s;cursor:default}
+.risk-item:last-child{border-bottom:none}
+.risk-item:hover{background:var(--surface2)}
+.risk-rank{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:18px;padding-top:2px}
+.risk-info{flex:1;min-width:0}
+.risk-desc{font-size:12px;color:var(--text);white-space:normal;line-height:1.4}
+.risk-meta{font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.risk-nivel{font-family:'DM Mono',monospace;font-weight:600;font-size:13px;min-width:28px;text-align:right;padding-top:2px}
+
+/* ── CARGA KPI ── */
+.carga-grid{display:flex;flex-direction:column;gap:10px}
+.kpi-carga-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .2s}
+.kpi-carga-card:hover{border-color:rgba(255,255,255,.12)}
+.kpi-carga-header{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.kpi-carga-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:80px}
+.kpi-carga-name{flex:1;font-size:12px;color:var(--text)}
+.kpi-carga-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.kpi-carga-expand{font-size:14px;color:var(--text3);transition:transform .2s;margin-left:8px}
+.kpi-carga-card.open .kpi-carga-expand{transform:rotate(180deg)}
+
+.kpi-carga-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);margin-top:0}
+.kpi-carga-card.open .kpi-carga-body{display:block}
+
+.kpi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.kpi-form-full{grid-column:1/-1}
+.form-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:5px;display:block}
+.form-input{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--text3)}
+
+.kpi-meta-info{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border)}
+.kpi-meta-item{display:flex;flex-direction:column;gap:2px}
+.kpi-meta-key{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.kpi-meta-val{font-size:12px;font-family:'DM Mono',monospace;color:var(--text)}
+
+.logro-preview{display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;border-radius:7px;background:var(--surface2)}
+.logro-preview-lbl{font-size:11px;color:var(--text3)}
+
+.btn-save{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;margin-top:14px}
+.btn-save:hover{opacity:.85}
+.btn-save:disabled{opacity:.5;cursor:not-allowed}
+.save-msg{font-size:11px;margin-left:10px;vertical-align:middle}
+.save-msg.ok{color:var(--verde)}
+.save-msg.err{color:var(--rojo)}
+
+/* Riesgos carga */
+.risk-estado-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.risk-estado-btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.risk-estado-btn:hover{border-color:var(--text2);color:var(--text)}
+.risk-estado-btn.selected-abierto{background:var(--rojo-bg);border-color:var(--rojo-border);color:var(--rojo)}
+.risk-estado-btn.selected-mitigacion{background:var(--amarillo-bg);border-color:var(--amarillo-border);color:var(--amarillo)}
+.risk-estado-btn.selected-cerrado{background:var(--verde-bg);border-color:var(--verde-border);color:var(--verde)}
+
+/* Overlay loading */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(10,12,15,.8);z-index:500;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.loading-overlay.show{display:flex}
+.spinner{width:30px;height:30px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:var(--text3);font-size:13px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:8px;font-size:12px;font-weight:500;z-index:1000;transform:translateY(80px);opacity:0;transition:all .3s ease;pointer-events:none;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--verde-bg);border:1px solid var(--verde-border);color:var(--verde)}
+.toast.err{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo)}
+
+/* Config modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#ffffff;border:1px solid #e5e7eb;border-radius:var(--radius-lg);padding:26px;width:500px;max-width:90vw}
+.modal-title{font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:5px}
+.modal-sub{color:var(--text3);font-size:12px;margin-bottom:20px;line-height:1.6}
+.input-group{margin-bottom:14px}
+.input-label{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.input-field{width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
+.input-field:focus{border-color:var(--accent)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.btn-primary{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.btn-primary:hover{opacity:.85}
+.btn-secondary{padding:9px 20px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+.btn-secondary:hover{border-color:var(--text2);color:var(--text)}
+
+.steps{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.step{display:flex;gap:12px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2)}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(110,231,183,.1);border:1px solid #059669;color:#059669;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-title{font-weight:600;font-size:12px;color:var(--text);margin-bottom:3px}
+.step-desc{font-size:11px;color:var(--text3);line-height:1.6}
+.step-code{margin-top:5px;padding:5px 9px;border-radius:4px;background:var(--surface3);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);word-break:break-all}
+
+.empty{text-align:center;padding:36px;color:var(--text3);font-size:13px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:3px}
+@media(max-width:900px){.risk-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}.kpi-form-grid{grid-template-columns:1fr}}
+
+/* ── GERENCIA DRAWER ── */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;top:0;right:0;width:680px;max-width:100vw;height:100vh;background:#ffffff;border-left:1px solid #e5e7eb;z-index:700;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer.open{transform:translateX(0)}
+.drawer-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.drawer-title-block{flex:1;min-width:0}
+.drawer-title{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.5px;color:var(--text)}
+.drawer-subtitle{font-size:11px;color:var(--text3);margin-top:3px}
+.drawer-close{background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.drawer-close:hover{border-color:var(--text2);color:var(--text)}
+
+.drawer-tabs{display:flex;gap:2px;padding:10px 24px 0;border-bottom:1px solid #e5e7eb;flex-shrink:0}
+.dtab{padding:8px 16px;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;background:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;position:relative;bottom:-1px}
+.dtab:hover{color:var(--text2)}
+.dtab.active{background:#ffffff;border-color:#e5e7eb;border-bottom-color:#ffffff;color:#059669}
+
+.drawer-body{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* Drawer stats mini */
+.drawer-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.dstat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.dstat-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
+.dstat-lbl{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
+
+/* KPI table in drawer */
+.kpi-drawer-table{width:100%;border-collapse:collapse;font-size:12px}
+.kpi-drawer-table th{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;background:var(--surface2)}
+.kpi-drawer-table td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.kpi-drawer-table tr:last-child td{border-bottom:none}
+.kpi-drawer-table tr:hover td{background:var(--surface2)}
+.kpi-drawer-table td.kpi-name{color:var(--text);max-width:200px;white-space:normal;line-height:1.35}
+.kpi-drawer-table td.kpi-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap}
+
+/* Q progress mini pills */
+.q-pills-row{display:flex;gap:4px;align-items:center}
+.q-mini{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:38px}
+.q-mini-label{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
+.q-mini-bar{width:34px;height:8px;border-radius:4px;background:var(--surface3);overflow:hidden}
+.q-mini-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.q-mini-pct{font-size:10px;font-family:'DM Mono',monospace}
+
+/* YTD big bar */
+.ytd-row{display:flex;align-items:center;gap:10px}
+.ytd-label{font-size:11px;font-family:'DM Mono',monospace;font-weight:500;min-width:30px;text-align:right}
+
+/* Dir obj clickable */
+.dir-obj-row.clickable{cursor:pointer}
+.dir-obj-row.clickable:hover{border-color:var(--accent);background:rgba(110,231,183,.04)}
+.gerencia-card.clickable{cursor:pointer}
+
+/* Drawer section headers */
+.dsection{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.dsection:first-child{margin-top:0}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE — MOBILE FIRST
+═══════════════════════════════════════════ */
+
+/* Hamburger button */
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:800;width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:#1f2937;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.hamburger span{display:block;width:18px;height:2px;background:#9ca3af;border-radius:1px;transition:all .25s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* Mobile overlay for sidebar */
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:749}
+.sidebar-overlay.open{display:block}
+
+@media(max-width:768px){
+  /* Show hamburger */
+  .hamburger{display:flex}
+
+  /* Sidebar slides in from left */
+  .sidebar{position:fixed;left:0;top:0;height:100vh;z-index:750;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);width:260px}
+  .sidebar.mobile-open{transform:translateX(0)}
+
+  /* Main takes full width */
+  .main{max-width:100vw;padding:16px;padding-top:64px}
+
+  /* App layout */
+  .app{flex-direction:column}
+
+  /* Stats 2 columns on mobile */
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card{padding:12px}
+  .stat-num{font-size:22px}
+
+  /* Dir obj rows — stack to cards on mobile */
+  .dir-obj-row{display:flex;flex-direction:column;gap:6px;padding:12px}
+  .dir-obj-row.header{display:none}
+  .dir-obj-row .obj-id{font-size:10px}
+  .dir-obj-row .obj-name{font-size:13px;font-weight:500}
+  .dir-obj-row > div:nth-child(5),
+  .dir-obj-row > div:nth-child(6),
+  .dir-obj-row > div:nth-child(7),
+  .dir-obj-row > div:nth-child(8){display:none}
+
+  /* Show Q pills inline instead */
+  .dir-obj-row-qs{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+  .dir-obj-q-pill{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:10px}
+
+  /* Gerencias grid — single column */
+  .gerencias-grid{grid-template-columns:1fr;gap:10px}
+
+  /* Risk grid — single column */
+  .risk-grid{grid-template-columns:1fr;gap:10px}
+
+  /* Tables — card style on mobile */
+  .table-wrap{border:none;border-radius:0}
+  .table-wrap table{display:block}
+  .table-wrap thead{display:none}
+  .table-wrap tbody{display:flex;flex-direction:column;gap:10px}
+  .table-wrap tbody tr{display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);border-bottom:1px solid var(--border) !important}
+  .table-wrap tbody tr:hover{background:var(--surface2)}
+  .table-wrap td{padding:2px 0;white-space:normal;font-size:12px;border:none}
+  .table-wrap td::before{content:attr(data-label);display:block;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;font-weight:600}
+  .table-wrap td.bold{font-size:13px;font-weight:600;color:var(--text)}
+  .table-wrap td.kpi-id{order:-1}
+
+  /* Page header */
+  .page-header{flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:16px;padding-bottom:14px}
+  .page-title{font-size:20px}
+
+  /* Section title */
+  .section-title{font-size:14px}
+
+  /* Drawer full screen on mobile */
+  .drawer{width:100vw;max-width:100vw}
+  .drawer-stats{grid-template-columns:repeat(2,1fr)}
+
+  /* KPI carga cards */
+  .kpi-form-grid{grid-template-columns:1fr}
+
+  /* Filter bar wrap */
+  .filter-bar{gap:6px}
+  .filter-select{font-size:11px;padding:5px 8px}
+
+  /* Q pills in sidebar — horizontal on mobile */
+  .q-pills{flex-direction:row;flex-wrap:wrap}
+  .q-pill{padding:5px 10px;font-size:11px}
+
+  /* Login box */
+  .login-box{padding:0 24px}
+
+  /* Sync bar */
+  .sync-bar{margin:8px 14px 10px}
+
+  /* KPI drawer table scroll */
+  .kpi-drawer-table{font-size:11px}
+  .kpi-drawer-table th,.kpi-drawer-table td{padding:6px 8px}
+}
+
+@media(max-width:480px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .stat-num{font-size:20px}
+  .page-title{font-size:18px}
+  .main{padding:12px;padding-top:60px}
+}
+
+/* ── GESTIONAR OBJETIVOS ── */
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:16px}
+.form-section-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label-main{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.form-input-main{padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s;width:100%}
+.form-input-main:focus{border-color:#059669;background:var(--surface)}
+.form-select-main{padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s;width:100%;cursor:pointer}
+.form-select-main:focus{border-color:#059669}
+.form-hint{font-size:10px;color:var(--text3);margin-top:2px}
+.btn-submit{padding:11px 28px;border-radius:8px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-submit:hover{opacity:.85}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed}
+.btn-cancel{padding:11px 20px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s}
+.btn-cancel:hover{border-color:var(--text2);color:var(--text)}
+.form-actions{display:flex;gap:10px;align-items:center;margin-top:6px}
+.form-result{font-size:12px;font-weight:500}
+.form-result.ok{color:var(--verde)}
+.form-result.err{color:var(--rojo)}
+.obj-list-table{width:100%;border-collapse:collapse;font-size:12px}
+.obj-list-table th{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap}
+.obj-list-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.obj-list-table tr:last-child td{border-bottom:none}
+.obj-list-table tr:hover td{background:var(--surface2)}
+.obj-list-table td.kpi-name{color:var(--text);font-weight:500;white-space:normal;max-width:220px}
+.admin-only{display:none}
+.logro-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500}
+@media(max-width:768px){.form-grid,.form-grid-3,.form-grid-4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Cargando...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="config-modal">
+  <div class="modal">
+    <div class="modal-title">Conectar Google Sheets</div>
+    <div class="modal-sub">Configurá la URL del Web App para habilitar lectura y escritura en tiempo real.</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div><div class="step-title">Abrí Apps Script en tu Sheet</div><div class="step-desc">Extensiones → Apps Script → pegá el código del archivo <strong style="color:var(--text)">apps_script_v2.gs</strong>.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div><div class="step-title">Publicá como Web App</div><div class="step-desc">Implementar → Nueva implementación → Tipo: Aplicación web → Ejecutar como: Yo → Acceso: Cualquier usuario.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div><div class="step-title">Copiá la URL</div><div class="step-desc">La URL empieza con:</div><div class="step-code">https://script.google.com/macros/s/...</div></div></div>
+    </div>
+    <div class="input-group">
+      <div class="input-label">URL del Web App</div>
+      <input type="text" class="input-field" id="api-url-input" placeholder="https://script.google.com/macros/s/AKfycbx.../exec">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeConfig()">Cancelar</button>
+      <button class="btn-primary" onclick="saveConfig()">Guardar y conectar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">SOOFT</div>
+    <div class="login-sub">Tablero de Objetivos 2026</div>
+    <div class="login-field">
+      <label class="login-label">Usuario</label>
+      <input type="text" class="login-input" id="inp-usuario" placeholder="usuario" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label class="login-label">Contraseña</label>
+      <input type="password" class="login-input" id="inp-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar</button>
+    <div class="login-config" id="login-config-link" style="display:none">
+      <a onclick="openConfig()">⚙ Configurar conexión con Google Sheets</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app-screen">
+  <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+  <nav class="sidebar" id="main-sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-name">SOOFT</div>
+      <div class="logo-sub">Tablero 2026</div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Vistas</div>
+      <button class="nav-btn active" onclick="showPage('dashboard');closeSidebar()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1116 0A8 8 0 012 10zm8-6a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0v-5.5A.75.75 0 0110 4z"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('direccion');closeSidebar()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+        <span>Obj. Dirección</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('gerencias');closeSidebar()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+        <span>Gerencias</span>
+      </button>
+      <button class="nav-btn" id="nav-carga" onclick="showPage('carga');closeSidebar()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        <span>Cargar avance</span>
+      </button>
+      <button class="nav-btn" id="nav-riesgos-carga" onclick="showPage('riesgos-carga');closeSidebar()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>
+        <span>Riesgos</span>
+      </button>
+      <button class="nav-btn" id="nav-gestionar" style="display:none" onclick="showPage('gestionar');closeSidebar()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
+        <span>Gestionar objetivos</span>
+      </button>
+
+    </div>
+
+    <div class="q-selector">
+      <div class="q-label">Trimestre</div>
+      <div class="q-pills">
+        <button class="q-pill" onclick="setQ('Q1')">Q1 — Ene-Mar</button>
+        <button class="q-pill" onclick="setQ('Q2')">Q2 — Abr-Jun</button>
+        <button class="q-pill" onclick="setQ('Q3')">Q3 — Jul-Sep</button>
+        <button class="q-pill active" onclick="setQ('Q4')">Q4 — Oct-Dic</button>
+      </div>
+    </div>
+
+    <!-- User card -->
+    <div class="user-card" id="user-card">
+      <div class="user-name" id="user-name">—</div>
+      <div class="user-ger" id="user-ger">—</div>
+      <div class="user-rol" id="user-rol">—</div>
+      <button class="logout-btn" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+
+    <!-- Sync -->
+    <div class="sync-bar">
+      <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Sin configurar</span></div>
+      <div class="sync-time" id="sync-time"></div>
+      <button class="sync-btn" id="sync-btn" onclick="syncData()">↻ Actualizar datos</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div><div class="page-title">Dashboard</div><div class="page-subtitle">Tablero de Seguimiento SOOFT 2026</div></div>
+        <span class="q-badge" id="dash-q-badge">Q4</span>
+      </div>
+      <div class="stats-row" id="dash-stats"></div>
+      <div class="stat-panel" id="stat-drill-panel">
+        <div class="stat-panel-inner">
+          <div class="stat-panel-header">
+            <span id="stat-drill-title">KPIs</span>
+            <button class="stat-panel-close" onclick="cerrarStatPanel()">✕</button>
+          </div>
+          <div class="stat-panel-rows">
+            <div class="dir-obj-grid" style="padding:10px 12px;gap:6px">
+              <div class="dir-obj-row header" style="padding:6px 14px">
+                <span>ID</span><span>Objetivo</span><span>Q sel.</span><span>YTD</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
+              </div>
+              <div id="stat-drill-rows"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title">Objetivos de Dirección</div>
+        <div class="dir-obj-grid">
+          <div class="dir-obj-row header">
+            <span>ID</span><span>Objetivo</span><span>Q sel.</span><span>YTD</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
+          </div>
+          <div id="dash-dir-table"></div>
+        </div>
+      </div>
+      <div class="risk-grid">
+        <div class="risk-panel">
+          <div class="risk-panel-header"><div class="risk-panel-title">🔴 Top 5 Riesgos</div><div class="risk-counters" id="risk-counters"></div></div>
+          <div class="risk-list" id="top-risks"></div>
+        </div>
+        <div class="risk-panel">
+          <div class="risk-panel-header"><div class="risk-panel-title">⚡ Top 5 Oportunidades</div><div class="risk-counters" id="oport-counters"></div></div>
+          <div class="risk-list" id="top-oports"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIRECCIÓN -->
+    <div id="page-direccion" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Obj. Dirección</div><div class="page-subtitle">14 objetivos estratégicos 2026</div></div>
+        <span class="q-badge" id="dir-q-badge">Q4</span>
+      </div>
+      <div class="filter-bar">
+        <select class="filter-select" id="dir-area-filter" onchange="renderDireccion()">
+          <option value="">Todas las áreas</option>
+          <option>INGRESOS</option><option>COSTOS</option><option>EFICIENCIA OPERATIVA</option><option>MERCADO</option><option>INDICE DE SATISFACCION</option>
+        </select>
+        <div class="filter-count" id="dir-count"></div>
+      </div>
+      <div class="dir-obj-grid">
+        <div class="dir-obj-row header"><span>ID</span><span>Objetivo</span><span>Q sel.</span><span>YTD</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span></div>
+        <div id="dir-table"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Avance por Gerencia — hacé clic para ver KPIs</div>
+        <div class="gerencias-grid" id="dir-gerencias-grid"></div>
+      </div>
+    </div>
+
+    <!-- GERENCIAS -->
+    <div id="page-gerencias" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Gerencias</div><div class="page-subtitle">Avance por trimestre y YTD</div></div>
+        <span class="q-badge" id="ger-q-badge">Q4</span>
+      </div>
+      <div class="gerencias-grid" id="gerencias-grid"></div>
+    </div>
+
+    <!-- CARGA DE AVANCE -->
+    <div id="page-carga" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Cargar Avance</div>
+          <div class="page-subtitle" id="carga-subtitle">Ingresá el valor real del trimestre</div>
+        </div>
+        <span class="q-badge" id="carga-q-badge">Q4</span>
+      </div>
+      <div class="filter-bar">
+        <select class="filter-select" id="carga-q-filter" onchange="renderCarga()">
+          <option value="Q1">Q1</option><option value="Q2">Q2</option>
+          <option value="Q3">Q3</option><option value="Q4" selected>Q4</option>
+        </select>
+        <div class="filter-count" id="carga-count"></div>
+      </div>
+      <div class="carga-grid" id="carga-grid"></div>
+    </div>
+
+    <!-- RIESGOS CARGA -->
+    <div id="page-riesgos-carga" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Riesgos</div><div class="page-subtitle">Actualizá el estado de tus riesgos</div></div>
+        <span class="q-badge" id="rie-q-badge">Q4</span>
+      </div>
+      <div class="filter-bar">
+        <select class="filter-select" id="riesgo-q-filter" onchange="renderRiesgosCarga()">
+          <option value="">Todos los Q</option>
+          <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
+        </select>
+        <div class="filter-count" id="riesgos-count"></div>
+      </div>
+      <div class="carga-grid" id="riesgos-carga-grid"></div>
+    </div>
+
+
+    <!-- GESTIONAR OBJETIVOS (solo admin) -->
+    <div id="page-gestionar" class="page">
+      <div class="page-header">
+        <div><div class="page-title">Gestionar Objetivos</div><div class="page-subtitle">Agregar y eliminar KPIs — solo administrador</div></div>
+        <span class="q-badge">Admin</span>
+      </div>
+
+      <!-- Filtro + botón nuevo -->
+      <div class="filter-bar" style="margin-bottom:20px">
+        <select class="filter-select" id="gest-ger-filter" onchange="renderGestionar()">
+          <option value="">Todas las gerencias</option>
+        </select>
+        <button onclick="abrirFormNuevoKPI()" style="margin-left:auto;padding:8px 18px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+          <span style="font-size:16px;line-height:1">+</span> Nuevo objetivo
+        </button>
+      </div>
+
+      <!-- Tabla KPIs existentes -->
+      <div class="section">
+        <div class="section-title">KPIs registrados</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Gerencia</th><th>KPI ID</th><th>Objetivo</th><th>Métrica</th>
+              <th>Unidad</th><th>Comp.</th><th>Meta Anual</th>
+              <th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Acción</th>
+            </tr></thead>
+            <tbody id="gest-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- FORM nuevo KPI -->
+      <div id="form-nuevo-kpi" style="display:none;margin-top:28px">
+        <div class="section-title">Nuevo objetivo</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            <div>
+              <label class="form-label">Gerencia *</label>
+              <select class="form-input" id="new-gerencia" style="font-family:'DM Sans',sans-serif" onchange="sugerirKpiId()">
+                <option value="">Seleccioná una gerencia</option>
+                <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
+                <option>MARKETING</option><option>OPERACIONES</option>
+                <option>COMERCIAL_AR</option><option>COMERCIAL_CL</option>
+                <option>CALIDAD</option><option>RECLUTAMIENTO</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">KPI ID * <span style="font-size:10px;color:var(--text3)" id="kpi-id-hint">Se genera al elegir gerencia</span></label>
+              <div style="display:flex;gap:8px">
+                <input type="text" class="form-input" id="new-kpi-id" placeholder="Elegí una gerencia primero" style="flex:1">
+                <button type="button" onclick="sugerirKpiId()" style="padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">↻</button>
+              </div>
+            </div>
+            <div style="grid-column:1/-1">
+              <label class="form-label">Objetivo *</label>
+              <input type="text" class="form-input" id="new-objetivo" placeholder="Ej: Reducir rotación mensual a menos del 2%">
+            </div>
+            <div>
+              <label class="form-label">Métrica *</label>
+              <input type="text" class="form-input" id="new-metrica" placeholder="Ej: Rotación mensual promedio">
+            </div>
+            <div>
+              <label class="form-label">Unidad *</label>
+              <select class="form-input" id="new-unidad" style="font-family:'DM Sans',sans-serif">
+                <option value="%">% (porcentaje)</option>
+                <option value="ARS">ARS (pesos)</option>
+                <option value="USD">USD (dólares)</option>
+                <option value="conteo">conteo (número)</option>
+                <option value="días">días</option>
+                <option value="horas">horas</option>
+                <option value="puntos">puntos</option>
+                <option value="ratio">ratio</option>
+                <option value="Sí/No">Sí/No</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Comparador *</label>
+              <select class="form-input" id="new-comparador" style="font-family:'DM Sans',sans-serif">
+                <option value=">=">≥ mayor o igual (más es mejor)</option>
+                <option value="<=">≤ menor o igual (menos es mejor)</option>
+                <option value="=">=  igual exacto (cumple/no cumple)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Meta Anual *</label>
+              <input type="number" step="any" class="form-input" id="new-meta-anual" placeholder="0">
+            </div>
+            <div>
+              <label class="form-label">Frecuencia</label>
+              <select class="form-input" id="new-frecuencia" style="font-family:'DM Sans',sans-serif">
+                <option value="Q">Trimestral (Q)</option>
+                <option value="Mensual">Mensual</option>
+                <option value="Milestone">Milestone / Hito</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Metas por Q -->
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+            <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px">Metas por trimestre</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+              <div><label class="form-label">Q1</label><input type="number" step="any" class="form-input" id="new-meta-q1" placeholder="0"></div>
+              <div><label class="form-label">Q2</label><input type="number" step="any" class="form-input" id="new-meta-q2" placeholder="0"></div>
+              <div><label class="form-label">Q3</label><input type="number" step="any" class="form-input" id="new-meta-q3" placeholder="0"></div>
+              <div><label class="form-label">Q4</label><input type="number" step="any" class="form-input" id="new-meta-q4" placeholder="0"></div>
+            </div>
+            <div style="margin-top:10px">
+              <button onclick="distribuirMetaAnual()" style="font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif">
+                ↻ Distribuir meta anual en partes iguales
+              </button>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px">
+            <label class="form-label">Notas (opcional)</label>
+            <input type="text" class="form-input" id="new-notas" placeholder="Ej: Meta sugerida Q1 50%, Q2 100%">
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn-save" id="btn-guardar-kpi" onclick="guardarNuevoKPI()">Guardar en Google Sheets</button>
+            <button onclick="cerrarFormNuevoKPI()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
+            <span class="save-msg" id="msg-nuevo-kpi"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── GERENCIA DRAWER ── -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="gerencia-drawer">
+  <div class="drawer-header">
+    <div class="drawer-title-block">
+      <div class="drawer-title" id="drawer-ger-name">Gerencia</div>
+      <div class="drawer-subtitle" id="drawer-ger-sub">KPIs y avance trimestral</div>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-tabs">
+    <button class="dtab active" onclick="switchDrawerTab('resumen')">Resumen</button>
+    <button class="dtab" onclick="switchDrawerTab('kpis')">KPIs detalle</button>
+    <button class="dtab" onclick="switchDrawerTab('riesgos')">Riesgos</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════
+const API_KEY = 'sooft_api_url';
+const DATA_KEY = 'sooft_data';
+const DATA_TS_KEY = 'sooft_ts';
+const SESSION_KEY = 'sooft_session';
+
+let currentQ = 'Q4';
+let currentPage = 'dashboard';
+let SESSION = null;   // { usuario, gerencia, rol }
+let DATA = null;      // datos del sheet
+
+const API_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbzgLGjUqzrb5TODGJJzGVjDTMAHZoMAGW7xqBe0ilQQ9nso6WyvuwrT5I34b6kBA6zNBw/exec';
+
+function getApiUrl() { return localStorage.getItem(API_KEY) || API_URL_DEFAULT; }
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function toast(msg, tipo = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast show ${tipo}`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ═══════════════════════════════════════════════════════
+// LOADING
+// ═══════════════════════════════════════════════════════
+function setLoading(show, txt = 'Cargando...') {
+  document.getElementById('loading').classList.toggle('show', show);
+  document.getElementById('loading-text').textContent = txt;
+}
+
+// ═══════════════════════════════════════════════════════
+// CONFIG MODAL
+// ═══════════════════════════════════════════════════════
+function openConfig() {
+  const v = getApiUrl();
+  if (v) document.getElementById('api-url-input').value = v;
+  document.getElementById('config-modal').classList.add('open');
+}
+function closeConfig() { document.getElementById('config-modal').classList.remove('open'); }
+function saveConfig() {
+  const url = document.getElementById('api-url-input').value.trim();
+  if (!url) { alert('Ingresá la URL'); return; }
+  localStorage.setItem(API_KEY, url);
+  closeConfig();
+  toast('URL guardada. Iniciá sesión para sincronizar.');
+}
+
+// ═══════════════════════════════════════════════════════
+// LOGIN / LOGOUT
+// ═══════════════════════════════════════════════════════
+async function doLogin() {
+  const usuario = document.getElementById('inp-usuario').value.trim();
+  const password = document.getElementById('inp-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  if (!usuario || !password) { errEl.textContent = 'Completá usuario y contraseña'; return; }
+  errEl.textContent = '';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    // Sin API → validación local de demo
+    const DEMO = [
+      {usuario:'admin',password:'sooft2026',gerencia:'Dirección',rol:'admin'},
+      {usuario:'rrhh',password:'rrhh2026',gerencia:'PEOPLE_RRHH',rol:'gerente'},
+      {usuario:'finanzas',password:'fin2026',gerencia:'FINANZAS',rol:'gerente'},
+      {usuario:'marketing',password:'mkt2026',gerencia:'MARKETING',rol:'gerente'},
+      {usuario:'operaciones',password:'ops2026',gerencia:'OPERACIONES',rol:'gerente'},
+      {usuario:'comercial_ar',password:'comar2026',gerencia:'COMERCIAL_AR',rol:'gerente'},
+      {usuario:'comercial_cl',password:'comcl2026',gerencia:'COMERCIAL_CL',rol:'gerente'},
+      {usuario:'calidad',password:'cal2026',gerencia:'CALIDAD',rol:'gerente'},
+      {usuario:'admin_ger',password:'admin2026',gerencia:'ADMIN',rol:'gerente'},
+      {usuario:'reclutamiento',password:'rec2026',gerencia:'RECLUTAMIENTO',rol:'gerente'},
+    ];
+    const u = DEMO.find(u => u.usuario === usuario && u.password === password);
+    if (!u) { errEl.textContent = 'Usuario o contraseña incorrectos'; return; }
+    startSession(u);
+    toast('Modo demo — conectá Google Sheets para guardar cambios reales', 'err');
+    return;
+  }
+
+  btn.disabled = true;
+  setLoading(true, 'Verificando credenciales...');
+  try {
+    const res = await apiPost({ accion: 'login', usuario, password });
+    if (res.status !== 'ok') throw new Error(res.mensaje || 'Error de login');
+    startSession(res.user);
+    syncData();
+  } catch(e) {
+    errEl.textContent = e.message;
+  } finally {
+    btn.disabled = false;
+    setLoading(false);
+  }
+}
+
+function startSession(user) {
+  SESSION = user;
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-screen').classList.add('visible');
+  document.getElementById('user-name').textContent = user.usuario;
+  document.getElementById('user-ger').textContent = user.gerencia;
+  document.getElementById('user-rol').textContent = user.rol;
+
+  // Admin ve todas las gerencias; gerente solo ve sus KPIs
+  if (user.rol !== 'admin') {
+    document.getElementById('nav-carga').querySelector('span').textContent = 'Mi avance';
+  }
+  // Solo admin ve el botón de configurar API y gestionar objetivos
+  const cfgBtn = document.getElementById('config-api-btn');
+  if (cfgBtn) cfgBtn.style.display = user.rol === 'admin' ? 'block' : 'none';
+  const gstBtn = document.getElementById('nav-gestionar');
+  if (gstBtn) gstBtn.style.display = user.rol === 'admin' ? 'flex' : 'none';
+  // Mostrar secciones admin-only
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = user.rol === 'admin' ? 'flex' : 'none';
+  });
+  renderCurrentPage();
+}
+
+function doLogout() {
+  SESSION = null;
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById('app-screen').classList.remove('visible');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('inp-password').value = '';
+}
+
+// ═══════════════════════════════════════════════════════
+// API CALLS
+// ═══════════════════════════════════════════════════════
+async function apiGet() {
+  const url = getApiUrl();
+  if (!url) throw new Error('Sin URL configurada');
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function apiPost(body) {
+  const url = getApiUrl();
+  if (!url) throw new Error('Sin URL configurada');
+  const res = await fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════════
+// SYNC
+// ═══════════════════════════════════════════════════════
+async function syncData() {
+  const url = getApiUrl();
+  if (!url) { setSyncState('ok', 'Conectado'); return; }
+  setSyncState('loading', 'Sincronizando...');
+  document.getElementById('sync-btn').disabled = true;
+  try {
+    const json = await apiGet();
+    DATA = json;
+    const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    localStorage.setItem(DATA_KEY, JSON.stringify(DATA));
+    localStorage.setItem(DATA_TS_KEY, now);
+    setSyncState('ok', 'Sincronizado');
+    document.getElementById('sync-time').textContent = `Última sync: ${now}`;
+    renderCurrentPage();
+  } catch(e) {
+    setSyncState('error', 'Error de conexión');
+    // Usar caché
+    const saved = localStorage.getItem(DATA_KEY);
+    if (saved) { DATA = JSON.parse(saved); renderCurrentPage(); }
+  } finally {
+    document.getElementById('sync-btn').disabled = false;
+  }
+}
+
+function setSyncState(state, label) {
+  document.getElementById('sync-dot').className = 'sync-dot ' + state;
+  document.getElementById('sync-label').textContent = label;
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function getData() { return DATA; }
+
+function pct(v) { return v != null ? (v * 100).toFixed(1) + '%' : '—'; }
+
+function semColor(v) { return v >= 0.9 ? 'verde' : v >= 0.7 ? 'amarillo' : 'rojo'; }
+function logroSem(v) { return v >= 0.9 ? 'VERDE' : v >= 0.7 ? 'AMARILLO' : 'ROJO'; }
+
+function semBadge(s) {
+  if (!s || s === '-') return '<span class="badge badge-neutro">—</span>';
+  const cls = s === 'VERDE' ? 'verde' : s === 'AMARILLO' ? 'amarillo' : 'rojo';
+  return `<span class="badge badge-${cls}"><span class="dot dot-${cls}"></span>${s}</span>`;
+}
+
+function progressBar(v, cls) {
+  const w = Math.min((v||0)*100, 100);
+  return `<div class="progress-wrap"><div class="progress-bar"><div class="progress-fill fill-${cls}" style="width:${w}%"></div></div><div class="progress-pct">${pct(v)}</div></div>`;
+}
+
+// Leer valor por Q desde distintos formatos de data
+function getQVal(row, q) {
+  if (!row) return 0;
+  const tries = [
+    row[q], row[q+' Total'], row[q+' Logro'],
+    row['YTD'], row['YTD Total'], row['YTD Logro']
+  ];
+  if (q === 'YTD') return parseFloat(row['YTD'] || row['YTD Total'] || row['YTD Logro'] || 0);
+  return parseFloat(row[q] || row[q+' Total'] || row[q+' Logro'] || 0);
+}
+
+// Calcular logro preview en el formulario de carga
+function calcLogroLocal(actual, meta, comparador) {
+  const a = parseFloat(actual), m = parseFloat(meta);
+  if (isNaN(a) || isNaN(m) || m === 0) return null;
+  if (comparador === '<=' || comparador === '<') return Math.min(1, m / a);
+  if (comparador === '=') return a === m ? 1 : 0;
+  return Math.min(1, a / m);
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick')?.includes(`'${page}'`)) b.classList.add('active');
+  });
+  currentPage = page;
+  renderCurrentPage();
+}
+
+function setQ(q) {
+  currentQ = q;
+  document.querySelectorAll('.q-pill').forEach(p => p.classList.toggle('active', p.textContent.startsWith(q)));
+  document.getElementById('carga-q-filter').value = q;
+  if (typeof cerrarStatPanel === 'function') cerrarStatPanel();
+  renderCurrentPage();
+}
+
+function renderCurrentPage() {
+  document.querySelectorAll('[id$="-q-badge"]').forEach(b => b.textContent = currentQ);
+  if (!DATA) return;
+  switch(currentPage) {
+    case 'dashboard': renderDashboard(); break;
+    case 'direccion': renderDireccion(); break;
+    case 'gerencias': renderGerencias(); break;
+    case 'carga': renderCarga(); break;
+    case 'riesgos-carga': renderRiesgosCarga(); break;
+    case 'gestionar': renderGestionar(); break;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard() {
+  const d = getData(); if (!d) return;
+  const dirs = d.res_direccion || [];
+
+  const vals = dirs.map(r => getQVal(r, currentQ));
+  const avg = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+  const verdes = vals.filter(v=>v>=0.9).length;
+  const amarillos = vals.filter(v=>v>=0.7&&v<0.9).length;
+  const rojos = vals.filter(v=>v<0.7).length;
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card" onclick="toggleStatPanel('all', dirs, this)" title="Ver todos los objetivos"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('verde', dirs, this)" title="Ver objetivos en verde"><div class="stat-num verde">${verdes}</div><div class="stat-lbl">VERDE ≥90%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('amarillo', dirs, this)" title="Ver objetivos en amarillo"><div class="stat-num amarillo">${amarillos}</div><div class="stat-lbl">AMARILLO 70-89%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('rojo', dirs, this)" title="Ver objetivos en rojo"><div class="stat-num rojo">${rojos}</div><div class="stat-lbl">CRÍTICOS <70%</div><div class="stat-hint">▾ clic para ver detalle</div></div>`;
+
+  document.getElementById('dash-dir-table').innerHTML = dirs.map(r => {
+    const qv = getQVal(r, currentQ); const cls = semColor(qv);
+    const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
+    const id = r['Obj_ID']||r.id||''; const obj = r['Objetivo']||r.obj||''; const area = r['Área']||r.area||'';
+    return `<div class="dir-obj-row">
+      <div class="obj-id">${id}</div>
+      <div class="obj-name">${obj}<br><span class="area-tag">${area}</span></div>
+      <div>${progressBar(qv,cls)}</div>
+      <div>${progressBar(ytd,semColor(ytd))}</div>
+      <div class="mono" style="color:var(--${semColor(q1)})">${pct(q1)}</div>
+      <div class="mono" style="color:var(--${semColor(q2)})">${pct(q2)}</div>
+      <div class="mono" style="color:var(--${semColor(q3)})">${pct(q3)}</div>
+      <div class="mono" style="color:var(--${semColor(q4)})">${pct(q4)}</div>
+    </div>`;
+  }).join('');
+
+  // Risks
+  const risks = (d.riesgos||[])
+    .filter(r=>(r['Estado']||'')!=='Cerrado')
+    .sort((a,b)=>(b['Nivel (P×I)']||0)-(a['Nivel (P×I)']||0)).slice(0,5);
+  const rR=risks.filter(r=>r['Semáforo']==='ROJO').length;
+  const rA=risks.filter(r=>r['Semáforo']==='AMARILLO').length;
+  const rV=risks.filter(r=>r['Semáforo']==='VERDE').length;
+  document.getElementById('risk-counters').innerHTML = `<span class="risk-counter rojo">🔴 ${rR}</span><span class="risk-counter amarillo">🟡 ${rA}</span><span class="risk-counter verde">🟢 ${rV}</span>`;
+  document.getElementById('top-risks').innerHTML = risks.map((r,i)=>{
+    const sem=r['Semáforo']||''; const nivel=r['Nivel (P×I)']||0;
+    const col=sem==='ROJO'?'rojo':sem==='AMARILLO'?'amarillo':'verde';
+    return `<div class="risk-item"><div class="risk-rank">${i+1}</div><div class="risk-info">
+      <div class="risk-desc">${r['Riesgo (descripción)']||''}</div>
+      <div class="risk-meta">${semBadge(sem)}<span>${r['Objetivo Dirección']||''}</span><span style="color:var(--text3)">${r['Gerencia responsable']||r['Gerencia']||''}</span></div>
+    </div><div class="risk-nivel" style="color:var(--${col})">${nivel}</div></div>`;
+  }).join('')||'<div class="empty">Sin riesgos abiertos</div>';
+
+  const oports = (d.oportunidades||[])
+    .filter(o=>(o['Estado']||'')!=='Descartada')
+    .sort((a,b)=>(b['Valor (P×B)']||0)-(a['Valor (P×B)']||0)).slice(0,5);
+  const oV=oports.filter(o=>o['Semáforo']==='VERDE').length;
+  const oA=oports.filter(o=>o['Semáforo']==='AMARILLO').length;
+  const oR=oports.filter(o=>o['Semáforo']==='ROJO').length;
+  document.getElementById('oport-counters').innerHTML = `<span class="risk-counter verde">🟢 ${oV}</span><span class="risk-counter amarillo">🟡 ${oA}</span><span class="risk-counter rojo">🔴 ${oR}</span>`;
+  document.getElementById('top-oports').innerHTML = oports.map((o,i)=>{
+    const sem=o['Semáforo']||''; const valor=o['Valor (P×B)']||0;
+    const col=sem==='VERDE'?'verde':sem==='AMARILLO'?'amarillo':'rojo';
+    return `<div class="risk-item"><div class="risk-rank">${i+1}</div><div class="risk-info">
+      <div class="risk-desc">${o['Oportunidad (descripción)']||''}</div>
+      <div class="risk-meta">${semBadge(sem)}<span>${o['Objetivo Dirección']||''}</span></div>
+    </div><div class="risk-nivel" style="color:var(--${col})">${valor}</div></div>`;
+  }).join('')||'<div class="empty">Sin oportunidades activas</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// STAT CARD DRILL-DOWN
+// ═══════════════════════════════════════════════════════
+let _statPanelActive = null;
+function toggleStatPanel(tipo, dirs, card) {
+  const panel = document.getElementById('stat-drill-panel');
+  const allCards = document.querySelectorAll('#dash-stats .stat-card');
+  if (_statPanelActive === tipo && panel.classList.contains('open')) {
+    cerrarStatPanel(); return;
+  }
+  _statPanelActive = tipo;
+  allCards.forEach(c => c.className = 'stat-card');
+  const colorMap = {all:'accent',verde:'verde',amarillo:'amarillo',rojo:'rojo'};
+  card.classList.add('active-' + colorMap[tipo]);
+  let filtered = dirs;
+  const labels = {all:`Todos los objetivos (${currentQ})`,verde:`Objetivos en verde — ≥90% (${currentQ})`,amarillo:`Objetivos en riesgo — 70–89% (${currentQ})`,rojo:`Objetivos críticos — <70% (${currentQ})`};
+  if (tipo==='verde')    filtered = dirs.filter(r => getQVal(r,currentQ)>=0.9);
+  if (tipo==='amarillo') filtered = dirs.filter(r => { const v=getQVal(r,currentQ); return v>=0.7&&v<0.9; });
+  if (tipo==='rojo')     filtered = dirs.filter(r => getQVal(r,currentQ)<0.7);
+  document.getElementById('stat-drill-title').textContent = labels[tipo];
+
+  // Para rojos: buscar KPIs de gerencia con comentarios que alimentan esos objetivos
+  const d = getData();
+  const kpisQ = (d?.carga_q||[]).filter(k => (k['Q']||'')===currentQ);
+
+  document.getElementById('stat-drill-rows').innerHTML = filtered.length ? filtered.map(r => {
+    const qv=getQVal(r,currentQ); const cls=semColor(qv);
+    const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
+    const id=r['Obj_ID']||r.id||''; const obj=r['Objetivo']||r.obj||''; const area=r['Área']||r.area||'';
+
+    // Buscar KPIs rojos relacionados con comentarios (para tipo rojo o amarillo)
+    let comentariosHtml = '';
+    if (tipo === 'rojo' || tipo === 'amarillo') {
+      const kpisRel = kpisQ.filter(k => {
+        const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
+        const umbral = tipo === 'rojo' ? 0.7 : 0.9;
+        const tieneComentario = (k['Comentarios']||'').trim();
+        return logro < umbral && tieneComentario;
+      });
+      if (kpisRel.length) {
+        comentariosHtml = `<div style="grid-column:1/-1;margin-top:6px;border-top:1px solid var(--border);padding-top:8px">
+          <div style="font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Comentarios de KPIs relacionados (${currentQ})</div>
+          ${kpisRel.slice(0,5).map(k=>{
+            const logro=parseFloat(k['Logro_Q']||k['Logro lookup']||0);
+            const col=semColor(logro);
+            return `<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 10px;border-radius:6px;background:var(--${col}-bg);border:1px solid var(--${col}-border);margin-bottom:5px">
+              <div style="min-width:0;flex:1">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${k['KPI_ID']||''}</span>
+                  <span style="font-size:11px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${k['Objetivo']||''}</span>
+                  <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--${col})">${pct(logro)}</span>
+                </div>
+                <div style="font-size:11px;color:var(--text2);line-height:1.4">
+                  <span style="color:var(--text3);font-size:10px">Gerencia:</span> <span style="font-weight:500">${k['Responsable']||''}</span>
+                  &nbsp;·&nbsp; <span style="color:var(--text3);font-size:10px">Comentario:</span> ${k['Comentarios']}
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      }
+    }
+
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;display:grid;grid-template-columns:65px 1fr 110px 110px 55px 55px 55px 55px;gap:8px;align-items:start;margin-bottom:1px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding-top:2px">${id}</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.3">${obj}<br><span style="font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--text3);font-family:'DM Mono',monospace">${area}</span></div>
+      <div style="padding-top:4px">${progressBar(qv,cls)}</div>
+      <div style="padding-top:4px">${progressBar(ytd,semColor(ytd))}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q1)});padding-top:2px">${pct(q1)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q2)});padding-top:2px">${pct(q2)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q3)});padding-top:2px">${pct(q3)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q4)});padding-top:2px">${pct(q4)}</div>
+      ${comentariosHtml}
+    </div>`;
+  }).join('') : `<div style="padding:20px 16px;color:var(--text3);font-size:13px">Sin objetivos en esta categoría para ${currentQ}</div>`;
+  panel.classList.add('open');
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+function cerrarStatPanel() {
+  const panel = document.getElementById('stat-drill-panel');
+  panel.classList.remove('open');
+  document.querySelectorAll('#dash-stats .stat-card').forEach(c => c.className='stat-card');
+  _statPanelActive = null;
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER DIRECCIÓN
+// ═══════════════════════════════════════════════════════
+function renderDireccion() {
+  const d = getData(); if (!d) return;
+  const areaF = document.getElementById('dir-area-filter')?.value || '';
+  let dirs = d.res_direccion || [];
+  if (areaF) dirs = dirs.filter(r => (r['Área']||r.area||'').includes(areaF));
+  document.getElementById('dir-count').textContent = `${dirs.length} objetivos`;
+
+  // Build map of obj → gerencias que contribuyen (from carga_q)
+  const kpis = d.carga_q || [];
+  const objGerMap = {};
+  kpis.forEach(k => {
+    const resp = k['Responsable']||'';
+    const id = k['KPI_ID']||'';
+    // Match DIR objectives via IMPACTO or just flag gerencias that have KPIs
+    if (resp && resp !== 'Dirección') {
+      if (!objGerMap[resp]) objGerMap[resp] = true;
+    }
+  });
+  const gerencias = (d.res_gerencia||[]).map(g => g['Gerencia']||'').filter(Boolean);
+
+  document.getElementById('dir-table').innerHTML = dirs.map(r => {
+    const qv=getQVal(r,currentQ); const cls=semColor(qv);
+    const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
+    return `<div class="dir-obj-row">
+      <div class="obj-id">${r['Obj_ID']||r.id||''}</div>
+      <div class="obj-name">${r['Objetivo']||r.obj||''}<br><span class="area-tag">${r['Área']||r.area||''}</span></div>
+      <div>${progressBar(qv,cls)}</div><div>${progressBar(ytd,semColor(ytd))}</div>
+      <div class="mono" style="color:var(--${semColor(q1)})">${pct(q1)}</div>
+      <div class="mono" style="color:var(--${semColor(q2)})">${pct(q2)}</div>
+      <div class="mono" style="color:var(--${semColor(q3)})">${pct(q3)}</div>
+      <div class="mono" style="color:var(--${semColor(q4)})">${pct(q4)}</div>
+      <div class="dir-obj-row-qs" style="display:none">
+        ${['Q1','Q2','Q3','Q4'].map((q,i)=>{const v=[q1,q2,q3,q4][i];return `<span class="dir-obj-q-pill"><span class="dot dot-${semColor(v)}" style="width:5px;height:5px"></span><span style="color:var(--text3)">${q}</span><span style="color:var(--${semColor(v)})">${pct(v)}</span></span>`}).join('')}
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">Sin datos</div>';
+
+  // Render gerencias clickable cards below
+  const gerEl = document.getElementById('dir-gerencias-grid');
+  if (!gerEl) return;
+  gerEl.innerHTML = (d.res_gerencia||[]).map(g => {
+    const name = g['Gerencia']||'';
+    const kpis = g['# KPIs']||0;
+    const ytd = parseFloat(g['YTD Logro']||0);
+    const qv = parseFloat(g[currentQ+' Logro']||ytd);
+    const cls = semColor(qv);
+    const q1=parseFloat(g['Q1 Logro']||0),q2=parseFloat(g['Q2 Logro']||0),q3=parseFloat(g['Q3 Logro']||0),q4=parseFloat(g['Q4 Logro']||0);
+    return `<div class="gerencia-card clickable" style="min-height:0" onclick="openDrawer('${name}')">
+      <div class="gerencia-header">
+        <div class="gerencia-name"><span class="dot dot-${cls}"></span>${name}</div>
+        <span class="gerencia-kpis">${kpis} KPIs · Ver detalle →</span>
+      </div>
+      <div style="margin-bottom:10px">${progressBar(ytd,semColor(ytd))}</div>
+      <div class="q-pills-row">
+        ${['Q1','Q2','Q3','Q4'].map((q,i)=>{const v=[q1,q2,q3,q4][i];const c=semColor(v);return `<div class="q-mini"><div class="q-mini-label">${q}</div><div class="q-mini-bar"><div class="q-mini-fill fill-${c}" style="width:${Math.min(v*100,100)}%"></div></div><div class="q-mini-pct" style="color:var(--${c})">${pct(v)}</div></div>`;}).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER GERENCIAS
+// ═══════════════════════════════════════════════════════
+function renderGerencias() {
+  const d = getData(); if (!d) return;
+  document.getElementById('gerencias-grid').innerHTML = (d.res_gerencia||[]).map(g => {
+    const name = g['Gerencia']||'';
+    const kpis = g['# KPIs']||0;
+    const ytd = parseFloat(g['YTD Logro']||0);
+    const qs = ['Q1','Q2','Q3','Q4'];
+    const qvCurrent = parseFloat(g[currentQ+' Logro']||ytd);
+    const cls = semColor(qvCurrent);
+    const qRows = qs.map(q => {
+      const v = parseFloat(g[q+' Logro']||0);
+      const r = parseInt(g[q+' Rojos']||0);
+      return `<div class="gerencia-q-row"><span class="q-tag">${q}</span>${progressBar(v,semColor(v))}${r>0?`<span class="mini-rojo">${r}R</span>`:''}</div>`;
+    }).join('');
+    return `<div class="gerencia-card clickable" style="min-height:0" onclick="openDrawer('${name}')">
+      <div class="gerencia-header">
+        <div class="gerencia-name"><span class="dot dot-${cls}"></span>${name}</div>
+        <span class="gerencia-kpis">${kpis} KPIs · Ver →</span>
+      </div>
+      <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">YTD</div>${progressBar(ytd,semColor(ytd))}</div>
+      <div>${qRows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAWER — DETALLE GERENCIA
+// ═══════════════════════════════════════════════════════
+let drawerGerencia = null;
+let drawerTab = 'resumen';
+
+function openDrawer(gerName) {
+  drawerGerencia = gerName;
+  drawerTab = 'resumen';
+  document.getElementById('drawer-ger-name').textContent = gerName;
+  document.getElementById('drawer-ger-sub').textContent = 'KPIs y avance trimestral 2026';
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('gerencia-drawer').classList.add('open');
+  // Reset tabs
+  document.querySelectorAll('.dtab').forEach((t,i) => t.classList.toggle('active', i===0));
+  renderDrawerContent();
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('gerencia-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchDrawerTab(tab) {
+  drawerTab = tab;
+  document.querySelectorAll('.dtab').forEach(t => {
+    t.classList.toggle('active', t.getAttribute('onclick').includes(`'${tab}'`));
+  });
+  renderDrawerContent();
+}
+
+function renderDrawerContent() {
+  const d = getData(); if (!d || !drawerGerencia) return;
+  const body = document.getElementById('drawer-body');
+  const name = drawerGerencia;
+
+  // Find gerencia summary row
+  const gRow = (d.res_gerencia||[]).find(g => (g['Gerencia']||'') === name) || {};
+  const ytd  = parseFloat(gRow['YTD Logro']||0);
+  const q1   = parseFloat(gRow['Q1 Logro']||0);
+  const q2   = parseFloat(gRow['Q2 Logro']||0);
+  const q3   = parseFloat(gRow['Q3 Logro']||0);
+  const q4   = parseFloat(gRow['Q4 Logro']||0);
+  const nKPIs = gRow['# KPIs']||0;
+
+  // KPIs de la gerencia
+  const allKPIs = (d.carga_q||[]).filter(k => (k['Responsable']||'') === name && k['Nivel'] === 'GERENCIA');
+
+  if (drawerTab === 'resumen') {
+    // Stats cards
+    const qVals = [q1,q2,q3,q4];
+    const rojoTotal = ['Q1','Q2','Q3','Q4'].reduce((s,q)=>s+parseInt(gRow[q+' Rojos']||0),0);
+    const verdeCount = qVals.filter(v=>v>=0.9).length;
+    body.innerHTML = `
+      <div class="drawer-stats">
+        <div class="dstat"><div class="dstat-num accent">${pct(ytd)}</div><div class="dstat-lbl">YTD</div></div>
+        <div class="dstat"><div class="dstat-num verde">${verdeCount}</div><div class="dstat-lbl">Q Verde</div></div>
+        <div class="dstat"><div class="dstat-num rojo">${rojoTotal}</div><div class="dstat-lbl">KPIs Rojo</div></div>
+        <div class="dstat"><div class="dstat-num" style="color:var(--text)">${nKPIs}</div><div class="dstat-lbl">Total KPIs</div></div>
+      </div>
+
+      <div class="dsection">Avance por trimestre</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        ${['Q1','Q2','Q3','Q4'].map((q,i)=>{
+          const v=[q1,q2,q3,q4][i]; const cls=semColor(v);
+          const rojos=parseInt(gRow[q+' Rojos']||0);
+          return `<div style="display:flex;align-items:center;gap:12px">
+            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);min-width:22px">${q}</span>
+            <div style="flex:1">${progressBar(v,cls)}</div>
+            ${rojos>0?`<span class="mini-rojo">${rojos} KPI rojo</span>`:''}
+            ${semBadge(logroSem(v))}
+          </div>`;
+        }).join('')}
+        <div style="display:flex;align-items:center;gap:12px;padding-top:8px;border-top:1px solid var(--border)">
+          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--text);min-width:22px">YTD</span>
+          <div style="flex:1">${progressBar(ytd,semColor(ytd))}</div>
+          ${semBadge(logroSem(ytd))}
+        </div>
+      </div>
+
+      <div class="dsection">KPIs del trimestre actual (${currentQ})</div>
+      <table class="kpi-drawer-table">
+        <thead><tr><th>ID</th><th>KPI</th><th>Meta Anual</th><th>Meta Q</th><th>Actual Q</th><th>Logro</th><th>Estado</th></tr></thead>
+        <tbody>
+          ${allKPIs.filter(k=>(k['Q']||'')===currentQ).map(k=>{
+            const logro=parseFloat(k['Logro_Q']||0); const cls=semColor(logro);
+            const metaAnual=k['Meta_Anual']??'—';
+            const meta=k['Meta_Q (editable)']??k['Meta_Q']??'—';
+            const actual=k['Actual_Q (cargar)']??k['Actual_Q']??'—';
+            const unidad=k['Unidad']||'';
+            const comp=k['Comparador']||'';
+            const fmtVal = v => {
+              if (v === '—' || v === undefined || v === null) return '—';
+              const n = parseFloat(v);
+              if (isNaN(n)) return v;
+              if (unidad === '%') return (n*100).toFixed(1)+'%';
+              if (unidad === 'ARS' || unidad === 'USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
+              return n+' '+unidad;
+            };
+            return `<tr>
+              <td class="kpi-id">${k['KPI_ID']||''}</td>
+              <td class="kpi-name">${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica']||''}</span></td>
+              <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent)">${comp} ${fmtVal(metaAnual)}</td>
+              <td style="font-family:'DM Mono',monospace;font-size:11px">${fmtVal(meta)}</td>
+              <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">${fmtVal(actual)}</td>
+              <td style="min-width:120px">${progressBar(logro,cls)}</td>
+              <td>${semBadge(logroSem(logro))}</td>
+            </tr>`;
+          }).join('')||`<tr><td colspan="7" class="empty">Sin datos para ${currentQ}</td></tr>`}
+        </tbody>
+      </table>`;
+  }
+
+  else if (drawerTab === 'kpis') {
+    // Full KPI table — all Qs
+    const kpisUnicos = [...new Set(allKPIs.map(k=>k['KPI_ID']))];
+    body.innerHTML = `
+      <div class="dsection">${nKPIs} KPIs · todos los trimestres</div>
+      <table class="kpi-drawer-table">
+        <thead><tr><th>ID</th><th>KPI</th><th>Meta Anual</th><th>Comp.</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>YTD</th></tr></thead>
+        <tbody>
+          ${kpisUnicos.map(kid=>{
+            const rows = allKPIs.filter(k=>k['KPI_ID']===kid);
+            const getQ = q => rows.find(r=>r['Q']===q);
+            const logroQ = q => { const r=getQ(q); return r?parseFloat(r['Logro_Q']||0):null; };
+            const l1=logroQ('Q1'),l2=logroQ('Q2'),l3=logroQ('Q3'),l4=logroQ('Q4');
+            const defined = [l1,l2,l3,l4].filter(v=>v!==null);
+            const ytdKpi = defined.length ? defined.reduce((s,v)=>s+v,0)/defined.length : 0;
+            const firstRow = rows[0]||{};
+            const unidad = firstRow['Unidad']||'';
+            const comp = firstRow['Comparador']||'';
+            const metaAnual = firstRow['Meta_Anual'];
+            const fmtMeta = v => {
+              if (v===undefined||v===null||v==='') return '—';
+              const n = parseFloat(v);
+              if (isNaN(n)) return v;
+              if (unidad==='%') return (n*100).toFixed(1)+'%';
+              if (unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
+              return n+(unidad?' '+unidad:'');
+            };
+            const mini = v => v===null ? '<span style="color:var(--text3);font-size:11px">—</span>' :
+              `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div class="q-mini-bar" style="width:48px"><div class="q-mini-fill fill-${semColor(v)}" style="width:${Math.min(v*100,100)}%"></div></div>
+                <div class="q-mini-pct" style="color:var(--${semColor(v)});font-size:10px;font-family:'DM Mono',monospace">${pct(v)}</div>
+              </div>`;
+            return `<tr>
+              <td class="kpi-id">${kid}</td>
+              <td class="kpi-name">${firstRow['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${firstRow['Métrica']||''}</span></td>
+              <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);white-space:nowrap">${fmtMeta(metaAnual)}</td>
+              <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${comp}</td>
+              <td>${mini(l1)}</td>
+              <td>${mini(l2)}</td>
+              <td>${mini(l3)}</td>
+              <td>${mini(l4)}</td>
+              <td style="min-width:110px">${progressBar(ytdKpi,semColor(ytdKpi))}</td>
+            </tr>`;
+          }).join('')||`<tr><td colspan="9" class="empty">Sin datos de KPIs</td></tr>`}
+        </tbody>
+      </table>`;
+  }
+
+  else if (drawerTab === 'riesgos') {
+    const risks = (d.riesgos||[]).filter(r=>(r['Gerencia responsable']||r['Gerencia']||r['Responsable']||'')===name);
+    const oports = (d.oportunidades||[]).filter(o=>(o['Gerencia responsable']||o['Gerencia']||o['Responsable']||'')===name);
+    const rR=risks.filter(r=>r['Semáforo']==='ROJO').length;
+    const rA=risks.filter(r=>r['Semáforo']==='AMARILLO').length;
+    const rV=risks.filter(r=>r['Semáforo']==='VERDE').length;
+    body.innerHTML = `
+      <div class="drawer-stats" style="grid-template-columns:repeat(3,1fr)">
+        <div class="dstat"><div class="dstat-num rojo">${rR}</div><div class="dstat-lbl">Rojos</div></div>
+        <div class="dstat"><div class="dstat-num amarillo">${rA}</div><div class="dstat-lbl">Amarillos</div></div>
+        <div class="dstat"><div class="dstat-num verde">${rV}</div><div class="dstat-lbl">Verdes</div></div>
+      </div>
+
+      <div class="dsection">Riesgos (${risks.length})</div>
+      <table class="kpi-drawer-table">
+        <thead><tr><th>ID</th><th>Q</th><th>Riesgo</th><th>P×I</th><th>Semáforo</th><th>Estado</th></tr></thead>
+        <tbody>
+          ${risks.sort((a,b)=>(b['Nivel (P×I)']||0)-(a['Nivel (P×I)']||0)).map(r=>{
+            const sem=r['Semáforo']||''; const nivel=r['Nivel (P×I)']||0;
+            const col=sem==='ROJO'?'rojo':sem==='AMARILLO'?'amarillo':'verde';
+            return `<tr>
+              <td class="kpi-id">${r['ID']||''}</td>
+              <td style="font-family:'DM Mono',monospace;font-size:11px">${r['Q']||''}</td>
+              <td class="kpi-name">${r['Riesgo (descripción)']||''}</td>
+              <td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--${col})">${nivel}</td>
+              <td>${semBadge(sem)}</td>
+              <td style="font-size:11px;color:var(--text3)">${r['Estado']||''}</td>
+            </tr>`;
+          }).join('')||'<tr><td colspan="6" class="empty">Sin riesgos registrados</td></tr>'}
+        </tbody>
+      </table>
+
+      <div class="dsection" style="margin-top:24px">Oportunidades (${oports.length})</div>
+      <table class="kpi-drawer-table">
+        <thead><tr><th>ID</th><th>Q</th><th>Oportunidad</th><th>P×B</th><th>Semáforo</th><th>Estado</th></tr></thead>
+        <tbody>
+          ${oports.sort((a,b)=>(b['Valor (P×B)']||0)-(a['Valor (P×B)']||0)).map(o=>{
+            const sem=o['Semáforo']||''; const valor=o['Valor (P×B)']||0;
+            const col=sem==='VERDE'?'verde':sem==='AMARILLO'?'amarillo':'rojo';
+            return `<tr>
+              <td class="kpi-id">${o['ID']||''}</td>
+              <td style="font-family:'DM Mono',monospace;font-size:11px">${o['Q']||''}</td>
+              <td class="kpi-name">${o['Oportunidad (descripción)']||''}</td>
+              <td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--${col})">${valor}</td>
+              <td>${semBadge(sem)}</td>
+              <td style="font-size:11px;color:var(--text3)">${o['Estado']||''}</td>
+            </tr>`;
+          }).join('')||'<tr><td colspan="6" class="empty">Sin oportunidades registradas</td></tr>'}
+        </tbody>
+      </table>`;
+  }
+}
+
+// Close drawer on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeSidebar(); cerrarModalEliminar(); cerrarEditarKPI(); } });
+
+// ═══════════════════════════════════════════════════════
+// RENDER CARGA DE AVANCE
+// ═══════════════════════════════════════════════════════
+function renderCarga() {
+  const d = getData(); if (!d || !SESSION) return;
+  const qSel = document.getElementById('carga-q-filter')?.value || currentQ;
+  document.getElementById('carga-q-badge').textContent = qSel;
+  document.getElementById('carga-subtitle').textContent =
+    SESSION.rol === 'admin' ? 'Vista de todas las gerencias' : `Gerencia: ${SESSION.gerencia}`;
+
+  let kpis = (d.carga_q || []).filter(r => (r['Q']||'') === qSel && r['Nivel'] === 'GERENCIA');
+
+  // Filtro por gerencia si no es admin
+  if (SESSION.rol !== 'admin') {
+    kpis = kpis.filter(r => (r['Responsable']||'') === SESSION.gerencia);
+  }
+
+  document.getElementById('carga-count').textContent = `${kpis.length} KPIs`;
+
+  if (!kpis.length) {
+    document.getElementById('carga-grid').innerHTML = '<div class="empty">No hay KPIs para cargar en este Q</div>';
+    return;
+  }
+
+  document.getElementById('carga-grid').innerHTML = kpis.map(k => {
+    const key = k['KEY'] || `${k['Q']}|${k['KPI_ID']}`;
+    const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
+    const estado = k['Estado_lookup']||k['Estado']||logroSem(logro);
+    const cls = semColor(logro);
+    const meta = k['Meta_Q (editable)'] ?? k['Meta_Q'];
+    const actual = k['Actual_Q (cargar)'] ?? k['Actual_Q'];
+    const comentarios = k['Comentarios']||'';
+    const evidencia = k['Evidencia (URL)']||'';
+    const comparador = k['Comparador']||'>=';
+    const unidad = k['Unidad']||'';
+    const resp = k['Responsable']||'';
+
+    return `<div class="kpi-carga-card" id="card-${key}">
+      <div class="kpi-carga-header" onclick="toggleCard('${key}')">
+        <div class="kpi-carga-id">${k['KPI_ID']||''}</div>
+        <div class="kpi-carga-name">${k['Objetivo']||''}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${semBadge(estado)}
+          <div class="kpi-carga-meta">${pct(logro)}</div>
+          <div class="kpi-carga-expand">▾</div>
+        </div>
+      </div>
+      <div class="kpi-carga-body">
+        <div class="kpi-meta-info">
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Gerencia</div><div class="kpi-meta-val">${resp}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Métrica</div><div class="kpi-meta-val">${k['Métrica']||''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Comparador</div><div class="kpi-meta-val">${comparador} ${meta} ${unidad}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Meta anual</div><div class="kpi-meta-val">${k['Meta_Anual']||''} ${unidad}</div></div>
+        </div>
+        <div class="kpi-form-grid">
+          <div>
+            <label class="form-label">Actual Q (valor real)</label>
+            <input type="number" step="any" class="form-input" id="actual-${key}"
+              value="${actual}" placeholder="Ingresá el valor real"
+              oninput="previewLogro('${key}','${meta}','${comparador}')">
+          </div>
+          <div>
+            <label class="form-label">Evidencia (URL)</label>
+            <input type="url" class="form-input" id="evidencia-${key}"
+              value="${evidencia}" placeholder="https://drive.google.com/...">
+          </div>
+          <div class="kpi-form-full">
+            <label class="form-label">Comentarios</label>
+            <input type="text" class="form-input" id="comentarios-${key}"
+              value="${comentarios}" placeholder="Observaciones, contexto, etc.">
+          </div>
+        </div>
+        <div class="logro-preview" id="preview-${key}">
+          <span class="logro-preview-lbl">Logro estimado:</span>
+          ${progressBar(logro, cls)}
+        </div>
+        <div>
+          <button class="btn-save" onclick="guardarKPI('${key}','${comparador}','${meta}')" id="btn-${key}">
+            Guardar en Sheets
+          </button>
+          <span class="save-msg" id="msg-${key}"></span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(key) {
+  document.getElementById('card-'+key).classList.toggle('open');
+}
+
+function previewLogro(key, meta, comparador) {
+  const actual = document.getElementById('actual-'+key)?.value;
+  const logro = calcLogroLocal(actual, meta, comparador);
+  const previewEl = document.getElementById('preview-'+key);
+  if (!previewEl) return;
+  if (logro === null) { previewEl.innerHTML = '<span class="logro-preview-lbl">Logro estimado: —</span>'; return; }
+  const cls = semColor(logro);
+  previewEl.innerHTML = `<span class="logro-preview-lbl">Logro estimado:</span>${progressBar(logro, cls)}`;
+}
+
+async function guardarKPI(key, comparador, meta) {
+  if (!SESSION) return;
+  const actual = document.getElementById('actual-'+key)?.value?.trim();
+  const comentarios = document.getElementById('comentarios-'+key)?.value || '';
+  const evidencia = document.getElementById('evidencia-'+key)?.value || '';
+  const btn = document.getElementById('btn-'+key);
+  const msg = document.getElementById('msg-'+key);
+
+  btn.disabled = true;
+  msg.textContent = 'Guardando...';
+  msg.className = 'save-msg';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    // Modo demo: solo mostrar éxito visual
+    await new Promise(r => setTimeout(r, 600));
+    msg.textContent = '✓ Guardado (demo)';
+    msg.className = 'save-msg ok';
+    btn.disabled = false;
+    toast('Modo demo — conectá Google Sheets para guardar en la planilla');
+    return;
+  }
+
+  try {
+    const res = await apiPost({
+      accion: 'actualizar_kpi',
+      usuario: SESSION.usuario,
+      password: getPass(),
+      key, actual_q: actual, comentarios, evidencia
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    msg.textContent = '✓ Guardado';
+    msg.className = 'save-msg ok';
+    toast('KPI actualizado en Google Sheets ✓');
+    // Refrescar data
+    setTimeout(syncData, 1000);
+  } catch(e) {
+    msg.textContent = '✗ ' + e.message;
+    msg.className = 'save-msg err';
+    toast(e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER RIESGOS CARGA
+// ═══════════════════════════════════════════════════════
+function renderRiesgosCarga() {
+  const d = getData(); if (!d || !SESSION) return;
+  const qF = document.getElementById('riesgo-q-filter')?.value || '';
+
+  let risks = d.riesgos || [];
+  if (SESSION.rol !== 'admin') {
+    risks = risks.filter(r => (r['Gerencia responsable']||r['Gerencia']||'') === SESSION.gerencia);
+  }
+  if (qF) risks = risks.filter(r => r['Q'] === qF);
+
+  document.getElementById('riesgos-count').textContent = `${risks.length} riesgos`;
+
+  if (!risks.length) {
+    document.getElementById('riesgos-carga-grid').innerHTML = '<div class="empty">Sin riesgos asignados</div>';
+    return;
+  }
+
+  document.getElementById('riesgos-carga-grid').innerHTML = risks.map(r => {
+    const id = r['ID']||'';
+    const sem = r['Semáforo']||'';
+    const nivel = r['Nivel (P×I)']||0;
+    const estadoActual = r['Estado']||'Abierto';
+    const col = sem==='ROJO'?'rojo':sem==='AMARILLO'?'amarillo':'verde';
+
+    const estadoSlug = estadoActual === 'Abierto' ? 'abierto' : estadoActual === 'En mitigación' ? 'mitigacion' : 'cerrado';
+
+    return `<div class="kpi-carga-card" id="rcard-${id}">
+      <div class="kpi-carga-header" onclick="toggleCard('r${id}')">
+        <div class="kpi-carga-id">${id}</div>
+        <div class="kpi-carga-name">${r['Riesgo (descripción)']||''}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${semBadge(sem)}
+          <span class="kpi-carga-meta" style="color:var(--${col})">${nivel}</span>
+          <div class="kpi-carga-expand">▾</div>
+        </div>
+      </div>
+      <div class="kpi-carga-body" id="card-r${id}">
+        <div class="kpi-meta-info" style="margin-top:12px">
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Objetivo</div><div class="kpi-meta-val">${r['Objetivo Dirección']||''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Q</div><div class="kpi-meta-val">${r['Q']||''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Categoría</div><div class="kpi-meta-val">${r['Categoría']||''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">P×I</div><div class="kpi-meta-val" style="color:var(--${col})">${nivel}</div></div>
+        </div>
+        <div style="margin-top:14px">
+          <label class="form-label">Estado del riesgo</label>
+          <div class="risk-estado-btns">
+            <button class="risk-estado-btn ${estadoSlug==='abierto'?'selected-abierto':''}"
+              id="ebtn-abierto-${id}" onclick="selectEstado('${id}','Abierto')">Abierto</button>
+            <button class="risk-estado-btn ${estadoSlug==='mitigacion'?'selected-mitigacion':''}"
+              id="ebtn-mitigacion-${id}" onclick="selectEstado('${id}','En mitigación')">En mitigación</button>
+            <button class="risk-estado-btn ${estadoSlug==='cerrado'?'selected-cerrado':''}"
+              id="ebtn-cerrado-${id}" onclick="selectEstado('${id}','Cerrado')">Cerrado</button>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <label class="form-label">Comentarios</label>
+          <input type="text" class="form-input" id="rcomentarios-${id}"
+            value="${r['Comentarios']||''}" placeholder="Avance de mitigación, observaciones...">
+        </div>
+        <div>
+          <button class="btn-save" onclick="guardarRiesgo('${id}')" id="rbtn-${id}">Guardar en Sheets</button>
+          <span class="save-msg" id="rmsg-${id}"></span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Expandir cards
+  risks.forEach(r => {
+    const id = r['ID']||'';
+    const card = document.getElementById('rcard-'+id);
+    const body = document.getElementById('card-r'+id);
+    if (card && body) {
+      card.querySelector('.kpi-carga-header').onclick = () => {
+        card.classList.toggle('open');
+        body.style.display = card.classList.contains('open') ? 'block' : 'none';
+      };
+    }
+  });
+}
+
+function selectEstado(id, estado) {
+  ['Abierto','En mitigación','Cerrado'].forEach(e => {
+    const slug = e === 'Abierto' ? 'abierto' : e === 'En mitigación' ? 'mitigacion' : 'cerrado';
+    const btn = document.getElementById(`ebtn-${slug}-${id}`);
+    if (btn) btn.className = 'risk-estado-btn' + (e === estado ? ` selected-${slug}` : '');
+  });
+  // Guardar selección en dataset
+  const rbtn = document.getElementById('rbtn-'+id);
+  if (rbtn) rbtn.dataset.estado = estado;
+}
+
+async function guardarRiesgo(id) {
+  if (!SESSION) return;
+  const btn = document.getElementById('rbtn-'+id);
+  const msg = document.getElementById('rmsg-'+id);
+  const comentarios = document.getElementById('rcomentarios-'+id)?.value || '';
+  const estado = btn?.dataset?.estado || document.querySelector(`#ebtn-abierto-${id}.selected-abierto`) ? 'Abierto'
+    : document.querySelector(`#ebtn-mitigacion-${id}.selected-mitigacion`) ? 'En mitigación' : 'Cerrado';
+
+  btn.disabled = true;
+  msg.textContent = 'Guardando...';
+  msg.className = 'save-msg';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r => setTimeout(r, 600));
+    msg.textContent = '✓ Guardado (demo)';
+    msg.className = 'save-msg ok';
+    btn.disabled = false;
+    toast('Modo demo — conectá Google Sheets para guardar en la planilla');
+    return;
+  }
+
+  try {
+    const res = await apiPost({
+      accion: 'actualizar_riesgo',
+      usuario: SESSION.usuario,
+      password: getPass(),
+      id_riesgo: id, estado, comentarios
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    msg.textContent = '✓ Guardado';
+    msg.className = 'save-msg ok';
+    toast('Riesgo actualizado en Google Sheets ✓');
+    setTimeout(syncData, 1000);
+  } catch(e) {
+    msg.textContent = '✗ ' + e.message;
+    msg.className = 'save-msg err';
+    toast(e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// Recuperar contraseña de session (la guardamos al login)
+function getPass() { return sessionStorage.getItem('sooft_pass') || ''; }
+
+// ═══════════════════════════════════════════════════════
+// GESTIONAR OBJETIVOS (solo admin)
+// ═══════════════════════════════════════════════════════
+const PREFIJOS_GERENCIA = {
+  'PEOPLE_RRHH':'RRHH','ADMIN':'ADM','FINANZAS':'FIN',
+  'MARKETING':'MKT','OPERACIONES':'OPS','COMERCIAL_AR':'COMAR',
+  'COMERCIAL_CL':'COMCL','CALIDAD':'CAL','RECLUTAMIENTO':'REC','Dirección':'DIR'
+};
+
+function renderGestionar() {
+  const d = getData(); if (!d || !SESSION || SESSION.rol !== 'admin') return;
+  const gerencias = (d.res_gerencia||[]).map(g=>g['Gerencia']||'').filter(Boolean);
+  const filterSel = document.getElementById('gest-ger-filter');
+  if (filterSel && filterSel.options.length <= 1) {
+    gerencias.forEach(g => { const o=document.createElement('option'); o.value=g; o.text=g; filterSel.appendChild(o); });
+  }
+  const gerF = filterSel?.value || '';
+  let kpis = (d.carga_q||[]).filter(k => k['Nivel']==='GERENCIA');
+  const seen = new Set();
+  kpis = kpis.filter(k => {
+    const key=(k['Responsable']||'')+'|'+(k['KPI_ID']||'');
+    if (seen.has(key)) return false; seen.add(key); return true;
+  });
+  if (gerF) kpis = kpis.filter(k=>(k['Responsable']||'')===gerF);
+
+  document.getElementById('gest-tbody').innerHTML = kpis.map(k => {
+    const kpiId = k['KPI_ID']||'';
+    const gerencia = k['Responsable']||'';
+    const unidad = k['Unidad']||'';
+    const ma = k['Meta_Anual']??'—';
+    const fmt = v => {
+      if (v==='—'||v===undefined||v===null||v==='') return '—';
+      const n=parseFloat(v); if(isNaN(n)) return v;
+      if(unidad==='%') return (n*100).toFixed(1)+'%';
+      if(unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
+      return n+(unidad?' '+unidad:'');
+    };
+    // Get Q metas from the 4 rows
+    const qRows = (d.carga_q||[]).filter(r=>(r['KPI_ID']||'')===kpiId&&(r['Responsable']||'')===gerencia);
+    const getQMeta = q => { const r=qRows.find(x=>x['Q']===q); return r?(r['Meta_Q (editable)']??r['Meta_Q']??'—'):'—'; };
+    return `<tr>
+      <td class="bold" data-label="Gerencia">${gerencia}</td>
+      <td class="mono" data-label="KPI ID">${kpiId}</td>
+      <td class="text-wrap" data-label="Objetivo">${k['Objetivo']||''}</td>
+      <td data-label="Métrica" style="font-size:11px">${k['Métrica']||''}</td>
+      <td class="mono" data-label="Unidad">${unidad}</td>
+      <td class="mono" data-label="Comp.">${k['Comparador']||''}</td>
+      <td class="mono" data-label="Meta Anual" style="color:var(--accent);font-weight:500">${fmt(ma)}</td>
+      <td class="mono" data-label="Q1">${fmt(getQMeta('Q1'))}</td>
+      <td class="mono" data-label="Q2">${fmt(getQMeta('Q2'))}</td>
+      <td class="mono" data-label="Q3">${fmt(getQMeta('Q3'))}</td>
+      <td class="mono" data-label="Q4">${fmt(getQMeta('Q4'))}</td>
+      <td data-label="Acción" style="white-space:nowrap">
+        <button onclick="abrirEditarKPI('${kpiId}','${gerencia}')"
+          style="padding:4px 10px;border-radius:5px;border:1px solid var(--verde-border);
+          background:var(--verde-bg);color:var(--verde);font-size:11px;cursor:pointer;
+          font-family:'DM Sans',sans-serif;transition:all .15s;margin-right:5px"
+          onmouseover="this.style.background='var(--verde)';this.style.color='#fff'"
+          onmouseout="this.style.background='var(--verde-bg)';this.style.color='var(--verde)'">
+          Editar
+        </button>
+        <button onclick="confirmarEliminarKPI('${kpiId}','${gerencia}')"
+          style="padding:4px 10px;border-radius:5px;border:1px solid var(--rojo-border);
+          background:var(--rojo-bg);color:var(--rojo);font-size:11px;cursor:pointer;
+          font-family:'DM Sans',sans-serif;transition:all .15s"
+          onmouseover="this.style.background='var(--rojo)';this.style.color='#fff'"
+          onmouseout="this.style.background='var(--rojo-bg)';this.style.color='var(--rojo)'">
+          Eliminar
+        </button>
+      </td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="12" class="empty">Sin KPIs cargados</td></tr>';
+}
+
+function sugerirKpiId() {
+  const gerencia = document.getElementById('new-gerencia')?.value;
+  const hintEl = document.getElementById('kpi-id-hint');
+  const inputEl = document.getElementById('new-kpi-id');
+  if (!gerencia) {
+    if (inputEl) { inputEl.value=''; inputEl.placeholder='Elegí una gerencia primero'; }
+    if (hintEl) hintEl.textContent = 'Se genera al elegir gerencia';
+    return;
+  }
+  const prefijo = PREFIJOS_GERENCIA[gerencia] || gerencia.substring(0,4).toUpperCase();
+  const d = getData();
+  const kpis = (d?.carga_q||[]).filter(k=>(k['Responsable']||'')===gerencia&&k['Nivel']==='GERENCIA');
+  const nums = kpis
+    .map(k=>k['KPI_ID']||'')
+    .filter(id=>id.startsWith(prefijo+'-'))
+    .map(id=>parseInt(id.replace(prefijo+'-',''))||0)
+    .filter(n=>!isNaN(n));
+  const nextNum = nums.length>0 ? Math.max(...nums)+1 : 1;
+  const nextId = `${prefijo}-${String(nextNum).padStart(2,'0')}`;
+  if (inputEl) {
+    inputEl.value = nextId;
+    inputEl.style.borderColor='var(--verde)';
+    setTimeout(()=>{ if(inputEl) inputEl.style.borderColor=''; },2000);
+  }
+  if (hintEl) hintEl.textContent = `Prefijo: ${prefijo} · Próximo: ${nextId}`;
+}
+
+function abrirFormNuevoKPI() {
+  document.getElementById('form-nuevo-kpi').style.display='block';
+  document.getElementById('form-nuevo-kpi').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function cerrarFormNuevoKPI() {
+  document.getElementById('form-nuevo-kpi').style.display='none';
+  limpiarFormNuevoKPI();
+}
+
+function limpiarFormNuevoKPI() {
+  ['new-kpi-id','new-objetivo','new-metrica','new-meta-anual',
+   'new-meta-q1','new-meta-q2','new-meta-q3','new-meta-q4','new-notas']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  const ger=document.getElementById('new-gerencia'); if(ger) ger.value='';
+  const msg=document.getElementById('msg-nuevo-kpi'); if(msg) msg.textContent='';
+  const hint=document.getElementById('kpi-id-hint'); if(hint) hint.textContent='Se genera al elegir gerencia';
+}
+
+function distribuirMetaAnual() {
+  const ma=parseFloat(document.getElementById('new-meta-anual')?.value);
+  if(isNaN(ma)){ toast('Ingresá primero la meta anual','err'); return; }
+  ['q1','q2','q3','q4'].forEach(q=>{ const el=document.getElementById('new-meta-'+q); if(el) el.value=(ma/4); });
+}
+
+// ── ELIMINAR KPI ─────────────────────────────────────────
+let _kpiToDelete = { kpiId:null, gerencia:null };
+
+function confirmarEliminarKPI(kpiId, gerencia) {
+  _kpiToDelete = { kpiId, gerencia };
+  document.getElementById('modal-kpi-id-display').textContent = kpiId;
+  document.getElementById('modal-kpi-ger-display').textContent = 'Gerencia: '+gerencia;
+  document.getElementById('msg-eliminar').textContent = '';
+  document.getElementById('btn-confirmar-eliminar').disabled = false;
+  document.getElementById('modal-eliminar').style.display = 'flex';
+}
+
+function cerrarModalEliminar() {
+  document.getElementById('modal-eliminar').style.display='none';
+  _kpiToDelete = { kpiId:null, gerencia:null };
+}
+
+async function ejecutarEliminarKPI() {
+  const { kpiId, gerencia } = _kpiToDelete;
+  if (!kpiId||!SESSION||SESSION.rol!=='admin') return;
+  const btn=document.getElementById('btn-confirmar-eliminar');
+  const msg=document.getElementById('msg-eliminar');
+  btn.disabled=true; msg.textContent='Eliminando...'; msg.style.color='var(--text3)';
+  const apiUrl=getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r=>setTimeout(r,700));
+    msg.textContent='✓ Eliminado (demo)'; msg.style.color='var(--verde)';
+    setTimeout(()=>{ cerrarModalEliminar(); renderGestionar(); },1000);
+    toast('Modo demo — conectá Google Sheets para eliminar en la planilla'); return;
+  }
+  try {
+    const res=await apiPost({ accion:'eliminar_kpi', usuario:SESSION.usuario,
+      password:sessionStorage.getItem('sooft_pass')||'', kpi_id:kpiId, gerencia });
+    if(res.status!=='ok') throw new Error(res.mensaje||'Error desconocido');
+    msg.textContent='✓ Eliminado'; msg.style.color='var(--verde)';
+    toast(`KPI ${kpiId} eliminado ✓`);
+    setTimeout(()=>{ cerrarModalEliminar(); syncData(); },800);
+  } catch(e) {
+    msg.textContent='✗ '+e.message; msg.style.color='var(--rojo)';
+    btn.disabled=false; toast(e.message,'err');
+  }
+}
+
+// ── EDITAR KPI ───────────────────────────────────────────
+let _kpiOriginal = { kpiId: null, gerencia: null };
+
+function abrirEditarKPI(kpiId, gerencia) {
+  const d = getData(); if (!d) return;
+  _kpiOriginal = { kpiId, gerencia };
+
+  // Find KPI data from carga_q
+  const rows = (d.carga_q||[]).filter(k =>
+    (k['KPI_ID']||'') === kpiId && (k['Responsable']||'') === gerencia
+  );
+  const first = rows[0] || {};
+  const getQMeta = q => {
+    const r = rows.find(x => x['Q'] === q);
+    return r ? (r['Meta_Q (editable)'] ?? r['Meta_Q'] ?? '') : '';
+  };
+
+  // Populate form
+  document.getElementById('edit-gerencia').value      = gerencia;
+  document.getElementById('edit-kpi-id').value        = kpiId;
+  document.getElementById('edit-objetivo').value      = first['Objetivo'] || '';
+  document.getElementById('edit-metrica').value       = first['Métrica'] || '';
+  document.getElementById('edit-unidad').value        = first['Unidad'] || '%';
+  document.getElementById('edit-comparador').value    = first['Comparador'] || '>=';
+  document.getElementById('edit-meta-anual').value    = first['Meta_Anual'] ?? '';
+  document.getElementById('edit-frecuencia').value    = first['Frecuencia'] || 'Q';
+  document.getElementById('edit-notas').value         = first['Notas'] || '';
+  document.getElementById('edit-meta-q1').value       = getQMeta('Q1');
+  document.getElementById('edit-meta-q2').value       = getQMeta('Q2');
+  document.getElementById('edit-meta-q3').value       = getQMeta('Q3');
+  document.getElementById('edit-meta-q4').value       = getQMeta('Q4');
+  document.getElementById('edit-kpi-header-sub').textContent = `${kpiId}  ·  ${gerencia}`;
+  document.getElementById('msg-editar-kpi').textContent = '';
+  document.getElementById('btn-guardar-editar').disabled = false;
+
+  // Show modal
+  document.getElementById('modal-editar').style.display = 'flex';
+}
+
+function cerrarEditarKPI() {
+  document.getElementById('modal-editar').style.display = 'none';
+  _kpiOriginal = { kpiId: null, gerencia: null };
+}
+
+function distribuirMetaAnualEdit() {
+  const ma = parseFloat(document.getElementById('edit-meta-anual')?.value);
+  if (isNaN(ma)) { toast('Ingresá primero la meta anual', 'err'); return; }
+  ['q1','q2','q3','q4'].forEach(q => {
+    const el = document.getElementById('edit-meta-' + q);
+    if (el) el.value = (ma / 4);
+  });
+}
+
+async function guardarEditarKPI() {
+  if (!SESSION || SESSION.rol !== 'admin') { toast('Solo el administrador puede editar objetivos', 'err'); return; }
+
+  const gerencia    = document.getElementById('edit-gerencia')?.value?.trim();
+  const kpiId       = document.getElementById('edit-kpi-id')?.value?.trim();
+  const objetivo    = document.getElementById('edit-objetivo')?.value?.trim();
+  const metrica     = document.getElementById('edit-metrica')?.value?.trim();
+  const unidad      = document.getElementById('edit-unidad')?.value;
+  const comparador  = document.getElementById('edit-comparador')?.value;
+  const metaAnual   = document.getElementById('edit-meta-anual')?.value?.trim();
+  const metaQ1      = document.getElementById('edit-meta-q1')?.value?.trim();
+  const metaQ2      = document.getElementById('edit-meta-q2')?.value?.trim();
+  const metaQ3      = document.getElementById('edit-meta-q3')?.value?.trim();
+  const metaQ4      = document.getElementById('edit-meta-q4')?.value?.trim();
+  const frecuencia  = document.getElementById('edit-frecuencia')?.value;
+  const notas       = document.getElementById('edit-notas')?.value?.trim();
+
+  if (!gerencia || !kpiId || !objetivo || !metrica || !metaAnual) {
+    toast('Completá todos los campos obligatorios (*)', 'err'); return;
+  }
+
+  const btn = document.getElementById('btn-guardar-editar');
+  const msg = document.getElementById('msg-editar-kpi');
+  btn.disabled = true;
+  msg.textContent = 'Guardando...';
+  msg.className = 'save-msg';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r => setTimeout(r, 700));
+    msg.textContent = '✓ Guardado (demo)';
+    msg.className = 'save-msg ok';
+    btn.disabled = false;
+    toast('Modo demo — conectá Google Sheets para guardar');
+    return;
+  }
+
+  try {
+    const res = await apiPost({
+      accion: 'editar_kpi',
+      usuario: SESSION.usuario,
+      password: sessionStorage.getItem('sooft_pass') || '',
+      kpi_id_original: _kpiOriginal.kpiId,
+      gerencia_original: _kpiOriginal.gerencia,
+      kpi_id: kpiId, gerencia, objetivo, metrica, unidad, comparador,
+      meta_anual: metaAnual,
+      meta_q1: metaQ1, meta_q2: metaQ2, meta_q3: metaQ3, meta_q4: metaQ4,
+      frecuencia, notas
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje || 'Error desconocido');
+    msg.textContent = '✓ KPI actualizado';
+    msg.className = 'save-msg ok';
+    toast(`KPI ${kpiId} actualizado en Google Sheets ✓`);
+    setTimeout(() => { cerrarEditarKPI(); syncData(); }, 800);
+  } catch(e) {
+    msg.textContent = '✗ ' + e.message;
+    msg.className = 'save-msg err';
+    btn.disabled = false;
+    toast(e.message, 'err');
+  }
+}
+
+async function guardarNuevoKPI() {
+  if (!SESSION||SESSION.rol!=='admin'){ toast('Solo el administrador puede agregar objetivos','err'); return; }
+  const gerencia   = document.getElementById('new-gerencia')?.value?.trim();
+  const kpiId      = document.getElementById('new-kpi-id')?.value?.trim();
+  const objetivo   = document.getElementById('new-objetivo')?.value?.trim();
+  const metrica    = document.getElementById('new-metrica')?.value?.trim();
+  const unidad     = document.getElementById('new-unidad')?.value;
+  const comparador = document.getElementById('new-comparador')?.value;
+  const metaAnual  = document.getElementById('new-meta-anual')?.value?.trim();
+  const metaQ1     = document.getElementById('new-meta-q1')?.value?.trim();
+  const metaQ2     = document.getElementById('new-meta-q2')?.value?.trim();
+  const metaQ3     = document.getElementById('new-meta-q3')?.value?.trim();
+  const metaQ4     = document.getElementById('new-meta-q4')?.value?.trim();
+  const frecuencia = document.getElementById('new-frecuencia')?.value;
+  const notas      = document.getElementById('new-notas')?.value?.trim();
+  if (!gerencia||!kpiId||!objetivo||!metrica||!metaAnual){
+    toast('Completá todos los campos obligatorios (*)','err'); return;
+  }
+  const btn=document.getElementById('btn-guardar-kpi');
+  const msg=document.getElementById('msg-nuevo-kpi');
+  btn.disabled=true; msg.textContent='Guardando...'; msg.className='save-msg';
+  const apiUrl=getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r=>setTimeout(r,700));
+    msg.textContent='✓ Guardado (demo)'; msg.className='save-msg ok';
+    btn.disabled=false; toast('Modo demo — conectá Google Sheets para guardar'); return;
+  }
+  try {
+    const res=await apiPost({ accion:'agregar_kpi', usuario:SESSION.usuario,
+      password:sessionStorage.getItem('sooft_pass')||'',
+      gerencia, kpi_id:kpiId, objetivo, metrica, unidad, comparador,
+      meta_anual:metaAnual, meta_q1:metaQ1, meta_q2:metaQ2, meta_q3:metaQ3, meta_q4:metaQ4,
+      frecuencia, notas });
+    if(res.status!=='ok') throw new Error(res.mensaje||'Error desconocido');
+    msg.textContent='✓ Objetivo guardado'; msg.className='save-msg ok';
+    toast(`KPI ${kpiId} agregado a ${gerencia} ✓`);
+    cerrarFormNuevoKPI(); setTimeout(syncData,1200);
+  } catch(e) {
+    msg.textContent='✗ '+e.message; msg.className='save-msg err';
+    toast(e.message,'err');
+  } finally { btn.disabled=false; }
+}
+// ═══════════════════════════════════════════════════════
+// MOBILE SIDEBAR
+// ═══════════════════════════════════════════════════════
+function toggleSidebar() {
+  const sidebar = document.getElementById('main-sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const btn = document.getElementById('hamburger-btn');
+  const isOpen = sidebar.classList.contains('mobile-open');
+  sidebar.classList.toggle('mobile-open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+  btn.classList.toggle('open', !isOpen);
+}
+
+function closeSidebar() {
+  document.getElementById('main-sidebar')?.classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay')?.classList.remove('open');
+  document.getElementById('hamburger-btn')?.classList.remove('open');
+}
+
+// Close sidebar on Escape (in addition to drawer)
+const _origKeydown = document.onkeydown;
+
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  // Restaurar sesión si existe
+  const saved = sessionStorage.getItem(SESSION_KEY);
+  if (saved) {
+    try { startSession(JSON.parse(saved)); } catch(e) {}
+  }
+
+  // Ocultar banner de config — URL ya hardcodeada
+  const banner = document.getElementById('config-banner');
+  if (banner) banner.style.display = 'none';
+
+  // Cargar datos cacheados mientras sincroniza
+  const cachedData = localStorage.getItem(DATA_KEY);
+  if (cachedData) {
+    DATA = JSON.parse(cachedData);
+    const ts = localStorage.getItem(DATA_TS_KEY);
+    setSyncState('ok', 'Datos cacheados');
+    if (ts) document.getElementById('sync-time').textContent = `Última sync: ${ts}`;
+  } else {
+    setSyncState('loading', 'Conectando...');
+  }
+
+  // Auto-sincronizar con Google Sheets al abrir
+  syncData();
+
+  // Guardar pass en session al hacer login
+  const origLogin = doLogin;
+  window._origDoLogin = origLogin;
+}
+
+// Guardar contraseña en session para reusarla en POST calls
+document.getElementById('inp-password').addEventListener('change', function() {
+  sessionStorage.setItem('sooft_pass', this.value);
+});
+document.getElementById('inp-password').addEventListener('input', function() {
+  sessionStorage.setItem('sooft_pass', this.value);
+});
+
+init();
+</script>
+
+<!-- ── MODAL CONFIRMAR ELIMINAR KPI ── -->
+<div id="modal-eliminar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:420px;max-width:90vw">
+    <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);margin-bottom:8px">Eliminar objetivo</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:6px">Estás por eliminar:</p>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px">
+      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--rojo)" id="modal-kpi-id-display"></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px" id="modal-kpi-ger-display"></div>
+    </div>
+    <p style="font-size:12px;color:var(--rojo);margin-bottom:20px;padding:10px;background:var(--rojo-bg);border:1px solid var(--rojo-border);border-radius:7px">
+      ⚠ Esta acción elimina el KPI y todos sus registros trimestrales de Google Sheets. No se puede deshacer.
+    </p>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button onclick="cerrarModalEliminar()"
+        style="padding:9px 18px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
+        Cancelar
+      </button>
+      <button id="btn-confirmar-eliminar" onclick="ejecutarEliminarKPI()"
+        style="padding:9px 18px;border-radius:7px;border:none;background:var(--rojo);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+        Sí, eliminar
+      </button>
+    </div>
+    <div style="margin-top:10px;font-size:12px;text-align:right" id="msg-eliminar"></div>
+  </div>
+</div>
+
+
+<!-- ── MODAL EDITAR KPI ── -->
+<div id="modal-editar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:950;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:620px;max-width:96vw;margin:auto">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text)">Editar objetivo</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="edit-kpi-header-sub">KPI ID · Gerencia</div>
+      </div>
+      <button onclick="cerrarEditarKPI()" style="background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
+    </div>
+
+    <!-- Form grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <label class="form-label">Gerencia *</label>
+        <select class="form-input" id="edit-gerencia" style="font-family:'DM Sans',sans-serif">
+          <option value="">Seleccioná</option>
+          <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
+          <option>MARKETING</option><option>OPERACIONES</option>
+          <option>COMERCIAL_AR</option><option>COMERCIAL_CL</option>
+          <option>CALIDAD</option><option>RECLUTAMIENTO</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">KPI ID *</label>
+        <input type="text" class="form-input" id="edit-kpi-id" placeholder="RRHH-08">
+      </div>
+      <div style="grid-column:1/-1">
+        <label class="form-label">Objetivo *</label>
+        <input type="text" class="form-input" id="edit-objetivo" placeholder="Descripción del objetivo">
+      </div>
+      <div>
+        <label class="form-label">Métrica *</label>
+        <input type="text" class="form-input" id="edit-metrica" placeholder="Ej: % de cobertura">
+      </div>
+      <div>
+        <label class="form-label">Unidad *</label>
+        <select class="form-input" id="edit-unidad" style="font-family:'DM Sans',sans-serif">
+          <option value="%">% (porcentaje)</option>
+          <option value="ARS">ARS (pesos)</option>
+          <option value="USD">USD (dólares)</option>
+          <option value="conteo">conteo (número)</option>
+          <option value="días">días</option>
+          <option value="horas">horas</option>
+          <option value="puntos">puntos</option>
+          <option value="ratio">ratio</option>
+          <option value="Sí/No">Sí/No</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Comparador *</label>
+        <select class="form-input" id="edit-comparador" style="font-family:'DM Sans',sans-serif">
+          <option value=">=">≥ mayor o igual (más es mejor)</option>
+          <option value="<=">≤ menor o igual (menos es mejor)</option>
+          <option value="=">=  igual exacto (cumple/no cumple)</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">Meta Anual *</label>
+        <input type="number" step="any" class="form-input" id="edit-meta-anual" placeholder="0">
+      </div>
+      <div>
+        <label class="form-label">Frecuencia</label>
+        <select class="form-input" id="edit-frecuencia" style="font-family:'DM Sans',sans-serif">
+          <option value="Q">Trimestral (Q)</option>
+          <option value="Mensual">Mensual</option>
+          <option value="Milestone">Milestone / Hito</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Metas por Q -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Metas por trimestre</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div><label class="form-label">Q1</label><input type="number" step="any" class="form-input" id="edit-meta-q1" placeholder="0"></div>
+        <div><label class="form-label">Q2</label><input type="number" step="any" class="form-input" id="edit-meta-q2" placeholder="0"></div>
+        <div><label class="form-label">Q3</label><input type="number" step="any" class="form-input" id="edit-meta-q3" placeholder="0"></div>
+        <div><label class="form-label">Q4</label><input type="number" step="any" class="form-input" id="edit-meta-q4" placeholder="0"></div>
+      </div>
+      <div style="margin-top:8px">
+        <button onclick="distribuirMetaAnualEdit()" style="font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif">
+          ↻ Distribuir meta anual en partes iguales
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label class="form-label">Notas (opcional)</label>
+      <input type="text" class="form-input" id="edit-notas" placeholder="Ej: Meta sugerida Q1 50%, Q2 100%">
+    </div>
+
+    <!-- Warning: recalculate actuals -->
+    <div style="padding:10px 14px;background:var(--amarillo-bg);border:1px solid var(--amarillo-border);border-radius:7px;margin-bottom:16px;font-size:12px;color:var(--text2)">
+      <strong style="color:var(--amarillo)">⚠ Atención:</strong> Al editar las metas, los logros ya cargados se recalcularán automáticamente con los nuevos valores.
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px">
+      <button id="btn-guardar-editar" onclick="guardarEditarKPI()"
+        style="padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;
+        font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+        Guardar cambios
+      </button>
+      <button onclick="cerrarEditarKPI()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
+        Cancelar
+      </button>
+      <span class="save-msg" id="msg-editar-kpi"></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
