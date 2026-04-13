@@ -97,11 +97,25 @@ body::before{display:none}
 .q-badge{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:4px;background:rgba(110,231,183,.1);border:1px solid #059669;color:#059669}
 
 /* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s;user-select:none}
+.stat-card:hover{border-color:rgba(0,0,0,.18);box-shadow:0 2px 8px rgba(0,0,0,.07);transform:translateY(-1px)}
+.stat-card.active-verde{border-color:var(--verde);background:var(--verde-bg)}
+.stat-card.active-amarillo{border-color:var(--amarillo);background:var(--amarillo-bg)}
+.stat-card.active-rojo{border-color:var(--rojo);background:var(--rojo-bg)}
+.stat-card.active-accent{border-color:var(--accent);background:rgba(110,231,183,.07)}
 .stat-num{font-family:'DM Mono',monospace;font-size:26px;font-weight:500}
 .stat-num.accent{color:var(--accent)} .stat-num.verde{color:var(--verde)} .stat-num.amarillo{color:var(--amarillo)} .stat-num.rojo{color:var(--rojo)}
 .stat-lbl{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.stat-hint{font-size:10px;color:var(--text3);margin-top:6px;opacity:.7}
+/* Stat drill-down panel */
+.stat-panel{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s;opacity:0;margin-bottom:0}
+.stat-panel.open{max-height:600px;opacity:1;margin-bottom:22px}
+.stat-panel-inner{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:0}
+.stat-panel-header{padding:10px 16px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);display:flex;align-items:center;justify-content:space-between}
+.stat-panel-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 2px}
+.stat-panel-close:hover{color:var(--text)}
+.stat-panel-rows{max-height:440px;overflow-y:auto}
 
 /* Section */
 .section{margin-bottom:28px}
@@ -121,10 +135,11 @@ body::before{display:none}
 
 /* Progress */
 .progress-wrap{display:flex;align-items:center;gap:10px}
-.progress-bar{flex:1;height:4px;background:var(--surface3);border-radius:2px;min-width:70px;overflow:hidden}
-.progress-fill{height:100%;border-radius:2px;transition:width .5s ease}
-.fill-verde{background:var(--verde)} .fill-amarillo{background:var(--amarillo)} .fill-rojo{background:var(--rojo)}
-.progress-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:38px;text-align:right}
+.progress-bar{flex:1;height:8px;background:var(--surface3);border-radius:4px;min-width:70px;overflow:hidden;cursor:default;position:relative}
+.progress-bar:hover .progress-fill{filter:brightness(1.1)}
+.progress-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1),filter .2s}
+.fill-verde{background:linear-gradient(90deg,#16a34a,#22c55e)} .fill-amarillo{background:linear-gradient(90deg,#d97706,#f59e0b)} .fill-rojo{background:linear-gradient(90deg,#dc2626,#f87171)}
+.progress-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:38px;text-align:right;font-weight:500}
 
 /* Tables */
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
@@ -146,8 +161,8 @@ td.bold{color:var(--text);font-weight:500}
 
 /* Dir obj */
 .dir-obj-grid{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
-.dir-obj-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;display:grid;grid-template-columns:75px 1fr 120px 120px 70px 70px 70px 70px;gap:10px;align-items:center;transition:border-color .2s}
-.dir-obj-row:hover{border-color:rgba(255,255,255,.12)}
+.dir-obj-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;display:grid;grid-template-columns:75px 1fr 120px 120px 70px 70px 70px 70px;gap:10px;align-items:center;transition:border-color .2s,box-shadow .2s,background .15s}
+.dir-obj-row:hover{border-color:rgba(110,231,183,.35);background:rgba(110,231,183,.03);box-shadow:0 1px 6px rgba(0,0,0,.06)}
 .dir-obj-row.header{background:var(--surface2);padding:7px 16px}
 .dir-obj-row.header span{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
 .obj-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
@@ -156,8 +171,8 @@ td.bold{color:var(--text);font-weight:500}
 
 /* Gerencias */
 .gerencias-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px;margin-bottom:24px}
-.gerencia-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;transition:border-color .2s,transform .2s}
-.gerencia-card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-1px)}
+.gerencia-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;transition:border-color .2s,transform .2s,box-shadow .2s}
+.gerencia-card:hover{border-color:rgba(110,231,183,.35);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
 .gerencia-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .gerencia-name{font-weight:600;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px}
 .gerencia-kpis{font-size:11px;color:var(--text3)}
@@ -307,8 +322,8 @@ td.bold{color:var(--text);font-weight:500}
 .q-pills-row{display:flex;gap:4px;align-items:center}
 .q-mini{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:38px}
 .q-mini-label{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
-.q-mini-bar{width:34px;height:5px;border-radius:2px;background:var(--surface3);overflow:hidden}
-.q-mini-fill{height:100%;border-radius:2px}
+.q-mini-bar{width:34px;height:8px;border-radius:4px;background:var(--surface3);overflow:hidden}
+.q-mini-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
 .q-mini-pct{font-size:10px;font-family:'DM Mono',monospace}
 
 /* YTD big bar */
@@ -555,10 +570,6 @@ td.bold{color:var(--text);font-weight:500}
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
         <span>Gestionar objetivos</span>
       </button>
-      <button class="nav-btn" id="nav-usuarios" style="display:none" onclick="showPage('usuarios');closeSidebar()">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-        <span>Usuarios</span>
-      </button>
 
     </div>
 
@@ -597,6 +608,22 @@ td.bold{color:var(--text);font-weight:500}
         <span class="q-badge" id="dash-q-badge">Q4</span>
       </div>
       <div class="stats-row" id="dash-stats"></div>
+      <div class="stat-panel" id="stat-drill-panel">
+        <div class="stat-panel-inner">
+          <div class="stat-panel-header">
+            <span id="stat-drill-title">KPIs</span>
+            <button class="stat-panel-close" onclick="cerrarStatPanel()">✕</button>
+          </div>
+          <div class="stat-panel-rows">
+            <div class="dir-obj-grid" style="padding:10px 12px;gap:6px">
+              <div class="dir-obj-row header" style="padding:6px 14px">
+                <span>ID</span><span>Objetivo</span><span>Q sel.</span><span>YTD</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
+              </div>
+              <div id="stat-drill-rows"></div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="section">
         <div class="section-title">Objetivos de Dirección</div>
         <div class="dir-obj-grid">
@@ -699,14 +726,9 @@ td.bold{color:var(--text);font-weight:500}
         <select class="filter-select" id="gest-ger-filter" onchange="renderGestionar()">
           <option value="">Todas las gerencias</option>
         </select>
-        <div style="display:flex;gap:8px;margin-left:auto">
-          <button onclick="diagnosticarKPI()" style="padding:8px 14px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer">
-            🔍 Diagnosticar
-          </button>
-          <button onclick="abrirFormNuevoKPI()" style="padding:8px 18px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
-            <span style="font-size:16px;line-height:1">+</span> Nuevo objetivo
-          </button>
-        </div>
+        <button onclick="abrirFormNuevoKPI()" style="margin-left:auto;padding:8px 18px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+          <span style="font-size:16px;line-height:1">+</span> Nuevo objetivo
+        </button>
       </div>
 
       <!-- Tabla KPIs existentes -->
@@ -820,26 +842,6 @@ td.bold{color:var(--text);font-weight:500}
       </div>
     </div>
 
-    <!-- GESTIONAR USUARIOS (solo admin) -->
-    <div id="page-usuarios" class="page">
-      <div class="page-header">
-        <div><div class="page-title">Usuarios</div><div class="page-subtitle">Gestionar accesos y contraseñas — solo administrador</div></div>
-        <span class="q-badge">Admin</span>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Usuarios del sistema</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Usuario</th><th>Gerencia</th><th>Rol</th><th>Contraseña actual</th><th>Acción</th>
-            </tr></thead>
-            <tbody id="usuarios-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
   </main>
 </div>
 
@@ -944,7 +946,6 @@ async function doLogin() {
     ];
     const u = DEMO.find(u => u.usuario === usuario && u.password === password);
     if (!u) { errEl.textContent = 'Usuario o contraseña incorrectos'; return; }
-    sessionStorage.setItem('sooft_pass', password);
     startSession(u);
     toast('Modo demo — conectá Google Sheets para guardar cambios reales', 'err');
     return;
@@ -955,7 +956,6 @@ async function doLogin() {
   try {
     const res = await apiPost({ accion: 'login', usuario, password });
     if (res.status !== 'ok') throw new Error(res.mensaje || 'Error de login');
-    sessionStorage.setItem('sooft_pass', password);
     startSession(res.user);
     syncData();
   } catch(e) {
@@ -984,8 +984,6 @@ function startSession(user) {
   if (cfgBtn) cfgBtn.style.display = user.rol === 'admin' ? 'block' : 'none';
   const gstBtn = document.getElementById('nav-gestionar');
   if (gstBtn) gstBtn.style.display = user.rol === 'admin' ? 'flex' : 'none';
-  const usrBtn = document.getElementById('nav-usuarios');
-  if (usrBtn) usrBtn.style.display = user.rol === 'admin' ? 'flex' : 'none';
   // Mostrar secciones admin-only
   document.querySelectorAll('.admin-only').forEach(el => {
     el.style.display = user.rol === 'admin' ? 'flex' : 'none';
@@ -996,7 +994,6 @@ function startSession(user) {
 function doLogout() {
   SESSION = null;
   sessionStorage.removeItem(SESSION_KEY);
-  sessionStorage.removeItem('sooft_pass');
   document.getElementById('app-screen').classList.remove('visible');
   document.getElementById('login-screen').classList.remove('hidden');
   document.getElementById('inp-password').value = '';
@@ -1008,8 +1005,7 @@ function doLogout() {
 async function apiGet() {
   const url = getApiUrl();
   if (!url) throw new Error('Sin URL configurada');
-  const bust = `?t=${Date.now()}`;
-  const res = await fetch(url + bust);
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -1069,28 +1065,8 @@ function logroSem(v) { return v >= 0.9 ? 'VERDE' : v >= 0.7 ? 'AMARILLO' : 'ROJO
 
 function semBadge(s) {
   if (!s || s === '-') return '<span class="badge badge-neutro">—</span>';
-  if (s === 'NA' || s === 'N/A') return naBadge();
   const cls = s === 'VERDE' ? 'verde' : s === 'AMARILLO' ? 'amarillo' : 'rojo';
   return `<span class="badge badge-${cls}"><span class="dot dot-${cls}"></span>${s}</span>`;
-}
-
-function naBadge() {
-  return '<span class="badge badge-neutro" style="color:var(--text3);font-size:11px">&#8901; N/A</span>';
-}
-
-// Determina si un KPI/Q debe mostrarse como N/A (no aplica aún)
-function esNA(frecuencia, metaQ, estadoSheet) {
-  // Si ya tiene un estado real cargado en Sheets, respetar ese valor
-  if (estadoSheet && estadoSheet !== '' && estadoSheet !== 'N/A' && estadoSheet !== 'NA') return false;
-  // Milestone o Anual: N/A si meta Q es 0 o vacía
-  if (frecuencia === 'Milestone' || frecuencia === 'Anual' || frecuencia === 'Q4') {
-    const m = parseFloat(metaQ);
-    if (isNaN(m) || m === 0) return true;
-  }
-  // Meta Q = 0 explícita (cualquier frecuencia)
-  const m = parseFloat(metaQ);
-  if (!isNaN(m) && m === 0) return true;
-  return false;
 }
 
 function progressBar(v, cls) {
@@ -1136,6 +1112,7 @@ function setQ(q) {
   currentQ = q;
   document.querySelectorAll('.q-pill').forEach(p => p.classList.toggle('active', p.textContent.startsWith(q)));
   document.getElementById('carga-q-filter').value = q;
+  if (typeof cerrarStatPanel === 'function') cerrarStatPanel();
   renderCurrentPage();
 }
 
@@ -1149,7 +1126,6 @@ function renderCurrentPage() {
     case 'carga': renderCarga(); break;
     case 'riesgos-carga': renderRiesgosCarga(); break;
     case 'gestionar': renderGestionar(); break;
-    case 'usuarios': renderUsuarios(); break;
   }
 }
 
@@ -1167,10 +1143,10 @@ function renderDashboard() {
   const rojos = vals.filter(v=>v<0.7).length;
 
   document.getElementById('dash-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div></div>
-    <div class="stat-card"><div class="stat-num verde">${verdes}</div><div class="stat-lbl">VERDE</div></div>
-    <div class="stat-card"><div class="stat-num amarillo">${amarillos}</div><div class="stat-lbl">AMARILLO</div></div>
-    <div class="stat-card"><div class="stat-num rojo">${rojos}</div><div class="stat-lbl">ROJO</div></div>`;
+    <div class="stat-card" onclick="toggleStatPanel('all', dirs, this)" title="Ver todos los objetivos"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('verde', dirs, this)" title="Ver objetivos en verde"><div class="stat-num verde">${verdes}</div><div class="stat-lbl">VERDE ≥90%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('amarillo', dirs, this)" title="Ver objetivos en amarillo"><div class="stat-num amarillo">${amarillos}</div><div class="stat-lbl">AMARILLO 70-89%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('rojo', dirs, this)" title="Ver objetivos en rojo"><div class="stat-num rojo">${rojos}</div><div class="stat-lbl">CRÍTICOS <70%</div><div class="stat-hint">▾ clic para ver detalle</div></div>`;
 
   document.getElementById('dash-dir-table').innerHTML = dirs.map(r => {
     const qv = getQVal(r, currentQ); const cls = semColor(qv);
@@ -1220,6 +1196,91 @@ function renderDashboard() {
       <div class="risk-meta">${semBadge(sem)}<span>${o['Objetivo Dirección']||''}</span></div>
     </div><div class="risk-nivel" style="color:var(--${col})">${valor}</div></div>`;
   }).join('')||'<div class="empty">Sin oportunidades activas</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// STAT CARD DRILL-DOWN
+// ═══════════════════════════════════════════════════════
+let _statPanelActive = null;
+function toggleStatPanel(tipo, dirs, card) {
+  const panel = document.getElementById('stat-drill-panel');
+  const allCards = document.querySelectorAll('#dash-stats .stat-card');
+  if (_statPanelActive === tipo && panel.classList.contains('open')) {
+    cerrarStatPanel(); return;
+  }
+  _statPanelActive = tipo;
+  allCards.forEach(c => c.className = 'stat-card');
+  const colorMap = {all:'accent',verde:'verde',amarillo:'amarillo',rojo:'rojo'};
+  card.classList.add('active-' + colorMap[tipo]);
+  let filtered = dirs;
+  const labels = {all:`Todos los objetivos (${currentQ})`,verde:`Objetivos en verde — ≥90% (${currentQ})`,amarillo:`Objetivos en riesgo — 70–89% (${currentQ})`,rojo:`Objetivos críticos — <70% (${currentQ})`};
+  if (tipo==='verde')    filtered = dirs.filter(r => getQVal(r,currentQ)>=0.9);
+  if (tipo==='amarillo') filtered = dirs.filter(r => { const v=getQVal(r,currentQ); return v>=0.7&&v<0.9; });
+  if (tipo==='rojo')     filtered = dirs.filter(r => getQVal(r,currentQ)<0.7);
+  document.getElementById('stat-drill-title').textContent = labels[tipo];
+
+  // Para rojos: buscar KPIs de gerencia con comentarios que alimentan esos objetivos
+  const d = getData();
+  const kpisQ = (d?.carga_q||[]).filter(k => (k['Q']||'')===currentQ);
+
+  document.getElementById('stat-drill-rows').innerHTML = filtered.length ? filtered.map(r => {
+    const qv=getQVal(r,currentQ); const cls=semColor(qv);
+    const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
+    const id=r['Obj_ID']||r.id||''; const obj=r['Objetivo']||r.obj||''; const area=r['Área']||r.area||'';
+
+    // Buscar KPIs rojos relacionados con comentarios (para tipo rojo o amarillo)
+    let comentariosHtml = '';
+    if (tipo === 'rojo' || tipo === 'amarillo') {
+      const kpisRel = kpisQ.filter(k => {
+        const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
+        const umbral = tipo === 'rojo' ? 0.7 : 0.9;
+        const tieneComentario = (k['Comentarios']||'').trim();
+        return logro < umbral && tieneComentario;
+      });
+      if (kpisRel.length) {
+        comentariosHtml = `<div style="grid-column:1/-1;margin-top:6px;border-top:1px solid var(--border);padding-top:8px">
+          <div style="font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Comentarios de KPIs relacionados (${currentQ})</div>
+          ${kpisRel.slice(0,5).map(k=>{
+            const logro=parseFloat(k['Logro_Q']||k['Logro lookup']||0);
+            const col=semColor(logro);
+            return `<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 10px;border-radius:6px;background:var(--${col}-bg);border:1px solid var(--${col}-border);margin-bottom:5px">
+              <div style="min-width:0;flex:1">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${k['KPI_ID']||''}</span>
+                  <span style="font-size:11px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${k['Objetivo']||''}</span>
+                  <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--${col})">${pct(logro)}</span>
+                </div>
+                <div style="font-size:11px;color:var(--text2);line-height:1.4">
+                  <span style="color:var(--text3);font-size:10px">Gerencia:</span> <span style="font-weight:500">${k['Responsable']||''}</span>
+                  &nbsp;·&nbsp; <span style="color:var(--text3);font-size:10px">Comentario:</span> ${k['Comentarios']}
+                </div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`;
+      }
+    }
+
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;display:grid;grid-template-columns:65px 1fr 110px 110px 55px 55px 55px 55px;gap:8px;align-items:start;margin-bottom:1px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding-top:2px">${id}</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.3">${obj}<br><span style="font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--text3);font-family:'DM Mono',monospace">${area}</span></div>
+      <div style="padding-top:4px">${progressBar(qv,cls)}</div>
+      <div style="padding-top:4px">${progressBar(ytd,semColor(ytd))}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q1)});padding-top:2px">${pct(q1)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q2)});padding-top:2px">${pct(q2)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q3)});padding-top:2px">${pct(q3)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q4)});padding-top:2px">${pct(q4)}</div>
+      ${comentariosHtml}
+    </div>`;
+  }).join('') : `<div style="padding:20px 16px;color:var(--text3);font-size:13px">Sin objetivos en esta categoría para ${currentQ}</div>`;
+  panel.classList.add('open');
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+function cerrarStatPanel() {
+  const panel = document.getElementById('stat-drill-panel');
+  panel.classList.remove('open');
+  document.querySelectorAll('#dash-stats .stat-card').forEach(c => c.className='stat-card');
+  _statPanelActive = null;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1455,23 +1516,11 @@ function renderDrawerContent() {
               if (unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
               return n+(unidad?' '+unidad:'');
             };
-            const mini = (v, kpiRow, q) => {
-              if (v === null) return '<span style="color:var(--text3);font-size:11px">—</span>';
-              // Check N/A for this specific Q row
-              if (kpiRow) {
-                const qRow = (d.carga_q||[]).find(r=>(r['KPI_ID']||'')===kpiRow&&r['Q']===q&&(r['Responsable']||'')===drawerGerencia);
-                if (qRow) {
-                  const sinActual = (qRow['Actual_Q (cargar)']??qRow['Actual_Q']??'') === '';
-                  if (sinActual && esNA(qRow['Frecuencia']||'', qRow['Meta_Q (editable)']??qRow['Meta_Q'], qRow['Estado']||'')) {
-                    return '<span style="color:var(--text3);font-size:11px">N/A</span>';
-                  }
-                }
-              }
-              return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            const mini = v => v===null ? '<span style="color:var(--text3);font-size:11px">—</span>' :
+              `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
                 <div class="q-mini-bar" style="width:48px"><div class="q-mini-fill fill-${semColor(v)}" style="width:${Math.min(v*100,100)}%"></div></div>
                 <div class="q-mini-pct" style="color:var(--${semColor(v)});font-size:10px;font-family:'DM Mono',monospace">${pct(v)}</div>
               </div>`;
-            };
             return `<tr>
               <td class="kpi-id">${kid}</td>
               <td class="kpi-name">${firstRow['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${firstRow['Métrica']||''}</span></td>
@@ -1542,112 +1591,7 @@ function renderDrawerContent() {
 }
 
 // Close drawer on Escape
-// ── DIAGNÓSTICO ──────────────────────────────────────────
-function diagnosticarKPI() {
-  // Pre-fill with selected filter gerencia if any
-  const gerF = document.getElementById('gest-ger-filter')?.value || '';
-  if (gerF) document.getElementById('diag-gerencia').value = gerF;
-  document.getElementById('modal-diagnostico').style.display = 'flex';
-}
-function cerrarDiagnostico() {
-  document.getElementById('modal-diagnostico').style.display = 'none';
-}
-
-async function ejecutarDiagnostico() {
-  const kpiId   = document.getElementById('diag-kpi-id')?.value?.trim();
-  const gerencia = document.getElementById('diag-gerencia')?.value?.trim();
-  const resultEl = document.getElementById('diag-result');
-
-  if (!kpiId) { resultEl.textContent = 'Ingresá un KPI ID'; return; }
-
-  resultEl.textContent = 'Analizando...';
-  try {
-    const res = await apiPost({
-      accion: 'diagnostico',
-      usuario: SESSION.usuario,
-      password: sessionStorage.getItem('sooft_pass') || '',
-      kpi_id: kpiId, gerencia
-    });
-
-    let out = `KPI buscado: "${res.kpi_buscado}"  |  Gerencia: "${res.gerencia_buscada || 'cualquiera'}"
-`;
-    out += '------------------------------------------------------------\n\n';
-
-    // CARGA_Q
-    out += `📋 CARGA_Q
-`;
-    if (res.carga_q_info) {
-      const i = res.carga_q_info;
-      out += `  Header en fila: ${i.header_row + 1}  |  Datos desde fila: ${i.data_start + 1}  |  Total filas: ${i.total_rows}
-`;
-      out += `  Columna KPI_ID detectada: índice ${res.carga_q_kpi_col_index} (col ${String.fromCharCode(65 + res.carga_q_kpi_col_index)})
-`;
-      out += `  Columna Responsable detectada: índice ${res.carga_q_resp_col_index} (col ${String.fromCharCode(65 + res.carga_q_resp_col_index)})
-`;
-      if (res.carga_q_sample_rows?.length) {
-        out += `  Muestra de datos:
-`;
-        res.carga_q_sample_rows.forEach(r => {
-          out += `    Fila ${r.row}: KPI_ID="${r.kpi_id}" | Responsable="${r.responsable}"
-`;
-        });
-      }
-    }
-    if (res.carga_q_matches?.length) {
-      out += `  ✓ Filas encontradas: ${res.carga_q_matches.length}
-`;
-      res.carga_q_matches.forEach(m => {
-        out += `    → Fila ${m.row_number}: KPI="${m.kpi_id_val}" | Responsable="${m.responsable_val}" | Q="${m.q_val}"
-`;
-      });
-    } else {
-      out += `  ✗ NO SE ENCONTRARON FILAS con KPI_ID="${kpiId}"
-`;
-    }
-
-    out += '\n------------------------------------------------------------\n\n';
-
-    // OBJ_GERENCIAS
-    out += `📋 OBJ_GERENCIAS
-`;
-    if (res.obj_gerencias_info) {
-      const i = res.obj_gerencias_info;
-      out += `  Header en fila: ${i.header_row + 1}  |  Datos desde fila: ${i.data_start + 1}  |  Total filas: ${i.total_rows}
-`;
-      out += `  Columna KPI_ID detectada: índice ${i.kpi_col_index}
-`;
-      out += `  Columna Gerencia detectada: índice ${i.ger_col_index}
-`;
-      if (res.obj_gerencias_sample?.length) {
-        out += `  Muestra (col0, col1, col2):
-`;
-        res.obj_gerencias_sample.forEach(r => {
-          out += `    Fila ${r.row}: "${r.col0}" | "${r.col1}" | "${r.col2_short}..."
-`;
-        });
-      }
-    }
-    if (res.obj_gerencias_matches?.length) {
-      out += `  ✓ Filas encontradas: ${res.obj_gerencias_matches.length}
-`;
-      res.obj_gerencias_matches.forEach(m => {
-        out += `    → Fila ${m.row_number}: KPI="${m.kpi_id_val}" | Gerencia="${m.gerencia_val}"
-`;
-      });
-    } else {
-      out += `  ✗ NO SE ENCONTRARON FILAS con KPI_ID="${kpiId}" en OBJ_GERENCIAS
-`;
-    }
-
-    if (res.error) out += `
-❌ ERROR: ${res.error}`;
-    resultEl.textContent = out;
-  } catch(e) {
-    resultEl.textContent = '❌ Error de conexión: ' + e.message;
-  }
-}
-
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeSidebar(); cerrarModalEliminar(); cerrarEditarKPI(); cerrarModalClave(); } });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeSidebar(); cerrarModalEliminar(); cerrarEditarKPI(); } });
 
 // ═══════════════════════════════════════════════════════
 // RENDER CARGA DE AVANCE
@@ -1676,22 +1620,15 @@ function renderCarga() {
   document.getElementById('carga-grid').innerHTML = kpis.map(k => {
     const key = k['KEY'] || `${k['Q']}|${k['KPI_ID']}`;
     const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
-    const estadoSheet = k['Estado_lookup']||k['Estado']||'';
+    const estado = k['Estado_lookup']||k['Estado']||logroSem(logro);
+    const cls = semColor(logro);
     const meta = k['Meta_Q (editable)'] ?? k['Meta_Q'];
     const actual = k['Actual_Q (cargar)'] ?? k['Actual_Q'];
-    const frecuencia = k['Frecuencia'] || '';
     const comentarios = k['Comentarios']||'';
     const evidencia = k['Evidencia (URL)']||'';
     const comparador = k['Comparador']||'>=';
     const unidad = k['Unidad']||'';
     const resp = k['Responsable']||'';
-
-    // N/A: milestone o anual con meta=0 y sin actual cargado
-    const sinActual = actual === '' || actual === null || actual === undefined;
-    const naQ = sinActual && esNA(frecuencia, meta, estadoSheet);
-    const estado = naQ ? 'NA' : (estadoSheet || logroSem(logro));
-    const cls = naQ ? 'neutro' : semColor(logro);
-    const logroDisplay = naQ ? '' : pct(logro);
 
     return `<div class="kpi-carga-card" id="card-${key}">
       <div class="kpi-carga-header" onclick="toggleCard('${key}')">
@@ -1699,7 +1636,7 @@ function renderCarga() {
         <div class="kpi-carga-name">${k['Objetivo']||''}</div>
         <div style="display:flex;align-items:center;gap:10px">
           ${semBadge(estado)}
-          <div class="kpi-carga-meta">${logroDisplay}</div>
+          <div class="kpi-carga-meta">${pct(logro)}</div>
           <div class="kpi-carga-expand">▾</div>
         </div>
       </div>
@@ -1982,13 +1919,7 @@ function renderGestionar() {
     };
     // Get Q metas from the 4 rows
     const qRows = (d.carga_q||[]).filter(r=>(r['KPI_ID']||'')===kpiId&&(r['Responsable']||'')===gerencia);
-    const getQMeta = q => {
-      const r = qRows.find(x => x['Q'] === q);
-      if (!r) return '—';
-      const val = r['Meta_Q (editable)'] ?? r['Meta_Q'];
-      if (val === null || val === undefined || val === '') return '—';
-      return val;
-    };
+    const getQMeta = q => { const r=qRows.find(x=>x['Q']===q); return r?(r['Meta_Q (editable)']??r['Meta_Q']??'—'):'—'; };
     return `<tr>
       <td class="bold" data-label="Gerencia">${gerencia}</td>
       <td class="mono" data-label="KPI ID">${kpiId}</td>
@@ -2106,22 +2037,13 @@ async function ejecutarEliminarKPI() {
     toast('Modo demo — conectá Google Sheets para eliminar en la planilla'); return;
   }
   try {
-    const elimPayload = { accion:'eliminar_kpi', usuario:SESSION.usuario,
-      password:sessionStorage.getItem('sooft_pass')||'', kpi_id:kpiId, gerencia };
-    console.log('[ELIMINAR] Payload:', JSON.stringify(elimPayload));
-    const res=await apiPost(elimPayload);
-    console.log('[ELIMINAR] Respuesta:', JSON.stringify(res));
+    const res=await apiPost({ accion:'eliminar_kpi', usuario:SESSION.usuario,
+      password:sessionStorage.getItem('sooft_pass')||'', kpi_id:kpiId, gerencia });
     if(res.status!=='ok') throw new Error(res.mensaje||'Error desconocido');
-    msg.textContent='✓ '+(res.mensaje||'Eliminado'); msg.style.color='var(--verde)';
+    msg.textContent='✓ Eliminado'; msg.style.color='var(--verde)';
     toast(`KPI ${kpiId} eliminado ✓`);
-    setTimeout(()=>{
-      cerrarModalEliminar();
-      localStorage.removeItem(DATA_KEY);
-      localStorage.removeItem(DATA_TS_KEY);
-      syncData();
-    },800);
+    setTimeout(()=>{ cerrarModalEliminar(); syncData(); },800);
   } catch(e) {
-    console.log('[ELIMINAR] Error:', e.message);
     msg.textContent='✗ '+e.message; msg.style.color='var(--rojo)';
     btn.disabled=false; toast(e.message,'err');
   }
@@ -2141,11 +2063,7 @@ function abrirEditarKPI(kpiId, gerencia) {
   const first = rows[0] || {};
   const getQMeta = q => {
     const r = rows.find(x => x['Q'] === q);
-    if (!r) return '';
-    const val = r['Meta_Q (editable)'] ?? r['Meta_Q'];
-    // Return 0 as '0', not as empty — 0 is a valid meta value
-    if (val === null || val === undefined || val === '—' || val === '') return '';
-    return String(val);
+    return r ? (r['Meta_Q (editable)'] ?? r['Meta_Q'] ?? '') : '';
   };
 
   // Populate form
@@ -2222,7 +2140,7 @@ async function guardarEditarKPI() {
   }
 
   try {
-    const payload = {
+    const res = await apiPost({
       accion: 'editar_kpi',
       usuario: SESSION.usuario,
       password: sessionStorage.getItem('sooft_pass') || '',
@@ -2232,22 +2150,13 @@ async function guardarEditarKPI() {
       meta_anual: metaAnual,
       meta_q1: metaQ1, meta_q2: metaQ2, meta_q3: metaQ3, meta_q4: metaQ4,
       frecuencia, notas
-    };
-    console.log('[EDITAR] Payload enviado:', JSON.stringify(payload));
-    const res = await apiPost(payload);
-    console.log('[EDITAR] Respuesta recibida:', JSON.stringify(res));
+    });
     if (res.status !== 'ok') throw new Error(res.mensaje || 'Error desconocido');
-    msg.textContent = '✓ ' + (res.mensaje || 'KPI actualizado');
+    msg.textContent = '✓ KPI actualizado';
     msg.className = 'save-msg ok';
     toast(`KPI ${kpiId} actualizado en Google Sheets ✓`);
-    setTimeout(() => {
-      cerrarEditarKPI();
-      localStorage.removeItem(DATA_KEY);
-      localStorage.removeItem(DATA_TS_KEY);
-      syncData();
-    }, 800);
+    setTimeout(() => { cerrarEditarKPI(); syncData(); }, 800);
   } catch(e) {
-    console.log('[EDITAR] Error:', e.message);
     msg.textContent = '✗ ' + e.message;
     msg.className = 'save-msg err';
     btn.disabled = false;
@@ -2291,140 +2200,12 @@ async function guardarNuevoKPI() {
     if(res.status!=='ok') throw new Error(res.mensaje||'Error desconocido');
     msg.textContent='✓ Objetivo guardado'; msg.className='save-msg ok';
     toast(`KPI ${kpiId} agregado a ${gerencia} ✓`);
-    cerrarFormNuevoKPI();
-    setTimeout(()=>{
-      localStorage.removeItem(DATA_KEY);
-      localStorage.removeItem(DATA_TS_KEY);
-      syncData();
-    }, 1200);
+    cerrarFormNuevoKPI(); setTimeout(syncData,1200);
   } catch(e) {
     msg.textContent='✗ '+e.message; msg.className='save-msg err';
     toast(e.message,'err');
   } finally { btn.disabled=false; }
 }
-// ═══════════════════════════════════════════════════════
-// GESTIONAR USUARIOS (solo admin)
-// ═══════════════════════════════════════════════════════
-
-// Lista local de usuarios — se actualiza desde Sheets
-const USUARIOS_DEFAULT = [
-  {usuario:'admin',        password:'sooft2026',  gerencia:'Dirección',    rol:'admin'},
-  {usuario:'rrhh',         password:'rrhh2026',   gerencia:'PEOPLE_RRHH',  rol:'gerente'},
-  {usuario:'admin_ger',    password:'admin2026',  gerencia:'ADMIN',        rol:'gerente'},
-  {usuario:'finanzas',     password:'fin2026',    gerencia:'FINANZAS',     rol:'gerente'},
-  {usuario:'marketing',    password:'mkt2026',    gerencia:'MARKETING',    rol:'gerente'},
-  {usuario:'operaciones',  password:'ops2026',    gerencia:'OPERACIONES',  rol:'gerente'},
-  {usuario:'comercial_ar', password:'comar2026',  gerencia:'COMERCIAL_AR', rol:'gerente'},
-  {usuario:'comercial_cl', password:'comcl2026',  gerencia:'COMERCIAL_CL', rol:'gerente'},
-  {usuario:'calidad',      password:'cal2026',    gerencia:'CALIDAD',      rol:'gerente'},
-  {usuario:'reclutamiento',password:'rec2026',    gerencia:'RECLUTAMIENTO',rol:'gerente'},
-];
-
-let _usuarioEditar = null;
-
-function renderUsuarios() {
-  if (!SESSION || SESSION.rol !== 'admin') return;
-  const tbody = document.getElementById('usuarios-tbody');
-  if (!tbody) return;
-
-  // Try to load users from Sheets data, fallback to defaults
-  const d = getData();
-  const usuarios = (d?.usuarios && d.usuarios.length > 0) ? d.usuarios : USUARIOS_DEFAULT;
-
-  tbody.innerHTML = usuarios.map((u, i) => {
-    const bg = i % 2 === 0 ? 'background:var(--surface2)' : '';
-    const rolBadge = u.rol === 'admin'
-      ? `<span style="padding:2px 8px;border-radius:4px;background:rgba(110,231,183,.15);border:1px solid #6ee7b7;color:#059669;font-size:11px;font-weight:600">${u.rol}</span>`
-      : `<span style="padding:2px 8px;border-radius:4px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);font-size:11px">${u.rol}</span>`;
-    const pwDisplay = u.password ? '•'.repeat(Math.min(u.password.length, 10)) : '—';
-    return `<tr style="${bg}">
-      <td class="bold" data-label="Usuario" style="font-family:'DM Mono',monospace">${u.usuario}</td>
-      <td data-label="Gerencia">${u.gerencia}</td>
-      <td data-label="Rol">${rolBadge}</td>
-      <td data-label="Contraseña" style="font-family:'DM Mono',monospace;color:var(--text3)">${pwDisplay}</td>
-      <td data-label="Acción">
-        <button onclick="abrirModalClave('${u.usuario}','${u.gerencia}')"
-          style="padding:4px 12px;border-radius:5px;border:1px solid var(--accent);
-          background:rgba(110,231,183,.08);color:var(--accent);font-size:11px;cursor:pointer;
-          font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .15s"
-          onmouseover="this.style.background='var(--accent)';this.style.color='#1f2937'"
-          onmouseout="this.style.background='rgba(110,231,183,.08)';this.style.color='var(--accent)'">
-          Cambiar clave
-        </button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function abrirModalClave(usuario, gerencia) {
-  _usuarioEditar = { usuario, gerencia };
-  document.getElementById('modal-clave-sub').textContent = `${usuario} · ${gerencia}`;
-  document.getElementById('nueva-clave').value = '';
-  document.getElementById('confirmar-clave').value = '';
-  document.getElementById('msg-clave').textContent = '';
-  document.getElementById('btn-guardar-clave').disabled = false;
-  document.getElementById('modal-clave').style.display = 'flex';
-  setTimeout(() => document.getElementById('nueva-clave').focus(), 100);
-}
-
-function cerrarModalClave() {
-  document.getElementById('modal-clave').style.display = 'none';
-  _usuarioEditar = null;
-}
-
-async function guardarClave() {
-  if (!SESSION || SESSION.rol !== 'admin') return;
-  if (!_usuarioEditar) return;
-
-  const nuevaClave    = document.getElementById('nueva-clave').value.trim();
-  const confirmarClave = document.getElementById('confirmar-clave').value.trim();
-  const msg = document.getElementById('msg-clave');
-  const btn = document.getElementById('btn-guardar-clave');
-
-  if (!nuevaClave) { msg.textContent = '✗ Ingresá la nueva contraseña'; msg.style.color = 'var(--rojo)'; return; }
-  if (nuevaClave.length < 6) { msg.textContent = '✗ Mínimo 6 caracteres'; msg.style.color = 'var(--rojo)'; return; }
-  if (nuevaClave !== confirmarClave) { msg.textContent = '✗ Las contraseñas no coinciden'; msg.style.color = 'var(--rojo)'; return; }
-
-  btn.disabled = true;
-  msg.textContent = 'Guardando...';
-  msg.style.color = 'var(--text3)';
-
-  const apiUrl = getApiUrl();
-  if (!apiUrl) {
-    // Demo mode — only update local DEMO array
-    const demoArr = document.querySelector ? null : null;
-    msg.textContent = '✓ Guardado localmente (modo demo)';
-    msg.style.color = 'var(--verde)';
-    toast(`Contraseña de ${_usuarioEditar.usuario} actualizada (demo)`);
-    btn.disabled = false;
-    setTimeout(cerrarModalClave, 1200);
-    return;
-  }
-
-  try {
-    const res = await apiPost({
-      accion: 'cambiar_clave',
-      usuario: SESSION.usuario,
-      password: sessionStorage.getItem('sooft_pass') || '',
-      target_usuario: _usuarioEditar.usuario,
-      nueva_password: nuevaClave,
-    });
-    if (res.status !== 'ok') throw new Error(res.mensaje || 'Error desconocido');
-    msg.textContent = '✓ Contraseña actualizada';
-    msg.style.color = 'var(--verde)';
-    toast(`Contraseña de ${_usuarioEditar.usuario} actualizada en Google Sheets ✓`);
-    // Update local cache too
-    localStorage.removeItem(DATA_KEY);
-    localStorage.removeItem(DATA_TS_KEY);
-    setTimeout(() => { cerrarModalClave(); syncData(); }, 800);
-  } catch(e) {
-    msg.textContent = '✗ ' + e.message;
-    msg.style.color = 'var(--rojo)';
-    btn.disabled = false;
-    toast(e.message, 'err');
-  }
-}
-
 // ═══════════════════════════════════════════════════════
 // MOBILE SIDEBAR
 // ═══════════════════════════════════════════════════════
@@ -2628,64 +2409,6 @@ init();
         Cancelar
       </button>
       <span class="save-msg" id="msg-editar-kpi"></span>
-    </div>
-  </div>
-</div>
-
-<!-- ── MODAL DIAGNÓSTICO ── -->
-<div id="modal-diagnostico" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:960;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;width:660px;max-width:96vw;margin:auto">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)">Diagnóstico de KPI</div>
-      <button onclick="cerrarDiagnostico()" style="background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
-    </div>
-    <div style="display:flex;gap:8px;margin-bottom:16px">
-      <input type="text" id="diag-kpi-id" class="form-input" placeholder="KPI ID (ej: CAL-03)" style="flex:1">
-      <input type="text" id="diag-gerencia" class="form-input" placeholder="Gerencia (ej: CALIDAD)" style="flex:1">
-      <button onclick="ejecutarDiagnostico()" style="padding:9px 16px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
-        Analizar
-      </button>
-    </div>
-    <div id="diag-result" style="font-family:'DM Mono',monospace;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;white-space:pre-wrap;max-height:420px;overflow-y:auto;color:var(--text2);line-height:1.6">
-      Ingresá un KPI ID y gerencia para diagnosticar.
-    </div>
-  </div>
-</div>
-
-<!-- ── MODAL CAMBIAR CONTRASEÑA ── -->
-<div id="modal-clave" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:960;align-items:center;justify-content:center">
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:400px;max-width:92vw">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div>
-        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)">Cambiar contraseña</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:3px" id="modal-clave-sub">usuario</div>
-      </div>
-      <button onclick="cerrarModalClave()" style="background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
-    </div>
-
-    <div style="margin-bottom:14px">
-      <label class="form-label">Nueva contraseña *</label>
-      <input type="text" class="form-input" id="nueva-clave" placeholder="Mínimo 6 caracteres" autocomplete="off">
-    </div>
-    <div style="margin-bottom:20px">
-      <label class="form-label">Confirmar contraseña *</label>
-      <input type="text" class="form-input" id="confirmar-clave" placeholder="Repetí la contraseña" autocomplete="off">
-    </div>
-
-    <div style="padding:10px 14px;background:var(--blueLt,#eff6ff);border:1px solid #bfdbfe;border-radius:7px;margin-bottom:16px;font-size:12px;color:var(--text2)">
-      <strong style="color:#1d4ed8">ℹ</strong> El cambio se guarda en Google Sheets y en el HTML del tablero. El usuario deberá usar la nueva clave en su próximo ingreso.
-    </div>
-
-    <div style="display:flex;align-items:center;gap:12px">
-      <button id="btn-guardar-clave" onclick="guardarClave()"
-        style="padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;
-        font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
-        Guardar contraseña
-      </button>
-      <button onclick="cerrarModalClave()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
-        Cancelar
-      </button>
-      <span id="msg-clave" style="font-size:12px"></span>
     </div>
   </div>
 </div>
