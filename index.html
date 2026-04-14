@@ -17,6 +17,9 @@
   --amarillo:#d97706; --amarillo-bg:rgba(217,119,6,0.08); --amarillo-border:rgba(217,119,6,0.25);
   --rojo:#dc2626; --rojo-bg:rgba(220,38,38,0.08); --rojo-border:rgba(220,38,38,0.25);
   --neutro:#6b7280; --radius:10px; --radius-lg:16px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
+  --transition-fast:.15s ease; --transition-base:.25s ease;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;line-height:1.5}
@@ -98,10 +101,16 @@ body::before{display:none}
 
 /* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:border-color var(--transition-fast),box-shadow var(--transition-fast),transform var(--transition-fast)}
+.stat-card.clickable{cursor:pointer}
+.stat-card.clickable:hover{border-color:var(--accent);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.stat-card.clickable:active{transform:translateY(0)}
+.stat-card.active-filter{border-color:var(--accent);box-shadow:0 0 0 2px rgba(110,231,183,.2)}
 .stat-num{font-family:'DM Mono',monospace;font-size:26px;font-weight:500}
 .stat-num.accent{color:var(--accent)} .stat-num.verde{color:var(--verde)} .stat-num.amarillo{color:var(--amarillo)} .stat-num.rojo{color:var(--rojo)}
 .stat-lbl{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.stat-hint{font-size:10px;color:var(--text3);margin-top:6px;opacity:0;transition:opacity var(--transition-fast)}
+.stat-card.clickable:hover .stat-hint{opacity:1}
 
 /* Section */
 .section{margin-bottom:28px}
@@ -185,23 +194,24 @@ td.bold{color:var(--text);font-weight:500}
 
 /* ── CARGA KPI ── */
 .carga-grid{display:flex;flex-direction:column;gap:10px}
-.kpi-carga-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .2s}
-.kpi-carga-card:hover{border-color:rgba(255,255,255,.12)}
-.kpi-carga-header{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.kpi-carga-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
+.kpi-carga-card:hover{border-color:rgba(110,231,183,.3);box-shadow:var(--shadow-sm)}
+.kpi-carga-card.open{border-color:rgba(110,231,183,.4);box-shadow:var(--shadow-md)}
+.kpi-carga-header{padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
 .kpi-carga-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:80px}
-.kpi-carga-name{flex:1;font-size:12px;color:var(--text)}
+.kpi-carga-name{flex:1;font-size:12px;color:var(--text);line-height:1.4}
 .kpi-carga-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
-.kpi-carga-expand{font-size:14px;color:var(--text3);transition:transform .2s;margin-left:8px}
+.kpi-carga-expand{font-size:14px;color:var(--text3);transition:transform var(--transition-fast);margin-left:8px;flex-shrink:0}
 .kpi-carga-card.open .kpi-carga-expand{transform:rotate(180deg)}
 
-.kpi-carga-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);margin-top:0}
+.kpi-carga-body{display:none;padding:0 16px 18px;border-top:1px solid var(--border);margin-top:0}
 .kpi-carga-card.open .kpi-carga-body{display:block}
 
-.kpi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.kpi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
 .kpi-form-full{grid-column:1/-1}
-.form-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:5px;display:block}
-.form-input{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
-.form-input:focus{border-color:var(--accent)}
+.form-label{font-size:11px;color:var(--text2);font-weight:600;margin-bottom:5px;display:block;letter-spacing:.3px}
+.form-input{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(110,231,183,.12);background:var(--surface)}
 .form-input::placeholder{color:var(--text3)}
 
 .kpi-meta-info{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border)}
@@ -212,10 +222,11 @@ td.bold{color:var(--text);font-weight:500}
 .logro-preview{display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;border-radius:7px;background:var(--surface2)}
 .logro-preview-lbl{font-size:11px;color:var(--text3)}
 
-.btn-save{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;margin-top:14px}
-.btn-save:hover{opacity:.85}
-.btn-save:disabled{opacity:.5;cursor:not-allowed}
-.save-msg{font-size:11px;margin-left:10px;vertical-align:middle}
+.btn-save{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity var(--transition-fast),transform var(--transition-fast);margin-top:14px;display:inline-flex;align-items:center;gap:6px}
+.btn-save:hover{opacity:.85;transform:translateY(-1px)}
+.btn-save:active{transform:translateY(0)}
+.btn-save:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.save-msg{font-size:11px;margin-left:10px;vertical-align:middle;font-weight:500}
 .save-msg.ok{color:var(--verde)}
 .save-msg.err{color:var(--rojo)}
 
@@ -241,19 +252,20 @@ td.bold{color:var(--text);font-weight:500}
 .toast.err{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo)}
 
 /* Config modal */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;align-items:center;justify-content:center}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
 .modal-overlay.open{display:flex}
-.modal{background:#ffffff;border:1px solid #e5e7eb;border-radius:var(--radius-lg);padding:26px;width:500px;max-width:90vw}
-.modal-title{font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:5px}
+.modal{background:#ffffff;border:1px solid #e5e7eb;border-radius:var(--radius-lg);padding:28px;width:500px;max-width:92vw;box-shadow:var(--shadow-md)}
+.modal-title{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:5px}
 .modal-sub{color:var(--text3);font-size:12px;margin-bottom:20px;line-height:1.6}
 .input-group{margin-bottom:14px}
-.input-label{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500}
-.input-field{width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
-.input-field:focus{border-color:var(--accent)}
-.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
-.btn-primary{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
-.btn-primary:hover{opacity:.85}
-.btn-secondary{padding:9px 20px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+.input-label{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600;letter-spacing:.3px}
+.input-field{width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color var(--transition-fast),box-shadow var(--transition-fast)}
+.input-field:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(110,231,183,.12);background:var(--surface)}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}
+.btn-primary{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity var(--transition-fast),transform var(--transition-fast)}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{padding:9px 20px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all var(--transition-fast)}
 .btn-secondary:hover{border-color:var(--text2);color:var(--text)}
 
 .steps{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
@@ -270,27 +282,28 @@ td.bold{color:var(--text);font-weight:500}
 @media(max-width:900px){.risk-grid{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}.kpi-form-grid{grid-template-columns:1fr}}
 
 /* ── GERENCIA DRAWER ── */
-.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;opacity:0;pointer-events:none;transition:opacity var(--transition-base);backdrop-filter:blur(1px)}
 .drawer-overlay.open{opacity:1;pointer-events:all}
-.drawer{position:fixed;top:0;right:0;width:680px;max-width:100vw;height:100vh;background:#ffffff;border-left:1px solid #e5e7eb;z-index:700;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer{position:fixed;top:0;right:0;width:700px;max-width:100vw;height:100vh;background:#ffffff;border-left:1px solid #e5e7eb;z-index:700;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden;box-shadow:-8px 0 32px rgba(0,0,0,0.12)}
 .drawer.open{transform:translateX(0)}
-.drawer-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.drawer-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;background:var(--surface)}
 .drawer-title-block{flex:1;min-width:0}
-.drawer-title{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.5px;color:var(--text)}
+.drawer-title{font-family:'DM Serif Display',serif;font-size:21px;letter-spacing:-.5px;color:var(--text)}
 .drawer-subtitle{font-size:11px;color:var(--text3);margin-top:3px}
-.drawer-close{background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-.drawer-close:hover{border-color:var(--text2);color:var(--text)}
+.drawer-close{background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition-fast)}
+.drawer-close:hover{border-color:var(--rojo-border);color:var(--rojo);background:var(--rojo-bg)}
 
-.drawer-tabs{display:flex;gap:2px;padding:10px 24px 0;border-bottom:1px solid #e5e7eb;flex-shrink:0}
-.dtab{padding:8px 16px;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;background:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;position:relative;bottom:-1px}
-.dtab:hover{color:var(--text2)}
-.dtab.active{background:#ffffff;border-color:#e5e7eb;border-bottom-color:#ffffff;color:#059669}
+.drawer-tabs{display:flex;gap:2px;padding:10px 24px 0;border-bottom:1px solid #e5e7eb;flex-shrink:0;background:var(--surface)}
+.dtab{padding:8px 18px;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;background:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all var(--transition-fast);position:relative;bottom:-1px}
+.dtab:hover{color:var(--text2);background:var(--surface2)}
+.dtab.active{background:#ffffff;border-color:#e5e7eb;border-bottom-color:#ffffff;color:#059669;font-weight:600}
 
-.drawer-body{flex:1;overflow-y:auto;padding:20px 24px}
+.drawer-body{flex:1;overflow-y:auto;padding:22px 24px}
 
 /* Drawer stats mini */
 .drawer-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
-.dstat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.dstat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;transition:border-color var(--transition-fast)}
+.dstat:hover{border-color:rgba(110,231,183,.3)}
 .dstat-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
 .dstat-lbl{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
 
@@ -344,11 +357,11 @@ td.bold{color:var(--text);font-weight:500}
   .hamburger{display:flex}
 
   /* Sidebar slides in from left */
-  .sidebar{position:fixed;left:0;top:0;height:100vh;z-index:750;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);width:260px}
+  .sidebar{position:fixed;left:0;top:0;height:100vh;z-index:750;transform:translateX(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1);width:268px}
   .sidebar.mobile-open{transform:translateX(0)}
 
   /* Main takes full width */
-  .main{max-width:100vw;padding:16px;padding-top:64px}
+  .main{max-width:100vw;padding:16px;padding-top:66px}
 
   /* App layout */
   .app{flex-direction:column}
@@ -357,6 +370,7 @@ td.bold{color:var(--text);font-weight:500}
   .stats-row{grid-template-columns:repeat(2,1fr);gap:8px}
   .stat-card{padding:12px}
   .stat-num{font-size:22px}
+  .stat-hint{display:none}
 
   /* Dir obj rows — stack to cards on mobile */
   .dir-obj-row{display:flex;flex-direction:column;gap:6px;padding:12px}
@@ -398,11 +412,16 @@ td.bold{color:var(--text);font-weight:500}
   .section-title{font-size:14px}
 
   /* Drawer full screen on mobile */
-  .drawer{width:100vw;max-width:100vw}
+  .drawer{width:100vw;max-width:100vw;box-shadow:none}
   .drawer-stats{grid-template-columns:repeat(2,1fr)}
+  .drawer-body{padding:16px}
+  .drawer-header{padding:16px}
+  .drawer-tabs{padding:8px 16px 0}
+  .dtab{padding:7px 12px;font-size:11px}
 
   /* KPI carga cards */
   .kpi-form-grid{grid-template-columns:1fr}
+  .kpi-carga-id{min-width:60px;font-size:10px}
 
   /* Filter bar wrap */
   .filter-bar{gap:6px}
@@ -418,16 +437,24 @@ td.bold{color:var(--text);font-weight:500}
   /* Sync bar */
   .sync-bar{margin:8px 14px 10px}
 
-  /* KPI drawer table scroll */
-  .kpi-drawer-table{font-size:11px}
+  /* KPI drawer table — horizontal scroll */
+  .kpi-drawer-table{font-size:11px;min-width:480px}
   .kpi-drawer-table th,.kpi-drawer-table td{padding:6px 8px}
+  .drawer-body .table-wrap-scroll{overflow-x:auto}
+
+  /* Risk estado buttons */
+  .risk-estado-btns{gap:4px}
+  .risk-estado-btn{padding:5px 10px;font-size:11px}
 }
 
 @media(max-width:480px){
   .stats-row{grid-template-columns:repeat(2,1fr)}
   .stat-num{font-size:20px}
   .page-title{font-size:18px}
-  .main{padding:12px;padding-top:60px}
+  .main{padding:12px;padding-top:62px}
+  .kpi-carga-header{padding:11px 12px;gap:8px}
+  .kpi-carga-body{padding:0 12px 14px}
+  .kpi-form-grid{gap:10px}
 }
 
 /* ── GESTIONAR OBJETIVOS ── */
@@ -598,7 +625,7 @@ td.bold{color:var(--text);font-weight:500}
       </div>
       <div class="stats-row" id="dash-stats"></div>
       <div class="section">
-        <div class="section-title">Objetivos de Dirección</div>
+        <div class="section-title" id="dash-dir-section-title">Objetivos de Dirección</div>
         <div class="dir-obj-grid">
           <div class="dir-obj-row header">
             <span>ID</span><span>Objetivo</span><span>Q sel.</span><span>YTD</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
@@ -1032,7 +1059,8 @@ async function syncData() {
   const url = getApiUrl();
   if (!url) { setSyncState('ok', 'Conectado'); return; }
   setSyncState('loading', 'Sincronizando...');
-  document.getElementById('sync-btn').disabled = true;
+  const syncBtn = document.getElementById('sync-btn');
+  if (syncBtn) syncBtn.disabled = true;
   try {
     const json = await apiGet();
     DATA = json;
@@ -1040,15 +1068,26 @@ async function syncData() {
     localStorage.setItem(DATA_KEY, JSON.stringify(DATA));
     localStorage.setItem(DATA_TS_KEY, now);
     setSyncState('ok', 'Sincronizado');
-    document.getElementById('sync-time').textContent = `Última sync: ${now}`;
+    const syncTime = document.getElementById('sync-time');
+    if (syncTime) syncTime.textContent = `Última sync: ${now}`;
     renderCurrentPage();
   } catch(e) {
     setSyncState('error', 'Error de conexión');
-    // Usar caché
+    // Usar caché si está disponible
     const saved = localStorage.getItem(DATA_KEY);
-    if (saved) { DATA = JSON.parse(saved); renderCurrentPage(); }
+    if (saved) {
+      try {
+        DATA = JSON.parse(saved);
+        const ts = localStorage.getItem(DATA_TS_KEY);
+        const syncTime = document.getElementById('sync-time');
+        if (syncTime && ts) syncTime.textContent = `Caché: ${ts}`;
+        renderCurrentPage();
+      } catch(parseErr) {
+        console.error('Error parsing cached data:', parseErr);
+      }
+    }
   } finally {
-    document.getElementById('sync-btn').disabled = false;
+    if (syncBtn) syncBtn.disabled = false;
   }
 }
 
@@ -1134,8 +1173,10 @@ function showPage(page) {
 
 function setQ(q) {
   currentQ = q;
+  dashStatFilter = null; // Reset drill-down filter on Q change
   document.querySelectorAll('.q-pill').forEach(p => p.classList.toggle('active', p.textContent.startsWith(q)));
-  document.getElementById('carga-q-filter').value = q;
+  const cargaFilter = document.getElementById('carga-q-filter');
+  if (cargaFilter) cargaFilter.value = q;
   renderCurrentPage();
 }
 
@@ -1156,6 +1197,13 @@ function renderCurrentPage() {
 // ═══════════════════════════════════════════════════════
 // RENDER DASHBOARD
 // ═══════════════════════════════════════════════════════
+let dashStatFilter = null; // null | 'verde' | 'amarillo' | 'rojo'
+
+function setDashStatFilter(sem) {
+  dashStatFilter = dashStatFilter === sem ? null : sem;
+  renderDashboard();
+}
+
 function renderDashboard() {
   const d = getData(); if (!d) return;
   const dirs = d.res_direccion || [];
@@ -1166,13 +1214,53 @@ function renderDashboard() {
   const amarillos = vals.filter(v=>v>=0.7&&v<0.9).length;
   const rojos = vals.filter(v=>v<0.7).length;
 
-  document.getElementById('dash-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div></div>
-    <div class="stat-card"><div class="stat-num verde">${verdes}</div><div class="stat-lbl">VERDE</div></div>
-    <div class="stat-card"><div class="stat-num amarillo">${amarillos}</div><div class="stat-lbl">AMARILLO</div></div>
-    <div class="stat-card"><div class="stat-num rojo">${rojos}</div><div class="stat-lbl">ROJO</div></div>`;
+  const activeV = dashStatFilter === 'verde';
+  const activeA = dashStatFilter === 'amarillo';
+  const activeR = dashStatFilter === 'rojo';
 
-  document.getElementById('dash-dir-table').innerHTML = dirs.map(r => {
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="stat-card" title="Promedio de avance de todos los objetivos en ${currentQ}">
+      <div class="stat-num accent">${pct(avg)}</div>
+      <div class="stat-lbl">Avance ${currentQ}</div>
+    </div>
+    <div class="stat-card clickable ${activeV?'active-filter':''}" onclick="setDashStatFilter('verde')" role="button" aria-pressed="${activeV}" title="Filtrar objetivos en VERDE (≥90%)">
+      <div class="stat-num verde">${verdes}</div>
+      <div class="stat-lbl">VERDE</div>
+      <div class="stat-hint">${activeV?'Clic para quitar filtro':'Clic para filtrar'}</div>
+    </div>
+    <div class="stat-card clickable ${activeA?'active-filter':''}" onclick="setDashStatFilter('amarillo')" role="button" aria-pressed="${activeA}" title="Filtrar objetivos en AMARILLO (70–89%)">
+      <div class="stat-num amarillo">${amarillos}</div>
+      <div class="stat-lbl">AMARILLO</div>
+      <div class="stat-hint">${activeA?'Clic para quitar filtro':'Clic para filtrar'}</div>
+    </div>
+    <div class="stat-card clickable ${activeR?'active-filter':''}" onclick="setDashStatFilter('rojo')" role="button" aria-pressed="${activeR}" title="Filtrar objetivos en ROJO (<70%)">
+      <div class="stat-num rojo">${rojos}</div>
+      <div class="stat-lbl">ROJO</div>
+      <div class="stat-hint">${activeR?'Clic para quitar filtro':'Clic para filtrar'}</div>
+    </div>`;
+
+  // Apply stat card drill-down filter
+  let filteredDirs = dirs;
+  if (dashStatFilter) {
+    filteredDirs = dirs.filter(r => {
+      const v = getQVal(r, currentQ);
+      if (dashStatFilter === 'verde') return v >= 0.9;
+      if (dashStatFilter === 'amarillo') return v >= 0.7 && v < 0.9;
+      if (dashStatFilter === 'rojo') return v < 0.7;
+      return true;
+    });
+  }
+
+  // Update section title to reflect active filter
+  const sectionTitle = document.getElementById('dash-dir-section-title');
+  if (sectionTitle) {
+    const filterLabel = dashStatFilter
+      ? ` — <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--${dashStatFilter});font-weight:600;text-transform:uppercase">${dashStatFilter} (${filteredDirs.length})</span> <button onclick="setDashStatFilter('${dashStatFilter}')" style="font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;font-family:'DM Sans',sans-serif;margin-left:4px">✕ quitar</button>`
+      : '';
+    sectionTitle.innerHTML = `Objetivos de Dirección${filterLabel}`;
+  }
+
+  document.getElementById('dash-dir-table').innerHTML = filteredDirs.map(r => {
     const qv = getQVal(r, currentQ); const cls = semColor(qv);
     const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
     const id = r['Obj_ID']||r.id||''; const obj = r['Objetivo']||r.obj||''; const area = r['Área']||r.area||'';
@@ -1673,7 +1761,22 @@ function renderCarga() {
     return;
   }
 
-  document.getElementById('carga-grid').innerHTML = kpis.map(k => {
+  // Group by gerencia for admin view
+  const grouped = {};
+  kpis.forEach(k => {
+    const g = k['Responsable'] || 'Sin gerencia';
+    if (!grouped[g]) grouped[g] = [];
+    grouped[g].push(k);
+  });
+
+  const isAdmin = SESSION.rol === 'admin';
+  const gerencias = Object.keys(grouped).sort();
+
+  document.getElementById('carga-grid').innerHTML = gerencias.map(gerName => {
+    const gerKpis = grouped[gerName];
+    const gerHeader = isAdmin ? `<div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:10px 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px;display:flex;align-items:center;gap:8px"><span style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span>${gerName}</div>` : '';
+
+    const cards = gerKpis.map(k => {
     const key = k['KEY'] || `${k['Q']}|${k['KPI_ID']}`;
     const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
     const estadoSheet = k['Estado_lookup']||k['Estado']||'';
@@ -1693,58 +1796,77 @@ function renderCarga() {
     const cls = naQ ? 'neutro' : semColor(logro);
     const logroDisplay = naQ ? '' : pct(logro);
 
+    // Format meta display
+    const metaDisplay = meta !== null && meta !== undefined && meta !== ''
+      ? (unidad === '%' ? (parseFloat(meta)*100).toFixed(1)+'%' : meta+' '+unidad)
+      : '—';
+    const metaAnualDisplay = k['Meta_Anual'] !== null && k['Meta_Anual'] !== undefined && k['Meta_Anual'] !== ''
+      ? (unidad === '%' ? (parseFloat(k['Meta_Anual'])*100).toFixed(1)+'%' : k['Meta_Anual']+' '+unidad)
+      : '—';
+
     return `<div class="kpi-carga-card" id="card-${key}">
-      <div class="kpi-carga-header" onclick="toggleCard('${key}')">
+      <div class="kpi-carga-header" onclick="toggleCard('${key}')" role="button" aria-expanded="false" aria-controls="body-${key}">
         <div class="kpi-carga-id">${k['KPI_ID']||''}</div>
         <div class="kpi-carga-name">${k['Objetivo']||''}</div>
-        <div style="display:flex;align-items:center;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
           ${semBadge(estado)}
           <div class="kpi-carga-meta">${logroDisplay}</div>
-          <div class="kpi-carga-expand">▾</div>
+          <div class="kpi-carga-expand" aria-hidden="true">▾</div>
         </div>
       </div>
-      <div class="kpi-carga-body">
+      <div class="kpi-carga-body" id="body-${key}">
         <div class="kpi-meta-info">
           <div class="kpi-meta-item"><div class="kpi-meta-key">Gerencia</div><div class="kpi-meta-val">${resp}</div></div>
           <div class="kpi-meta-item"><div class="kpi-meta-key">Métrica</div><div class="kpi-meta-val">${k['Métrica']||''}</div></div>
-          <div class="kpi-meta-item"><div class="kpi-meta-key">Comparador</div><div class="kpi-meta-val">${comparador} ${meta} ${unidad}</div></div>
-          <div class="kpi-meta-item"><div class="kpi-meta-key">Meta anual</div><div class="kpi-meta-val">${k['Meta_Anual']||''} ${unidad}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Meta Q</div><div class="kpi-meta-val" style="color:var(--accent)">${comparador} ${metaDisplay}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Meta anual</div><div class="kpi-meta-val">${metaAnualDisplay}</div></div>
+          ${frecuencia ? `<div class="kpi-meta-item"><div class="kpi-meta-key">Frecuencia</div><div class="kpi-meta-val">${frecuencia}</div></div>` : ''}
         </div>
         <div class="kpi-form-grid">
           <div>
-            <label class="form-label">Actual Q (valor real)</label>
+            <label class="form-label" for="actual-${key}">Valor real del trimestre</label>
             <input type="number" step="any" class="form-input" id="actual-${key}"
-              value="${actual}" placeholder="Ingresá el valor real"
-              oninput="previewLogro('${key}','${meta}','${comparador}')">
+              value="${actual !== null && actual !== undefined ? actual : ''}" placeholder="Ingresá el valor real"
+              oninput="previewLogro('${key}','${meta}','${comparador}')"
+              aria-label="Valor real ${k['KPI_ID']||''}">
           </div>
           <div>
-            <label class="form-label">Evidencia (URL)</label>
+            <label class="form-label" for="evidencia-${key}">Evidencia (URL)</label>
             <input type="url" class="form-input" id="evidencia-${key}"
-              value="${evidencia}" placeholder="https://drive.google.com/...">
+              value="${evidencia}" placeholder="https://drive.google.com/..."
+              aria-label="URL de evidencia ${k['KPI_ID']||''}">
           </div>
           <div class="kpi-form-full">
-            <label class="form-label">Comentarios</label>
+            <label class="form-label" for="comentarios-${key}">Comentarios</label>
             <input type="text" class="form-input" id="comentarios-${key}"
-              value="${comentarios}" placeholder="Observaciones, contexto, etc.">
+              value="${comentarios}" placeholder="Observaciones, contexto, avances..."
+              aria-label="Comentarios ${k['KPI_ID']||''}">
           </div>
         </div>
         <div class="logro-preview" id="preview-${key}">
           <span class="logro-preview-lbl">Logro estimado:</span>
           ${progressBar(logro, cls)}
         </div>
-        <div>
-          <button class="btn-save" onclick="guardarKPI('${key}','${comparador}','${meta}')" id="btn-${key}">
-            Guardar en Sheets
+        <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap">
+          <button class="btn-save" onclick="guardarKPI('${key}','${comparador}','${meta}')" id="btn-${key}" aria-label="Guardar KPI ${k['KPI_ID']||''}">
+            💾 Guardar
           </button>
-          <span class="save-msg" id="msg-${key}"></span>
+          <span class="save-msg" id="msg-${key}" role="status" aria-live="polite"></span>
         </div>
       </div>
     </div>`;
+    }).join('');
+
+    return isAdmin ? `<div style="margin-bottom:16px">${gerHeader}${cards}</div>` : cards;
   }).join('');
 }
 
 function toggleCard(key) {
-  document.getElementById('card-'+key).classList.toggle('open');
+  const card = document.getElementById('card-'+key);
+  if (!card) return;
+  const isOpen = card.classList.toggle('open');
+  const header = card.querySelector('.kpi-carga-header');
+  if (header) header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
 }
 
 function previewLogro(key, meta, comparador) {
@@ -1902,8 +2024,14 @@ async function guardarRiesgo(id) {
   const btn = document.getElementById('rbtn-'+id);
   const msg = document.getElementById('rmsg-'+id);
   const comentarios = document.getElementById('rcomentarios-'+id)?.value || '';
-  const estado = btn?.dataset?.estado || document.querySelector(`#ebtn-abierto-${id}.selected-abierto`) ? 'Abierto'
-    : document.querySelector(`#ebtn-mitigacion-${id}.selected-mitigacion`) ? 'En mitigación' : 'Cerrado';
+  // Determine estado from button dataset (set by selectEstado) or from selected button class
+  let estado = btn?.dataset?.estado;
+  if (!estado) {
+    if (document.querySelector(`#ebtn-abierto-${id}.selected-abierto`)) estado = 'Abierto';
+    else if (document.querySelector(`#ebtn-mitigacion-${id}.selected-mitigacion`)) estado = 'En mitigación';
+    else if (document.querySelector(`#ebtn-cerrado-${id}.selected-cerrado`)) estado = 'Cerrado';
+    else estado = 'Abierto';
+  }
 
   btn.disabled = true;
   msg.textContent = 'Guardando...';
