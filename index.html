@@ -493,6 +493,32 @@ td.bold{color:var(--text);font-weight:500}
 .plan-form-input{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;transition:border-color .15s;resize:vertical}
 .plan-form-input:focus{border-color:var(--accent)}
 .plan-form-input::placeholder{color:var(--text3)}
+
+/* Riesgo / Oportunidad extra fields */
+.pi-selector{display:flex;gap:4px}
+.pi-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pi-btn:hover{border-color:var(--text2)}
+.pi-btn.sel-rojo{background:var(--rojo);border-color:var(--rojo);color:#fff;font-weight:700}
+.pi-btn.sel-amarillo{background:var(--amarillo);border-color:var(--amarillo);color:#fff;font-weight:700}
+.pi-btn.sel-verde{background:var(--verde);border-color:var(--verde);color:#fff;font-weight:700}
+.pi-result-box{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);min-width:68px}
+.pi-result-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.pi-result-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:700}
+.cierre-box{margin-top:4px;border-radius:8px;padding:12px 14px;border:1px solid}
+.cierre-box-risk{background:rgba(37,99,235,.04);border-color:rgba(37,99,235,.2)}
+.cierre-box-oport{background:rgba(22,163,74,.04);border-color:rgba(22,163,74,.2)}
+.cierre-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.cierre-lbl-risk{color:#2563eb}
+.cierre-lbl-oport{color:#059669}
+.cierre-lbl::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
+.cierre-select{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;cursor:pointer}
+.cierre-select:focus{border-color:var(--accent)}
+.cierre-nota{font-size:10px;color:var(--text3);margin-top:5px}
+.oport-estado-btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.oport-estado-btn.sel-activa{background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.25);color:#2563eb}
+.oport-estado-btn.sel-seguimiento{background:var(--amarillo-bg);border-color:var(--amarillo-border);color:var(--amarillo)}
+.oport-estado-btn.sel-concretada{background:var(--verde-bg);border-color:var(--verde-border);color:var(--verde)}
+.oport-estado-btn.sel-descartada{background:rgba(107,114,128,.08);border-color:rgba(107,114,128,.2);color:var(--neutro)}
 </style>
 </head>
 <body>
@@ -580,7 +606,7 @@ td.bold{color:var(--text);font-weight:500}
       </button>
       <button class="nav-btn" id="nav-riesgos-carga" onclick="showPage('riesgos-carga');closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"/></svg>
-        <span>Riesgos</span>
+        <span>Riesgos / Oportunidades</span>
       </button>
       <button class="nav-btn" id="nav-gestionar" style="display:none" onclick="showPage('gestionar');closeSidebar()">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
@@ -716,17 +742,47 @@ td.bold{color:var(--text);font-weight:500}
     <!-- RIESGOS CARGA -->
     <div id="page-riesgos-carga" class="page">
       <div class="page-header">
-        <div><div class="page-title">Riesgos</div><div class="page-subtitle">Actualizá el estado de tus riesgos</div></div>
+        <div><div class="page-title">Riesgos / Oportunidades</div><div class="page-subtitle">Actualizá el estado, evaluación y cierre (Dirección)</div></div>
         <span class="q-badge" id="rie-q-badge">Q4</span>
       </div>
-      <div class="filter-bar">
-        <select class="filter-select" id="riesgo-q-filter" onchange="renderRiesgosCarga()">
-          <option value="">Todos los Q</option>
-          <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
-        </select>
-        <div class="filter-count" id="riesgos-count"></div>
+      <div style="display:flex;gap:3px;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px">
+        <button id="tab-riesgos-btn" onclick="switchRiesgoTab('riesgos')"
+          style="flex:1;padding:7px 12px;border-radius:6px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
+          Riesgos
+        </button>
+        <button id="tab-oport-btn" onclick="switchRiesgoTab('oportunidades')"
+          style="flex:1;padding:7px 12px;border-radius:6px;border:none;background:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer">
+          Oportunidades
+        </button>
       </div>
-      <div class="carga-grid" id="riesgos-carga-grid"></div>
+      <div id="sub-riesgos">
+        <div class="filter-bar">
+          <select class="filter-select" id="riesgo-q-filter" onchange="renderRiesgosCarga()">
+            <option value="">Todos los Q</option>
+            <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
+          </select>
+          <select class="filter-select" id="riesgo-estado-filter" onchange="renderRiesgosCarga()">
+            <option value="">Todos los estados</option>
+            <option>Abierto</option><option>En mitigación</option><option>Cerrado</option>
+          </select>
+          <div class="filter-count" id="riesgos-count"></div>
+        </div>
+        <div class="carga-grid" id="riesgos-carga-grid"></div>
+      </div>
+      <div id="sub-oportunidades" style="display:none">
+        <div class="filter-bar">
+          <select class="filter-select" id="oport-q-filter" onchange="renderOportunidades()">
+            <option value="">Todos los Q</option>
+            <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
+          </select>
+          <select class="filter-select" id="oport-estado-filter" onchange="renderOportunidades()">
+            <option value="">Todos los estados</option>
+            <option>Activa</option><option>En seguimiento</option><option>Concretada</option><option>Descartada</option>
+          </select>
+          <div class="filter-count" id="oport-count"></div>
+        </div>
+        <div class="carga-grid" id="oportunidades-grid"></div>
+      </div>
     </div>
 
 
@@ -1140,7 +1196,10 @@ function renderCurrentPage() {
     case 'direccion': renderDireccion(); break;
     case 'gerencias': renderGerencias(); break;
     case 'carga': renderCarga(); break;
-    case 'riesgos-carga': renderRiesgosCarga(); break;
+    case 'riesgos-carga':
+      const activeTab = document.getElementById('sub-oportunidades')?.style.display === 'block' ? 'oportunidades' : 'riesgos';
+      if (activeTab === 'oportunidades') renderOportunidades(); else renderRiesgosCarga();
+      break;
     case 'gestionar': renderGestionar(); break;
   }
 }
@@ -1832,17 +1891,58 @@ async function guardarKPI(key, comparador, meta) {
 // ═══════════════════════════════════════════════════════
 // RENDER RIESGOS CARGA
 // ═══════════════════════════════════════════════════════
+function switchRiesgoTab(tab) {
+  const isRiesgo = tab === 'riesgos';
+  document.getElementById('sub-riesgos').style.display = isRiesgo ? 'block' : 'none';
+  document.getElementById('sub-oportunidades').style.display = isRiesgo ? 'none' : 'block';
+  const rBtn = document.getElementById('tab-riesgos-btn');
+  const oBtn = document.getElementById('tab-oport-btn');
+  if (rBtn) { rBtn.style.background = isRiesgo ? '#1f2937' : 'none'; rBtn.style.color = isRiesgo ? '#6ee7b7' : 'var(--text3)'; }
+  if (oBtn) { oBtn.style.background = isRiesgo ? 'none' : '#1f2937'; oBtn.style.color = isRiesgo ? 'var(--text3)' : '#6ee7b7'; }
+  if (isRiesgo) renderRiesgosCarga(); else renderOportunidades();
+}
+
+function piSelector(tipo, id, val, max) {
+  const color = val >= 4 ? 'rojo' : val >= 3 ? 'amarillo' : 'verde';
+  return Array.from({length: max}, (_,i) => {
+    const n = i+1;
+    const sel = n <= val ? `sel-${color}` : '';
+    return `<button class="pi-btn ${sel}" onclick="setPiVal('${tipo}','${id}',${n})">${n}</button>`;
+  }).join('');
+}
+
+function setPiVal(tipo, id, val) {
+  const el = document.getElementById(`pi-${tipo}-val-${id}`);
+  if (el) el.value = val;
+  const wrap = document.getElementById(`pi-${tipo}-wrap-${id}`);
+  if (wrap) wrap.innerHTML = piSelector(tipo, id, val, 5);
+  recalcNivel(id);
+}
+
+function recalcNivel(id) {
+  const p = parseInt(document.getElementById(`pi-prob-val-${id}`)?.value||0);
+  const im = parseInt(document.getElementById(`pi-imp-val-${id}`)?.value||0);
+  const nivel = p * im;
+  const el = document.getElementById(`pi-nivel-${id}`);
+  const semEl = document.getElementById(`pi-sem-${id}`);
+  if (el) el.textContent = nivel;
+  const col = nivel >= 12 ? 'rojo' : nivel >= 6 ? 'amarillo' : 'verde';
+  if (el) el.style.color = `var(--${col})`;
+  if (semEl) { semEl.className = `badge badge-${col}`; semEl.textContent = col.toUpperCase(); }
+}
+
 function renderRiesgosCarga() {
   const d = getData(); if (!d || !SESSION) return;
   const qF = document.getElementById('riesgo-q-filter')?.value || '';
+  const estF = document.getElementById('riesgo-estado-filter')?.value || '';
+  const isAdmin = SESSION.rol === 'admin';
 
   let risks = d.riesgos || [];
-  if (SESSION.rol !== 'admin') {
-    risks = risks.filter(r => (r['Gerencia responsable']||r['Gerencia']||'') === SESSION.gerencia);
-  }
+  if (!isAdmin) risks = risks.filter(r => (r['Gerencia responsable']||r['Gerencia']||'') === SESSION.gerencia);
   if (qF) risks = risks.filter(r => r['Q'] === qF);
+  if (estF) risks = risks.filter(r => (r['Estado']||'Abierto') === estF);
 
-  document.getElementById('riesgos-count').textContent = `${risks.length} riesgos`;
+  document.getElementById('riesgos-count').textContent = `${risks.length} riesgo${risks.length!==1?'s':''}`;
 
   if (!risks.length) {
     document.getElementById('riesgos-carga-grid').innerHTML = '<div class="empty">Sin riesgos asignados</div>';
@@ -1853,15 +1953,38 @@ function renderRiesgosCarga() {
     const id = r['ID']||'';
     const sem = r['Semáforo']||'';
     const nivel = r['Nivel (P×I)']||0;
+    const prob = parseInt(r['Probabilidad (1-5)']||r['Probabilidad']||0);
+    const imp = parseInt(r['Impacto (1-5)']||r['Impacto']||0);
     const estadoActual = r['Estado']||'Abierto';
     const col = sem==='ROJO'?'rojo':sem==='AMARILLO'?'amarillo':'verde';
+    const estadoSlug = estadoActual==='Abierto'?'abierto':estadoActual==='En mitigación'?'mitigacion':'cerrado';
+    const cierreActual = r['Cierre_Resultado']||'';
+    const kri = r['Señales tempranas (KRI)']||'';
+    const fechaComp = r['Fecha compromiso']||'';
 
-    const estadoSlug = estadoActual === 'Abierto' ? 'abierto' : estadoActual === 'En mitigación' ? 'mitigacion' : 'cerrado';
+    const cierreHtml = isAdmin ? `
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">Cierre del riesgo — solo Dirección</div>
+      <div class="cierre-box cierre-box-risk">
+        <div class="cierre-lbl cierre-lbl-risk">Resultado final del riesgo</div>
+        <select class="cierre-select" id="rcierre-${id}">
+          <option value="">— Sin definir (riesgo activo) —</option>
+          <option ${cierreActual==='Riesgo Eliminado'?'selected':''}>Riesgo Eliminado</option>
+          <option ${cierreActual==='Riesgo Reducido'?'selected':''}>Riesgo Reducido</option>
+          <option ${cierreActual==='Riesgo Controlado'?'selected':''}>Riesgo Controlado</option>
+          <option ${cierreActual==='Riesgo No Controlado'?'selected':''}>Riesgo No Controlado</option>
+          <option ${cierreActual==='Riesgo Asumido'?'selected':''}>Riesgo Asumido</option>
+        </select>
+        <div class="cierre-nota">Al seleccionar un resultado el riesgo queda cerrado definitivamente.</div>
+      </div>` : cierreActual ? `<div style="margin-top:12px;padding:8px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);font-size:12px;color:var(--text2)">
+        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Resultado: </span><strong>${cierreActual}</strong></div>` : '';
 
     return `<div class="kpi-carga-card" id="rcard-${id}">
       <div class="kpi-carga-header" onclick="toggleCard('r${id}')">
         <div class="kpi-carga-id">${id}</div>
-        <div class="kpi-carga-name">${r['Riesgo (descripción)']||''}</div>
+        <div style="flex:1;min-width:0">
+          <div class="kpi-carga-name">${r['Riesgo (descripción)']||''}</div>
+          ${kri ? `<div style="font-size:10px;color:var(--text3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">KRI: ${kri}</div>` : ''}
+        </div>
         <div style="display:flex;align-items:center;gap:10px">
           ${semBadge(sem)}
           <span class="kpi-carga-meta" style="color:var(--${col})">${nivel}</span>
@@ -1873,44 +1996,68 @@ function renderRiesgosCarga() {
           <div class="kpi-meta-item"><div class="kpi-meta-key">Objetivo</div><div class="kpi-meta-val">${r['Objetivo Dirección']||''}</div></div>
           <div class="kpi-meta-item"><div class="kpi-meta-key">Q</div><div class="kpi-meta-val">${r['Q']||''}</div></div>
           <div class="kpi-meta-item"><div class="kpi-meta-key">Categoría</div><div class="kpi-meta-val">${r['Categoría']||''}</div></div>
-          <div class="kpi-meta-item"><div class="kpi-meta-key">P×I</div><div class="kpi-meta-val" style="color:var(--${col})">${nivel}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Gerencia</div><div class="kpi-meta-val">${r['Gerencia responsable']||r['Gerencia']||''}</div></div>
+          ${fechaComp ? `<div class="kpi-meta-item"><div class="kpi-meta-key">Fecha compromiso</div><div class="kpi-meta-val">${fechaComp}</div></div>` : ''}
         </div>
-        <div style="margin-top:14px">
-          <label class="form-label">Estado del riesgo</label>
-          <div class="risk-estado-btns">
-            <button class="risk-estado-btn ${estadoSlug==='abierto'?'selected-abierto':''}"
-              id="ebtn-abierto-${id}" onclick="selectEstado('${id}','Abierto')">Abierto</button>
-            <button class="risk-estado-btn ${estadoSlug==='mitigacion'?'selected-mitigacion':''}"
-              id="ebtn-mitigacion-${id}" onclick="selectEstado('${id}','En mitigación')">En mitigación</button>
-            <button class="risk-estado-btn ${estadoSlug==='cerrado'?'selected-cerrado':''}"
-              id="ebtn-cerrado-${id}" onclick="selectEstado('${id}','Cerrado')">Cerrado</button>
+        ${kri ? `<div style="margin:10px 0;padding:8px 12px;border-radius:7px;background:rgba(217,119,6,.06);border:1px solid rgba(217,119,6,.2);font-size:11px;color:var(--text2)"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--amarillo)">Señal temprana (KRI): </span>${kri}</div>` : ''}
+
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">Evaluación de riesgo</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+          <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+            <div class="kpi-meta-key" style="margin-bottom:6px">Probabilidad (1–5)</div>
+            <input type="hidden" id="pi-prob-val-${id}" value="${prob}">
+            <div id="pi-prob-wrap-${id}" class="pi-selector">${piSelector('prob',id,prob,5)}</div>
+          </div>
+          <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+            <div class="kpi-meta-key" style="margin-bottom:6px">Impacto (1–5)</div>
+            <input type="hidden" id="pi-imp-val-${id}" value="${imp}">
+            <div id="pi-imp-wrap-${id}" class="pi-selector">${piSelector('imp',id,imp,5)}</div>
+          </div>
+          <div class="pi-result-box">
+            <div class="pi-result-lbl">P × I</div>
+            <div class="pi-result-val" id="pi-nivel-${id}" style="color:var(--${col})">${nivel}</div>
+            <span class="badge badge-${col}" id="pi-sem-${id}">${sem||col.toUpperCase()}</span>
           </div>
         </div>
-        <div style="margin-top:12px">
-          <label class="form-label">Comentarios</label>
-          <input type="text" class="form-input" id="rcomentarios-${id}"
-            value="${r['Comentarios']||''}" placeholder="Avance de mitigación, observaciones...">
+
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)">Estado y mitigación</div>
+        <div class="risk-estado-btns" style="margin-bottom:12px">
+          <button class="risk-estado-btn ${estadoSlug==='abierto'?'selected-abierto':''}" id="ebtn-abierto-${id}" onclick="selectEstado('${id}','Abierto')">Abierto</button>
+          <button class="risk-estado-btn ${estadoSlug==='mitigacion'?'selected-mitigacion':''}" id="ebtn-mitigacion-${id}" onclick="selectEstado('${id}','En mitigación')">En mitigación</button>
+          <button class="risk-estado-btn ${estadoSlug==='cerrado'?'selected-cerrado':''}" id="ebtn-cerrado-${id}" onclick="selectEstado('${id}','Cerrado')">Cerrado</button>
         </div>
-        <div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div style="grid-column:1/-1">
+            <label class="form-label">Plan de mitigación</label>
+            <textarea class="form-input" id="rmitigacion-${id}" rows="2"
+              placeholder="Acciones de mitigación planificadas o en curso..."
+              style="resize:vertical">${r['Plan de mitigación']||r['Plan_Mitigacion']||''}</textarea>
+          </div>
+          <div>
+            <label class="form-label">Responsable</label>
+            <input type="text" class="form-input" id="rarea-${id}"
+              value="${r['Responsable']||r['Area_Responsable']||r['Gerencia responsable']||r['Gerencia']||''}"
+              placeholder="Gerencia / área">
+          </div>
+          <div>
+            <label class="form-label">Fecha compromiso</label>
+            <input type="date" class="form-input" id="rfecha-${id}"
+              value="${fechaComp}">
+          </div>
+          <div style="grid-column:1/-1">
+            <label class="form-label">Comentarios</label>
+            <input type="text" class="form-input" id="rcomentarios-${id}"
+              value="${r['Comentarios']||''}" placeholder="Avance, observaciones...">
+          </div>
+        </div>
+        ${cierreHtml}
+        <div style="margin-top:14px">
           <button class="btn-save" onclick="guardarRiesgo('${id}')" id="rbtn-${id}">Guardar en Sheets</button>
           <span class="save-msg" id="rmsg-${id}"></span>
         </div>
       </div>
     </div>`;
   }).join('');
-
-  // Expandir cards
-  risks.forEach(r => {
-    const id = r['ID']||'';
-    const card = document.getElementById('rcard-'+id);
-    const body = document.getElementById('card-r'+id);
-    if (card && body) {
-      card.querySelector('.kpi-carga-header').onclick = () => {
-        card.classList.toggle('open');
-        body.style.display = card.classList.contains('open') ? 'block' : 'none';
-      };
-    }
-  });
 }
 
 function selectEstado(id, estado) {
@@ -1946,12 +2093,21 @@ async function guardarRiesgo(id) {
     return;
   }
 
+  const mitigacion = document.getElementById('rmitigacion-'+id)?.value || '';
+  const area = document.getElementById('rarea-'+id)?.value || '';
+  const prob = document.getElementById('pi-prob-val-'+id)?.value || '';
+  const imp = document.getElementById('pi-imp-val-'+id)?.value || '';
+  const cierre = SESSION.rol === 'admin' ? (document.getElementById('rcierre-'+id)?.value || '') : '';
+
   try {
     const res = await apiPost({
       accion: 'actualizar_riesgo',
       usuario: SESSION.usuario,
       password: getPass(),
-      id_riesgo: id, estado, comentarios
+      id_riesgo: id, estado, comentarios,
+      plan_mitigacion: mitigacion, responsable: area,
+      probabilidad: prob, impacto: imp, cierre_resultado: cierre,
+      fecha_compromiso: document.getElementById('rfecha-'+id)?.value||''
     });
     if (res.status !== 'ok') throw new Error(res.mensaje);
     msg.textContent = '✓ Guardado';
@@ -1965,6 +2121,209 @@ async function guardarRiesgo(id) {
   } finally {
     btn.disabled = false;
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER OPORTUNIDADES
+// ═══════════════════════════════════════════════════════
+function renderOportunidades() {
+  const d = getData(); if (!d || !SESSION) return;
+  const qF = document.getElementById('oport-q-filter')?.value || '';
+  const estF = document.getElementById('oport-estado-filter')?.value || '';
+  const isAdmin = SESSION.rol === 'admin';
+
+  let oports = d.oportunidades || [];
+  if (!isAdmin) oports = oports.filter(o => (o['Gerencia responsable']||o['Gerencia']||'') === SESSION.gerencia);
+  if (qF) oports = oports.filter(o => o['Q'] === qF);
+  if (estF) oports = oports.filter(o => (o['Estado']||'Activa') === estF);
+
+  const countEl = document.getElementById('oport-count');
+  if (countEl) countEl.textContent = `${oports.length} oportunidad${oports.length!==1?'es':''}`;
+
+  const gridEl = document.getElementById('oportunidades-grid');
+  if (!gridEl) return;
+
+  if (!oports.length) {
+    gridEl.innerHTML = '<div class="empty">Sin oportunidades registradas</div>';
+    return;
+  }
+
+  gridEl.innerHTML = oports.map(o => {
+    const id = o['ID']||'';
+    const sem = o['Semáforo']||'VERDE';
+    const valor = o['Valor (P×B)']||0;
+    const prob = parseInt(o['Probabilidad']||0);
+    const ben = parseInt(o['Beneficio']||o['Impacto']||0);
+    const estadoActual = o['Estado']||'Activa';
+    const col = sem==='VERDE'?'verde':sem==='AMARILLO'?'amarillo':'rojo';
+    const estSlug = estadoActual==='Activa'?'activa':estadoActual==='En seguimiento'?'seguimiento':estadoActual==='Concretada'?'concretada':'descartada';
+    const cierreActual = o['Cierre_Resultado']||'';
+
+    const cierreHtml = isAdmin ? `
+      <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">Cierre de la oportunidad — solo Dirección</div>
+      <div class="cierre-box cierre-box-oport">
+        <div class="cierre-lbl cierre-lbl-oport">Resultado final de la oportunidad</div>
+        <select class="cierre-select" id="ocierre-${id}">
+          <option value="">— Sin definir (oportunidad activa) —</option>
+          <option ${cierreActual==='Oportunidad Concretada'?'selected':''}>Oportunidad Concretada</option>
+          <option ${cierreActual==='Oportunidad Parcialmente Concretada'?'selected':''}>Oportunidad Parcialmente Concretada</option>
+          <option ${cierreActual==='Oportunidad Perdida'?'selected':''}>Oportunidad Perdida</option>
+          <option ${cierreActual==='Oportunidad Descartada'?'selected':''}>Oportunidad Descartada</option>
+          <option ${cierreActual==='Oportunidad Postergada'?'selected':''}>Oportunidad Postergada</option>
+        </select>
+        <div class="cierre-nota">Al seleccionar un resultado la oportunidad queda cerrada definitivamente.</div>
+      </div>` : cierreActual ? `<div style="margin-top:12px;padding:8px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);font-size:12px;color:var(--text2)">
+        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">Resultado: </span><strong>${cierreActual}</strong></div>` : '';
+
+    return `<div class="kpi-carga-card" id="ocard-${id}">
+      <div class="kpi-carga-header" onclick="toggleCard('o${id}')">
+        <div class="kpi-carga-id">${id}</div>
+        <div class="kpi-carga-name">${o['Oportunidad (descripción)']||''}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${semBadge(sem)}
+          <span class="kpi-carga-meta" style="color:var(--${col})">${valor}</span>
+          <div class="kpi-carga-expand">▾</div>
+        </div>
+      </div>
+      <div class="kpi-carga-body" id="card-o${id}">
+        <div class="kpi-meta-info" style="margin-top:12px">
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Objetivo</div><div class="kpi-meta-val">${o['Objetivo Dirección']||''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Q</div><div class="kpi-meta-val">${o['Q']||''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Categoría</div><div class="kpi-meta-val">${o['Categoría']||''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Gerencia</div><div class="kpi-meta-val">${o['Gerencia responsable']||o['Gerencia']||''}</div></div>
+        </div>
+
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin:14px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)">Evaluación de oportunidad</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+          <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+            <div class="kpi-meta-key" style="margin-bottom:6px">Probabilidad (1–5)</div>
+            <input type="hidden" id="opi-prob-val-${id}" value="${prob}">
+            <div id="opi-prob-wrap-${id}" class="pi-selector">${piSelector('oprob',id,prob,5)}</div>
+          </div>
+          <div style="flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+            <div class="kpi-meta-key" style="margin-bottom:6px">Beneficio (1–5)</div>
+            <input type="hidden" id="opi-ben-val-${id}" value="${ben}">
+            <div id="opi-ben-wrap-${id}" class="pi-selector">${piSelector('oben',id,ben,5)}</div>
+          </div>
+          <div class="pi-result-box">
+            <div class="pi-result-lbl">P × B</div>
+            <div class="pi-result-val" id="opi-valor-${id}" style="color:var(--${col})">${valor}</div>
+            <span class="badge badge-${col}" id="opi-sem-${id}">${sem||col.toUpperCase()}</span>
+          </div>
+        </div>
+
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)">Estado y seguimiento</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="oport-estado-btn ${estSlug==='activa'?'sel-activa':''}" id="oebtn-activa-${id}" onclick="selectOportEstado('${id}','Activa')">Activa</button>
+          <button class="oport-estado-btn ${estSlug==='seguimiento'?'sel-seguimiento':''}" id="oebtn-seguimiento-${id}" onclick="selectOportEstado('${id}','En seguimiento')">En seguimiento</button>
+          <button class="oport-estado-btn ${estSlug==='concretada'?'sel-concretada':''}" id="oebtn-concretada-${id}" onclick="selectOportEstado('${id}','Concretada')">Concretada</button>
+          <button class="oport-estado-btn ${estSlug==='descartada'?'sel-descartada':''}" id="oebtn-descartada-${id}" onclick="selectOportEstado('${id}','Descartada')">Descartada</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div style="grid-column:1/-1">
+            <label class="form-label">Plan de aprovechamiento</label>
+            <textarea class="form-input" id="oplan-${id}" rows="2"
+              placeholder="¿Cómo se va a capitalizar esta oportunidad?"
+              style="resize:vertical">${o['Plan_Aprovechamiento']||''}</textarea>
+          </div>
+          <div>
+            <label class="form-label">Área responsable</label>
+            <input type="text" class="form-input" id="oarea-${id}"
+              value="${o['Area_Responsable']||o['Gerencia responsable']||''}" placeholder="Gerencia / área">
+          </div>
+          <div>
+            <label class="form-label">Comentarios</label>
+            <input type="text" class="form-input" id="ocoment-${id}"
+              value="${o['Comentarios']||''}" placeholder="Avance, observaciones...">
+          </div>
+        </div>
+        ${cierreHtml}
+        <div style="margin-top:14px">
+          <button class="btn-save" onclick="guardarOportunidad('${id}')" id="obtn-${id}">Guardar en Sheets</button>
+          <span class="save-msg" id="omsg-${id}"></span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectOportEstado(id, estado) {
+  const slugMap = {Activa:'activa','En seguimiento':'seguimiento',Concretada:'concretada',Descartada:'descartada'};
+  Object.entries(slugMap).forEach(([e,s]) => {
+    const btn = document.getElementById(`oebtn-${s}-${id}`);
+    if (btn) btn.className = 'oport-estado-btn' + (e===estado ? ` sel-${s}` : '');
+  });
+  const obtn = document.getElementById('obtn-'+id);
+  if (obtn) obtn.dataset.estado = estado;
+}
+
+function setPiVal(tipo, id, val) {
+  const isOport = tipo.startsWith('o');
+  const prefix = isOport ? 'opi' : 'pi';
+  const subtype = isOport ? tipo.replace('o','') : tipo;
+  const elId = isOport ? `opi-${subtype}-val-${id}` : `pi-${tipo}-val-${id}`;
+  const wrapId = isOport ? `opi-${subtype}-wrap-${id}` : `pi-${tipo}-wrap-${id}`;
+  const el = document.getElementById(elId);
+  if (el) el.value = val;
+  const wrap = document.getElementById(wrapId);
+  if (wrap) wrap.innerHTML = piSelector(tipo, id, val, 5);
+  if (isOport) recalcValor(id); else recalcNivel(id);
+}
+
+function recalcValor(id) {
+  const p = parseInt(document.getElementById(`opi-prob-val-${id}`)?.value||0);
+  const b = parseInt(document.getElementById(`opi-ben-val-${id}`)?.value||0);
+  const valor = p * b;
+  const el = document.getElementById(`opi-valor-${id}`);
+  const semEl = document.getElementById(`opi-sem-${id}`);
+  const col = valor >= 12 ? 'verde' : valor >= 6 ? 'amarillo' : 'rojo';
+  if (el) { el.textContent = valor; el.style.color = `var(--${col})`; }
+  if (semEl) { semEl.className = `badge badge-${col}`; semEl.textContent = col.toUpperCase(); }
+}
+
+async function guardarOportunidad(id) {
+  if (!SESSION) return;
+  const btn = document.getElementById('obtn-'+id);
+  const msg = document.getElementById('omsg-'+id);
+  const estado = btn?.dataset?.estado || 'Activa';
+  const plan = document.getElementById('oplan-'+id)?.value || '';
+  const area = document.getElementById('oarea-'+id)?.value || '';
+  const comentarios = document.getElementById('ocoment-'+id)?.value || '';
+  const prob = document.getElementById('opi-prob-val-'+id)?.value || '';
+  const ben = document.getElementById('opi-ben-val-'+id)?.value || '';
+  const cierre = SESSION.rol === 'admin' ? (document.getElementById('ocierre-'+id)?.value || '') : '';
+
+  btn.disabled = true;
+  msg.textContent = 'Guardando...';
+  msg.className = 'save-msg';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r => setTimeout(r, 600));
+    msg.textContent = '✓ Guardado (demo)';
+    msg.className = 'save-msg ok';
+    btn.disabled = false;
+    toast('Modo demo — conectá Google Sheets para guardar');
+    return;
+  }
+  try {
+    const res = await apiPost({
+      accion: 'actualizar_oportunidad',
+      usuario: SESSION.usuario, password: getPass(),
+      id_oportunidad: id, estado, plan_aprovechamiento: plan,
+      area_responsable: area, comentarios,
+      probabilidad: prob, beneficio: ben, cierre_resultado: cierre
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    msg.textContent = '✓ Guardado';
+    msg.className = 'save-msg ok';
+    toast('Oportunidad actualizada en Google Sheets ✓');
+    setTimeout(syncData, 1000);
+  } catch(e) {
+    msg.textContent = '✗ ' + e.message;
+    msg.className = 'save-msg err';
+    toast(e.message, 'err');
+  } finally { btn.disabled = false; }
 }
 
 // Recuperar contraseña de session (la guardamos al login)
