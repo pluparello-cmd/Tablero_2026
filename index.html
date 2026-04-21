@@ -108,7 +108,6 @@ body::before{display:none}
 .stat-num.accent{color:var(--accent)} .stat-num.verde{color:var(--verde)} .stat-num.amarillo{color:var(--amarillo)} .stat-num.rojo{color:var(--rojo)}
 .stat-lbl{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
 .stat-hint{font-size:10px;color:var(--text3);margin-top:6px;opacity:.7}
-/* Stat drill-down panel */
 .stat-panel{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s;opacity:0;margin-bottom:0}
 .stat-panel.open{max-height:600px;opacity:1;margin-bottom:22px}
 .stat-panel-inner{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);padding:0}
@@ -136,7 +135,6 @@ body::before{display:none}
 /* Progress */
 .progress-wrap{display:flex;align-items:center;gap:10px}
 .progress-bar{flex:1;height:8px;background:var(--surface3);border-radius:4px;min-width:70px;overflow:hidden;cursor:default;position:relative}
-.progress-bar:hover .progress-fill{filter:brightness(1.1)}
 .progress-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1),filter .2s}
 .fill-verde{background:linear-gradient(90deg,#16a34a,#22c55e)} .fill-amarillo{background:linear-gradient(90deg,#d97706,#f59e0b)} .fill-rojo{background:linear-gradient(90deg,#dc2626,#f87171)}
 .progress-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:38px;text-align:right;font-weight:500}
@@ -477,6 +475,24 @@ td.bold{color:var(--text);font-weight:500}
 .admin-only{display:none}
 .logro-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500}
 @media(max-width:768px){.form-grid,.form-grid-3,.form-grid-4{grid-template-columns:1fr}}
+
+/* Plan de Acción */
+.plan-accion-box{margin-top:14px;border-radius:8px;padding:14px;border:1px solid}
+.plan-accion-box.rojo{background:rgba(220,38,38,.04);border-color:rgba(220,38,38,.25)}
+.plan-accion-box.amarillo{background:rgba(217,119,6,.04);border-color:rgba(217,119,6,.25)}
+.plan-accion-header{display:flex;align-items:center;gap:7px;margin-bottom:12px}
+.plan-accion-icon{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.plan-accion-icon.rojo{background:rgba(220,38,38,.15);color:#dc2626}
+.plan-accion-icon.amarillo{background:rgba(217,119,6,.15);color:#d97706}
+.plan-accion-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px}
+.plan-accion-title.rojo{color:#dc2626}
+.plan-accion-title.amarillo{color:#d97706}
+.plan-accion-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan-accion-full{grid-column:1/-1}
+.plan-form-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:block}
+.plan-form-input{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;transition:border-color .15s;resize:vertical}
+.plan-form-input:focus{border-color:var(--accent)}
+.plan-form-input::placeholder{color:var(--text3)}
 </style>
 </head>
 <body>
@@ -1143,10 +1159,10 @@ function renderDashboard() {
   const rojos = vals.filter(v=>v<0.7).length;
 
   document.getElementById('dash-stats').innerHTML = `
-    <div class="stat-card" onclick="toggleStatPanel('all', this)" title="Ver todos los objetivos"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div><div class="stat-hint">▾ clic para ver detalle</div></div>
-    <div class="stat-card" onclick="toggleStatPanel('verde', this)" title="Ver objetivos en verde"><div class="stat-num verde">${verdes}</div><div class="stat-lbl">VERDE ≥90%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
-    <div class="stat-card" onclick="toggleStatPanel('amarillo', this)" title="Ver objetivos en amarillo"><div class="stat-num amarillo">${amarillos}</div><div class="stat-lbl">AMARILLO 70-89%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
-    <div class="stat-card" onclick="toggleStatPanel('rojo', this)" title="Ver objetivos en rojo"><div class="stat-num rojo">${rojos}</div><div class="stat-lbl">CRÍTICOS <70%</div><div class="stat-hint">▾ clic para ver detalle</div></div>`;
+    <div class="stat-card" onclick="toggleStatPanel('all', this)"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('verde', this)"><div class="stat-num verde">${verdes}</div><div class="stat-lbl">VERDE ≥90%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('amarillo', this)"><div class="stat-num amarillo">${amarillos}</div><div class="stat-lbl">AMARILLO 70-89%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
+    <div class="stat-card" onclick="toggleStatPanel('rojo', this)"><div class="stat-num rojo">${rojos}</div><div class="stat-lbl">CRÍTICOS <70%</div><div class="stat-hint">▾ clic para ver detalle</div></div>`;
 
   document.getElementById('dash-dir-table').innerHTML = dirs.map(r => {
     const qv = getQVal(r, currentQ); const cls = semColor(qv);
@@ -1216,24 +1232,28 @@ function toggleStatPanel(tipo, card) {
   const dirs = d?.res_direccion || [];
   const kpisQ = (d?.carga_q||[]).filter(k => (k['Q']||'')===currentQ);
   let filtered = dirs;
-  const labels = {all:`Todos los objetivos (${currentQ})`,verde:`Objetivos en verde — ≥90% (${currentQ})`,amarillo:`Objetivos en riesgo — 70–89% (${currentQ})`,rojo:`Objetivos críticos — <70% (${currentQ})`};
+  const labels = {
+    all:`Todos los objetivos (${currentQ})`,
+    verde:`Objetivos en verde — ≥90% (${currentQ})`,
+    amarillo:`Objetivos en riesgo — 70–89% (${currentQ})`,
+    rojo:`Objetivos críticos — <70% (${currentQ})`
+  };
   if (tipo==='verde')    filtered = dirs.filter(r => getQVal(r,currentQ)>=0.9);
   if (tipo==='amarillo') filtered = dirs.filter(r => { const v=getQVal(r,currentQ); return v>=0.7&&v<0.9; });
   if (tipo==='rojo')     filtered = dirs.filter(r => getQVal(r,currentQ)<0.7);
   document.getElementById('stat-drill-title').textContent = labels[tipo];
+
   document.getElementById('stat-drill-rows').innerHTML = filtered.length ? filtered.map(r => {
     const qv=getQVal(r,currentQ); const cls=semColor(qv);
     const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
     const id=r['Obj_ID']||r.id||''; const obj=r['Objetivo']||r.obj||''; const area=r['Área']||r.area||'';
 
-    // Buscar KPIs rojos relacionados con comentarios (para tipo rojo o amarillo)
     let comentariosHtml = '';
     if (tipo === 'rojo' || tipo === 'amarillo') {
       const kpisRel = kpisQ.filter(k => {
         const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
         const umbral = tipo === 'rojo' ? 0.7 : 0.9;
-        const tieneComentario = (k['Comentarios']||'').trim();
-        return logro < umbral && tieneComentario;
+        return logro < umbral && (k['Comentarios']||'').trim();
       });
       if (kpisRel.length) {
         comentariosHtml = `<div style="grid-column:1/-1;margin-top:6px;border-top:1px solid var(--border);padding-top:8px">
@@ -1241,14 +1261,14 @@ function toggleStatPanel(tipo, card) {
           ${kpisRel.slice(0,5).map(k=>{
             const logro=parseFloat(k['Logro_Q']||k['Logro lookup']||0);
             const col=semColor(logro);
-            return `<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 10px;border-radius:6px;background:var(--${col}-bg);border:1px solid var(--${col}-border);margin-bottom:5px">
-              <div style="min-width:0;flex:1">
+            return `<div style="display:flex;gap:10px;padding:7px 10px;border-radius:6px;background:var(--${col}-bg);border:1px solid var(--${col}-border);margin-bottom:5px">
+              <div style="flex:1;min-width:0">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
                   <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${k['KPI_ID']||''}</span>
-                  <span style="font-size:11px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${k['Objetivo']||''}</span>
+                  <span style="font-size:11px;color:var(--text);font-weight:500">${k['Objetivo']||''}</span>
                   <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--${col})">${pct(logro)}</span>
                 </div>
-                <div style="font-size:11px;color:var(--text2);line-height:1.4">
+                <div style="font-size:11px;color:var(--text2)">
                   <span style="color:var(--text3);font-size:10px">Gerencia:</span> <span style="font-weight:500">${k['Responsable']||''}</span>
                   &nbsp;·&nbsp; <span style="color:var(--text3);font-size:10px">Comentario:</span> ${k['Comentarios']}
                 </div>
@@ -1260,14 +1280,14 @@ function toggleStatPanel(tipo, card) {
     }
 
     return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;display:grid;grid-template-columns:65px 1fr 110px 110px 55px 55px 55px 55px;gap:8px;align-items:start;margin-bottom:1px">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);padding-top:2px">${id}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${id}</div>
       <div style="font-size:11px;color:var(--text);line-height:1.3">${obj}<br><span style="font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--text3);font-family:'DM Mono',monospace">${area}</span></div>
-      <div style="padding-top:4px">${progressBar(qv,cls)}</div>
-      <div style="padding-top:4px">${progressBar(ytd,semColor(ytd))}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q1)});padding-top:2px">${pct(q1)}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q2)});padding-top:2px">${pct(q2)}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q3)});padding-top:2px">${pct(q3)}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q4)});padding-top:2px">${pct(q4)}</div>
+      <div>${progressBar(qv,cls)}</div>
+      <div>${progressBar(ytd,semColor(ytd))}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q1)})">${pct(q1)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q2)})">${pct(q2)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q3)})">${pct(q3)}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q4)})">${pct(q4)}</div>
       ${comentariosHtml}
     </div>`;
   }).join('') : `<div style="padding:20px 16px;color:var(--text3);font-size:13px">Sin objetivos en esta categoría para ${currentQ}</div>`;
@@ -1307,14 +1327,52 @@ function renderDireccion() {
   document.getElementById('dir-table').innerHTML = dirs.map(r => {
     const qv=getQVal(r,currentQ); const cls=semColor(qv);
     const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
-    return `<div class="dir-obj-row">
-      <div class="obj-id">${r['Obj_ID']||r.id||''}</div>
-      <div class="obj-name">${r['Objetivo']||r.obj||''}<br><span class="area-tag">${r['Área']||r.area||''}</span></div>
+    const objId = r['Obj_ID']||r.id||'';
+    const needsPlan = cls === 'rojo' || cls === 'amarillo';
+    const planHtml = needsPlan ? `
+      <div id="dir-plan-${objId}" style="display:none;grid-column:1/-1;margin-top:10px;border-top:1px solid var(--border);padding-top:12px">
+        <div class="plan-accion-box ${cls}">
+          <div class="plan-accion-header">
+            <div class="plan-accion-icon ${cls}">!</div>
+            <div class="plan-accion-title ${cls}">Plan de acción</div>
+          </div>
+          <div class="plan-accion-grid">
+            <div class="plan-accion-full">
+              <label class="plan-form-label">Causa raíz</label>
+              <textarea class="plan-form-input" id="dir-causa-${objId}" rows="2"
+                placeholder="¿Por qué no se alcanzó el objetivo?">${r['Plan_Causa']||''}</textarea>
+            </div>
+            <div class="plan-accion-full">
+              <label class="plan-form-label">Acciones a tomar</label>
+              <textarea class="plan-form-input" id="dir-acciones-${objId}" rows="2"
+                placeholder="Acciones concretas a implementar">${r['Plan_Acciones']||''}</textarea>
+            </div>
+            <div>
+              <label class="plan-form-label">Responsable del plan</label>
+              <input type="text" class="plan-form-input" id="dir-resp-${objId}"
+                value="${r['Plan_Responsable']||''}" placeholder="Gerencia o persona">
+            </div>
+            <div>
+              <label class="plan-form-label">Fecha compromiso</label>
+              <input type="date" class="plan-form-input" id="dir-fecha-${objId}"
+                value="${r['Plan_Fecha']||''}">
+            </div>
+          </div>
+          <button class="btn-save" style="margin-top:10px" onclick="guardarPlanDir('${objId}')">Guardar plan en Sheets</button>
+          <span class="save-msg" id="dir-plan-msg-${objId}"></span>
+        </div>
+      </div>` : '';
+    return `<div class="dir-obj-row" style="${needsPlan?'display:grid;grid-template-columns:75px 1fr 120px 120px 70px 70px 70px 70px;align-items:start':''}">
+      <div class="obj-id">${objId}</div>
+      <div class="obj-name">${r['Objetivo']||r.obj||''}<br><span class="area-tag">${r['Área']||r.area||''}</span>
+        ${needsPlan ? `<button onclick="toggleDirPlan('${objId}')" style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 8px;border-radius:4px;border:1px solid var(--${cls}-border);background:var(--${cls}-bg);color:var(--${cls});font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif">! Plan de acción</button>` : ''}
+      </div>
       <div>${progressBar(qv,cls)}</div><div>${progressBar(ytd,semColor(ytd))}</div>
       <div class="mono" style="color:var(--${semColor(q1)})">${pct(q1)}</div>
       <div class="mono" style="color:var(--${semColor(q2)})">${pct(q2)}</div>
       <div class="mono" style="color:var(--${semColor(q3)})">${pct(q3)}</div>
       <div class="mono" style="color:var(--${semColor(q4)})">${pct(q4)}</div>
+      ${planHtml}
       <div class="dir-obj-row-qs" style="display:none">
         ${['Q1','Q2','Q3','Q4'].map((q,i)=>{const v=[q1,q2,q3,q4][i];return `<span class="dir-obj-q-pill"><span class="dot dot-${semColor(v)}" style="width:5px;height:5px"></span><span style="color:var(--text3)">${q}</span><span style="color:var(--${semColor(v)})">${pct(v)}</span></span>`}).join('')}
       </div>
@@ -1667,6 +1725,35 @@ function renderCarga() {
           <span class="logro-preview-lbl">Logro estimado:</span>
           ${progressBar(logro, cls)}
         </div>
+        ${(cls === 'rojo' || cls === 'amarillo') ? `
+        <div class="plan-accion-box ${cls}">
+          <div class="plan-accion-header">
+            <div class="plan-accion-icon ${cls}">!</div>
+            <div class="plan-accion-title ${cls}">Plan de acción requerido</div>
+          </div>
+          <div class="plan-accion-grid">
+            <div class="plan-accion-full">
+              <label class="plan-form-label">Causa raíz</label>
+              <textarea class="plan-form-input" id="causa-${key}" rows="2"
+                placeholder="¿Por qué no se alcanzó el objetivo?">${k['Plan_Causa']||''}</textarea>
+            </div>
+            <div class="plan-accion-full">
+              <label class="plan-form-label">Acciones a tomar</label>
+              <textarea class="plan-form-input" id="acciones-${key}" rows="2"
+                placeholder="Acciones concretas que se van a implementar">${k['Plan_Acciones']||''}</textarea>
+            </div>
+            <div>
+              <label class="plan-form-label">Responsable del plan</label>
+              <input type="text" class="plan-form-input" id="plan-resp-${key}"
+                value="${k['Plan_Responsable']||''}" placeholder="Gerencia o persona">
+            </div>
+            <div>
+              <label class="plan-form-label">Fecha compromiso</label>
+              <input type="date" class="plan-form-input" id="plan-fecha-${key}"
+                value="${k['Plan_Fecha']||''}">
+            </div>
+          </div>
+        </div>` : ''}
         <div>
           <button class="btn-save" onclick="guardarKPI('${key}','${comparador}','${meta}')" id="btn-${key}">
             Guardar en Sheets
@@ -1697,6 +1784,10 @@ async function guardarKPI(key, comparador, meta) {
   const actual = document.getElementById('actual-'+key)?.value?.trim();
   const comentarios = document.getElementById('comentarios-'+key)?.value || '';
   const evidencia = document.getElementById('evidencia-'+key)?.value || '';
+  const plan_causa = document.getElementById('causa-'+key)?.value || '';
+  const plan_acciones = document.getElementById('acciones-'+key)?.value || '';
+  const plan_responsable = document.getElementById('plan-resp-'+key)?.value || '';
+  const plan_fecha = document.getElementById('plan-fecha-'+key)?.value || '';
   const btn = document.getElementById('btn-'+key);
   const msg = document.getElementById('msg-'+key);
 
@@ -1720,7 +1811,8 @@ async function guardarKPI(key, comparador, meta) {
       accion: 'actualizar_kpi',
       usuario: SESSION.usuario,
       password: getPass(),
-      key, actual_q: actual, comentarios, evidencia
+      key, actual_q: actual, comentarios, evidencia,
+      plan_causa, plan_acciones, plan_responsable, plan_fecha
     });
     if (res.status !== 'ok') throw new Error(res.mensaje);
     msg.textContent = '✓ Guardado';
@@ -2204,6 +2296,49 @@ async function guardarNuevoKPI() {
     toast(e.message,'err');
   } finally { btn.disabled=false; }
 }
+// ═══════════════════════════════════════════════════════
+// PLAN DE ACCION — DIRECCIÓN
+// ═══════════════════════════════════════════════════════
+function toggleDirPlan(objId) {
+  const panel = document.getElementById('dir-plan-'+objId);
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+}
+
+async function guardarPlanDir(objId) {
+  if (!SESSION) return;
+  const causa = document.getElementById('dir-causa-'+objId)?.value || '';
+  const acciones = document.getElementById('dir-acciones-'+objId)?.value || '';
+  const responsable = document.getElementById('dir-resp-'+objId)?.value || '';
+  const fecha = document.getElementById('dir-fecha-'+objId)?.value || '';
+  const msg = document.getElementById('dir-plan-msg-'+objId);
+  if (msg) { msg.textContent = 'Guardando...'; msg.className = 'save-msg'; }
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r => setTimeout(r, 600));
+    if (msg) { msg.textContent = '✓ Guardado (demo)'; msg.className = 'save-msg ok'; }
+    toast('Modo demo — conectá Google Sheets para guardar');
+    return;
+  }
+  try {
+    const res = await apiPost({
+      accion: 'actualizar_plan_dir',
+      usuario: SESSION.usuario,
+      password: getPass(),
+      obj_id: objId, plan_causa: causa, plan_acciones: acciones,
+      plan_responsable: responsable, plan_fecha: fecha
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    if (msg) { msg.textContent = '✓ Plan guardado'; msg.className = 'save-msg ok'; }
+    toast('Plan de acción guardado en Google Sheets ✓');
+  } catch(e) {
+    if (msg) { msg.textContent = '✗ ' + e.message; msg.className = 'save-msg err'; }
+    toast(e.message, 'err');
+  }
+}
+
 // ═══════════════════════════════════════════════════════
 // MOBILE SIDEBAR
 // ═══════════════════════════════════════════════════════
