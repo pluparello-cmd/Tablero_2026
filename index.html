@@ -528,6 +528,41 @@ td.bold{color:var(--text);font-weight:500}
 .nuevo-form-full{grid-column:1/-1}
 .btn-nuevo{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;border:1px solid var(--verde-border);background:var(--verde-bg);color:var(--verde);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-left:auto}
 .btn-nuevo:hover{background:var(--verde);color:#fff}
+
+/* ── ANÁLISIS IA GEMINI ── */
+.ia-gem-icon{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#34a853);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;flex-shrink:0}
+.btn-ia-gemini{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-ia-gemini:hover{opacity:.85}
+.btn-ia-gemini:disabled{opacity:.5;cursor:not-allowed}
+.btn-ia-sm{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:5px;border:1px solid rgba(66,133,244,.3);background:rgba(66,133,244,.06);color:#1d4ed8;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-ia-sm:hover{background:rgba(66,133,244,.12)}
+.btn-ia-sm:disabled{opacity:.5;cursor:not-allowed}
+.ia-panel{background:var(--surface);border:1px solid rgba(66,133,244,.2);border-radius:var(--radius-lg);overflow:hidden;margin-top:16px}
+.ia-panel-head{padding:12px 16px;background:#1f2937;display:flex;align-items:center;justify-content:space-between}
+.ia-panel-head-title{color:#f9fafb;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+.ia-panel-body{padding:16px}
+.ia-section{margin-bottom:14px}
+.ia-section-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.ia-section-lbl::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
+.ia-section-lbl.diag{color:#2563eb}
+.ia-section-lbl.sugest{color:#059669}
+.ia-section-lbl.alerta{color:#dc2626}
+.ia-text{font-size:12px;color:var(--text2);line-height:1.7}
+.ia-item{display:flex;gap:7px;margin-bottom:5px;font-size:12px;color:var(--text2);line-height:1.5}
+.ia-item::before{content:'→';color:var(--text3);flex-shrink:0}
+.ia-alert-item{display:flex;gap:8px;margin-bottom:6px;padding:7px 10px;border-radius:6px;font-size:12px;line-height:1.5}
+.ia-alert-item.high{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo)}
+.ia-alert-item.med{background:var(--amarillo-bg);border:1px solid var(--amarillo-border);color:var(--amarillo)}
+.ia-divider{border:none;border-top:1px solid var(--border);margin:12px 0}
+.ia-footer{padding:8px 16px;background:var(--surface2);border-top:1px solid var(--border);font-size:10px;color:var(--text3);display:flex;align-items:center;gap:5px}
+.ia-loading-dots{display:inline-flex;gap:4px;align-items:center}
+.ia-dot{width:6px;height:6px;border-radius:50%;background:#4285f4;animation:iaBlink 1.2s infinite}
+.ia-dot:nth-child(2){animation-delay:.2s}
+.ia-dot:nth-child(3){animation-delay:.4s}
+@keyframes iaBlink{0%,100%{opacity:.3}50%{opacity:1}}
+.ia-kpi-result{margin-top:10px;padding:12px 14px;border-radius:8px;background:rgba(66,133,244,.04);border:1px solid rgba(66,133,244,.15);font-size:12px;color:var(--text2);line-height:1.7}
+.ia-config-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;align-items:center;justify-content:center}
+.ia-config-modal.open{display:flex}
 </style>
 </head>
 <body>
@@ -647,6 +682,7 @@ td.bold{color:var(--text);font-weight:500}
       <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Sin configurar</span></div>
       <div class="sync-time" id="sync-time"></div>
       <button class="sync-btn" id="sync-btn" onclick="syncData()">↻ Actualizar datos</button>
+      <button class="sync-btn" onclick="abrirConfigGemini()" style="margin-top:4px;color:#6ee7b7;border-color:#374151">✦ Configurar Gemini IA</button>
     </div>
   </nav>
 
@@ -656,8 +692,15 @@ td.bold{color:var(--text);font-weight:500}
     <div id="page-dashboard" class="page active">
       <div class="page-header">
         <div><div class="page-title">Dashboard</div><div class="page-subtitle">Tablero de Seguimiento SOOFT 2026</div></div>
-        <span class="q-badge" id="dash-q-badge">Q4</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="q-badge" id="dash-q-badge">Q4</span>
+          <button class="btn-ia-gemini" id="btn-ia-dashboard" onclick="analizarDashboard()">
+            <div class="ia-gem-icon">G</div>
+            Analizar con IA
+          </button>
+        </div>
       </div>
+      <div id="ia-panel-dashboard" style="display:none;margin-bottom:20px"></div>
       <div class="stats-row" id="dash-stats"></div>
       <div class="stat-panel" id="stat-drill-panel">
         <div class="stat-panel-inner">
@@ -1660,7 +1703,12 @@ function renderGerencias() {
     return `<div class="gerencia-card clickable" style="min-height:0" onclick="openDrawer('${name}')">
       <div class="gerencia-header">
         <div class="gerencia-name"><span class="dot dot-${cls}"></span>${name}</div>
-        <span class="gerencia-kpis">${kpis} KPIs · Ver →</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="gerencia-kpis">${kpis} KPIs</span>
+          <button class="btn-ia-sm" onclick="event.stopPropagation();analizarGerencia('${name}',this)">
+            <div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>IA
+          </button>
+        </div>
       </div>
       <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">YTD</div>${progressBar(ytd,semColor(ytd))}</div>
       <div>${qRows}</div>
@@ -1992,12 +2040,17 @@ function renderCarga() {
             </div>
           </div>
         </div>` : ''}
-        <div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <button class="btn-save" onclick="guardarKPI('${key}','${comparador}','${meta}')" id="btn-${key}">
             Guardar en Sheets
           </button>
+          <button class="btn-ia-sm" onclick="analizarKPI('${key}',this)" id="ia-btn-${key}">
+            <div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>
+            Analizar con IA
+          </button>
           <span class="save-msg" id="msg-${key}"></span>
         </div>
+        <div id="ia-kpi-${key}" style="display:none" class="ia-kpi-result"></div>
       </div>
     </div>`;
   }).join('');
@@ -3135,6 +3188,277 @@ const _origKeydown = document.onkeydown;
 
 
 // ═══════════════════════════════════════════════════════
+// ANÁLISIS IA — GEMINI
+// ═══════════════════════════════════════════════════════
+const GEMINI_KEY_STORAGE = 'sooft_gemini_key';
+const GEMINI_MODEL = 'gemini-1.5-flash';
+
+function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }
+
+function abrirConfigGemini() { document.getElementById('ia-config-modal').classList.add('open'); }
+function cerrarConfigGemini() { document.getElementById('ia-config-modal').classList.remove('open'); }
+function guardarConfigGemini() {
+  const key = document.getElementById('gemini-key-input').value.trim();
+  if (!key) { alert('Ingresá la API Key'); return; }
+  localStorage.setItem(GEMINI_KEY_STORAGE, key);
+  cerrarConfigGemini();
+  toast('API Key de Gemini guardada ✓');
+}
+
+async function llamarGemini(prompt) {
+  const key = getGeminiKey();
+  if (!key) { abrirConfigGemini(); return null; }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.4, maxOutputTokens: 1200 }
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err?.error?.message || `Error ${res.status}`);
+  }
+  const data = await res.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+function parsearRespuestaIA(texto) {
+  // Intenta parsear secciones del texto en bloques estructurados
+  const secciones = { diagnostico: '', sugerencias: [], alertas: [] };
+  const lines = texto.split('
+').map(l => l.trim()).filter(Boolean);
+  let seccion = 'diagnostico';
+  lines.forEach(line => {
+    const l = line.toLowerCase();
+    if (l.includes('diagnós') || l.includes('situaci')) { seccion = 'diagnostico'; return; }
+    if (l.includes('suger') || l.includes('accion') || l.includes('recomend')) { seccion = 'sugerencias'; return; }
+    if (l.includes('alerta') || l.includes('riesgo') || l.includes('atenci')) { seccion = 'alertas'; return; }
+    const clean = line.replace(/^[-*•→\d.]+\s*/, '').replace(/\*\*/g,'');
+    if (!clean) return;
+    if (seccion === 'diagnostico') secciones.diagnostico += (secciones.diagnostico ? ' ' : '') + clean;
+    else if (seccion === 'sugerencias') secciones.sugerencias.push(clean);
+    else if (seccion === 'alertas') secciones.alertas.push(clean);
+  });
+  // Fallback: si no parsea bien, poner todo en diagnóstico
+  if (!secciones.diagnostico && !secciones.sugerencias.length) secciones.diagnostico = texto;
+  return secciones;
+}
+
+function renderIAPanel(secciones, titulo, timestamp) {
+  const sugs = secciones.sugerencias.slice(0,5).map(s => `<div class="ia-item">${s}</div>`).join('');
+  const alerts = secciones.alertas.slice(0,4).map((a,i) =>
+    `<div class="ia-alert-item ${i<2?'high':'med'}">${a}</div>`).join('');
+  return `<div class="ia-panel">
+    <div class="ia-panel-head">
+      <div class="ia-panel-head-title">
+        <div class="ia-gem-icon">G</div>${titulo}
+      </div>
+      <span style="color:#6b7280;font-size:10px;font-family:'DM Mono',monospace">${timestamp}</span>
+    </div>
+    <div class="ia-panel-body">
+      ${secciones.diagnostico ? `<div class="ia-section">
+        <div class="ia-section-lbl diag">Diagnóstico</div>
+        <div class="ia-text">${secciones.diagnostico}</div>
+      </div><hr class="ia-divider">` : ''}
+      ${sugs ? `<div class="ia-section">
+        <div class="ia-section-lbl sugest">Sugerencias de acción</div>
+        ${sugs}
+      </div><hr class="ia-divider">` : ''}
+      ${alerts ? `<div class="ia-section">
+        <div class="ia-section-lbl alerta">Alertas identificadas</div>
+        ${alerts}
+      </div>` : ''}
+    </div>
+    <div class="ia-footer">
+      <div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>
+      Generado por Gemini · Datos en tiempo real desde Google Sheets
+      <button onclick="abrirConfigGemini()" style="margin-left:auto;background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;text-decoration:underline">⚙ Config API Key</button>
+    </div>
+  </div>`;
+}
+
+// ── Análisis general del Dashboard ──────────────────────
+async function analizarDashboard() {
+  const d = getData(); if (!d) { toast('Sin datos cargados', 'err'); return; }
+  const btn = document.getElementById('btn-ia-dashboard');
+  const panelEl = document.getElementById('ia-panel-dashboard');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="ia-loading-dots"><div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div></div> <span>Analizando...</span>';
+  panelEl.style.display = 'none';
+
+  const dirs = d.res_direccion || [];
+  const kpisQ = (d.carga_q||[]).filter(k => k['Q']===currentQ && k['Nivel']==='GERENCIA');
+  const risks = (d.riesgos||[]).filter(r => (r['Estado']||'')!=='Cerrado');
+
+  const resumen = dirs.map(r => {
+    const v = getQVal(r, currentQ);
+    return `• ${r['Obj_ID']||''} — ${(r['Objetivo']||'').substring(0,50)}: ${pct(v)} (${semColor(v).toUpperCase()})`;
+  }).join('
+');
+
+  const kpisResumen = kpisQ
+    .filter(k => parseFloat(k['Logro_Q']||0) < 0.7)
+    .map(k => `• ${k['KPI_ID']||''} (${k['Responsable']||''}): ${pct(parseFloat(k['Logro_Q']||0))} — ${k['Comentarios']||'sin comentario'}`)
+    .join('
+');
+
+  const riskResumen = risks.slice(0,5)
+    .map(r => `• ${r['ID']||''}: ${(r['Riesgo (descripción)']||'').substring(0,60)} — P×I: ${r['Nivel (P×I)']||0} (${r['Semáforo']||''})`)
+    .join('
+');
+
+  const verdes = dirs.filter(r => getQVal(r,currentQ)>=0.9).length;
+  const amarillos = dirs.filter(r => { const v=getQVal(r,currentQ); return v>=0.7&&v<0.9; }).length;
+  const rojos = dirs.filter(r => getQVal(r,currentQ)<0.7).length;
+  const avg = dirs.length ? dirs.reduce((s,r)=>s+getQVal(r,currentQ),0)/dirs.length : 0;
+
+  const prompt = `Sos un analista de gestión estratégica experto. Analizá el siguiente tablero de objetivos corporativos de SOOFT Technology para ${currentQ} 2026.
+
+RESUMEN EJECUTIVO:
+- Avance general: ${pct(avg)}
+- Objetivos en verde (≥90%): ${verdes}
+- Objetivos en amarillo (70-89%): ${amarillos}  
+- Objetivos críticos (<70%): ${rojos}
+- Total objetivos de dirección: ${dirs.length}
+- Riesgos abiertos: ${risks.length}
+
+OBJETIVOS DE DIRECCIÓN (${currentQ}):
+${resumen}
+
+KPIs DE GERENCIA EN ROJO:
+${kpisResumen || 'Ninguno en rojo'}
+
+RIESGOS ABIERTOS PRINCIPALES:
+${riskResumen || 'Sin riesgos críticos'}
+
+Respondé en español con estas tres secciones claramente separadas:
+1. DIAGNÓSTICO: análisis de la situación actual en 3-4 oraciones
+2. SUGERENCIAS: 4-5 acciones concretas y priorizadas (una por línea con →)
+3. ALERTAS: 3-4 alertas críticas que requieren atención inmediata (una por línea)
+
+Sé específico con los datos, mencioná KPIs y gerencias por nombre. Sé directo y accionable.`;
+
+  try {
+    const respuesta = await llamarGemini(prompt);
+    if (!respuesta) return;
+    const secciones = parsearRespuestaIA(respuesta);
+    const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    panelEl.innerHTML = renderIAPanel(secciones, `Análisis SOOFT · ${currentQ} 2026`, `${currentQ} · ${now}`);
+    panelEl.style.display = 'block';
+    panelEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+    btn.innerHTML = '<div class="ia-gem-icon">G</div> Actualizar análisis';
+  } catch(e) {
+    toast('Error Gemini: ' + e.message, 'err');
+    btn.innerHTML = '<div class="ia-gem-icon">G</div> Analizar con IA';
+  } finally { btn.disabled = false; }
+}
+
+// ── Análisis por gerencia ────────────────────────────────
+async function analizarGerencia(gerencia, btnEl) {
+  const d = getData(); if (!d) return;
+  btnEl.disabled = true;
+  btnEl.innerHTML = '<div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div>';
+
+  const kpis = (d.carga_q||[]).filter(k => k['Responsable']===gerencia && k['Q']===currentQ);
+  const gRow = (d.res_gerencia||[]).find(g => (g['Gerencia']||'')===gerencia) || {};
+  const ytd = parseFloat(gRow['YTD Logro']||0);
+  const qv  = parseFloat(gRow[currentQ+' Logro']||ytd);
+
+  const kpiResumen = kpis.map(k => {
+    const logro = parseFloat(k['Logro_Q']||0);
+    return `• ${k['KPI_ID']||''} — ${(k['Objetivo']||'').substring(0,50)}: ${pct(logro)} (${k['Comentarios']||'sin comentario'})`;
+  }).join('
+');
+
+  const prompt = `Sos un analista de gestión estratégica. Analizá el desempeño de la gerencia ${gerencia} de SOOFT Technology en ${currentQ} 2026.
+
+AVANCE GERENCIA:
+- Logro ${currentQ}: ${pct(qv)}
+- YTD: ${pct(ytd)}
+- Total KPIs: ${kpis.length}
+
+DETALLE KPIs (${currentQ}):
+${kpiResumen || 'Sin datos de KPIs'}
+
+Respondé en español con:
+1. DIAGNÓSTICO: situación de la gerencia en 2-3 oraciones
+2. SUGERENCIAS: 3 acciones concretas (una por línea con →)
+3. ALERTAS: 2 alertas críticas si las hay
+
+Sé específico y directo.`;
+
+  try {
+    const respuesta = await llamarGemini(prompt);
+    if (!respuesta) return;
+    const secciones = parsearRespuestaIA(respuesta);
+    // Buscar el card padre para insertar el panel
+    const card = btnEl.closest('.gerencia-card');
+    let iaEl = card?.querySelector('.ia-ger-panel');
+    if (!iaEl) { iaEl = document.createElement('div'); iaEl.className='ia-ger-panel'; card?.appendChild(iaEl); }
+    const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    iaEl.innerHTML = renderIAPanel(secciones, `IA · ${gerencia}`, now);
+    btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> ✓';
+  } catch(e) {
+    toast('Error Gemini: ' + e.message, 'err');
+    btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>IA';
+  } finally { btnEl.disabled = false; }
+}
+
+// ── Análisis por KPI individual ──────────────────────────
+async function analizarKPI(key, btnEl) {
+  const d = getData(); if (!d) return;
+  btnEl.disabled = true;
+  btnEl.innerHTML = '<div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div>';
+
+  const kpi = (d.carga_q||[]).find(k => (k['KEY']||`${k['Q']}|${k['KPI_ID']}`) === key);
+  if (!kpi) { btnEl.disabled=false; btnEl.innerHTML='<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> Analizar con IA'; return; }
+
+  // Histórico del mismo KPI en otros Qs
+  const kpiId = kpi['KPI_ID']||'';
+  const historico = (d.carga_q||[])
+    .filter(k => k['KPI_ID']===kpiId && k['Responsable']===kpi['Responsable'])
+    .map(k => `  ${k['Q']||''}: ${pct(parseFloat(k['Logro_Q']||0))} (real: ${k['Actual_Q (cargar)']??k['Actual_Q']??'—'}, meta: ${k['Meta_Q (editable)']??k['Meta_Q']??'—'})`)
+    .join('
+');
+
+  const prompt = `Sos un analista de gestión. Analizá este KPI de SOOFT Technology.
+
+KPI: ${kpi['KPI_ID']||''} — ${kpi['Objetivo']||''}
+Gerencia: ${kpi['Responsable']||''}
+Métrica: ${kpi['Métrica']||''} (${kpi['Unidad']||''})
+Comparador: ${kpi['Comparador']||''} ${kpi['Meta_Q (editable)']??kpi['Meta_Q']??''} ${kpi['Unidad']||''}
+Logro actual: ${pct(parseFloat(kpi['Logro_Q']||0))} — Estado: ${kpi['Estado_lookup']||kpi['Estado']||''}
+Comentario cargado: ${kpi['Comentarios']||'sin comentario'}
+
+HISTÓRICO:
+${historico || 'Sin datos históricos'}
+
+Respondé en español con:
+1. DIAGNÓSTICO: qué está pasando con este KPI (2-3 oraciones, mencioná el valor vs meta)
+2. SUGERENCIAS: 3 acciones concretas para mejorar (una por línea con →)
+3. ALERTAS: 1-2 riesgos si el KPI no mejora
+
+Sé muy específico con los números y la gerencia.`;
+
+  const resultEl = document.getElementById('ia-kpi-'+key);
+  try {
+    const respuesta = await llamarGemini(prompt);
+    if (!respuesta) return;
+    // Mostrar respuesta formateada
+    const texto = respuesta.replace(/\*\*/g,'').replace(/\*/g,'').replace(/
+/g,'<br>');
+    if (resultEl) { resultEl.innerHTML = texto; resultEl.style.display='block'; }
+    btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> ✓ Análisis listo';
+  } catch(e) {
+    toast('Error Gemini: ' + e.message, 'err');
+    btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> Analizar con IA';
+  } finally { btnEl.disabled = false; }
+}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 function init() {
@@ -3317,5 +3641,29 @@ init();
     </div>
   </div>
 </div>
+
+<!-- ── MODAL CONFIG GEMINI API KEY ── -->
+<div class="ia-config-modal" id="ia-config-modal">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;width:480px;max-width:90vw">
+    <div style="font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:6px">Conectar Gemini IA</div>
+    <div style="color:var(--text3);font-size:12px;margin-bottom:20px;line-height:1.6">Ingresá tu API Key de Google AI Studio para habilitar el análisis inteligente de indicadores.</div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
+      <strong style="color:var(--text)">¿Cómo obtener la API Key?</strong><br>
+      1. Entrá a <strong>aistudio.google.com</strong> con tu cuenta corporativa<br>
+      2. Clic en <strong>Get API Key → Create API Key</strong><br>
+      3. Copiá la clave y pegala acá abajo
+    </div>
+    <div class="input-group">
+      <div class="input-label">Google AI (Gemini) API Key</div>
+      <input type="password" class="input-field" id="gemini-key-input" placeholder="AIzaSy...">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
+      <button class="btn-secondary" onclick="cerrarConfigGemini()">Cancelar</button>
+      <button class="btn-primary" onclick="guardarConfigGemini()">Guardar y conectar</button>
+    </div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3)">La clave se guarda localmente en tu navegador y nunca se envía a servidores externos.</div>
+  </div>
+</div>
+
 </body>
 </html>
