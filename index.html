@@ -1418,10 +1418,11 @@ function renderCurrentPage() {
     case 'direccion': renderDireccion(); break;
     case 'gerencias': renderGerencias(); break;
     case 'carga': renderCarga(); break;
-    case 'riesgos-carga':
+    case 'riesgos-carga': {
       const activeTab = document.getElementById('sub-oportunidades')?.style.display === 'block' ? 'oportunidades' : 'riesgos';
       if (activeTab === 'oportunidades') renderOportunidades(); else renderRiesgosCarga();
       break;
+    }
     case 'gestionar': renderGestionar(); break;
   }
 }
