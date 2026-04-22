@@ -2209,12 +2209,7 @@ function piSelectorNuevo(tipo, val, max) {
   }).join('');
 }
 
-// Redefinir piSelector para los IDs de formulario nuevo
-const _piSelectorOrig = piSelector;
-function piSelector(tipo, id, val, max) {
-  if (id === 'nr' || id === 'no') return piSelectorNuevo(tipo, val, max);
-  return _piSelectorOrig(tipo, id, val, max);
-}
+// piSelector unificado — maneja formularios nuevos (nr/no) y cards existentes
 
 function abrirFormNuevoRiesgo() {
   if (!SESSION || SESSION.rol !== 'admin') return;
@@ -2368,7 +2363,11 @@ function piSelector(tipo, id, val, max) {
   return Array.from({length: max}, (_,i) => {
     const n = i+1;
     const sel = n <= val ? `sel-${color}` : '';
-    return `<button class="pi-btn ${sel}" onclick="setPiVal('${tipo}','${id}',${n})">${n}</button>`;
+    // Formularios nuevos (nr/no) usan setPiValNuevo, el resto usa setPiVal
+    const handler = (id === 'nr' || id === 'no')
+      ? `setPiValNuevo('${tipo}',${n})`
+      : `setPiVal('${tipo}','${id}',${n})`;
+    return `<button class="pi-btn ${sel}" onclick="${handler}">${n}</button>`;
   }).join('');
 }
 
