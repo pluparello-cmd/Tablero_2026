@@ -3228,8 +3228,7 @@ async function llamarGemini(prompt) {
 function parsearRespuestaIA(texto) {
   // Intenta parsear secciones del texto en bloques estructurados
   const secciones = { diagnostico: '', sugerencias: [], alertas: [] };
-  const lines = texto.split('
-').map(l => l.trim()).filter(Boolean);
+  const lines = texto.split('\n').map(l => l.trim()).filter(Boolean);
   let seccion = 'diagnostico';
   lines.forEach(line => {
     const l = line.toLowerCase();
@@ -3296,19 +3295,16 @@ async function analizarDashboard() {
   const resumen = dirs.map(r => {
     const v = getQVal(r, currentQ);
     return `• ${r['Obj_ID']||''} — ${(r['Objetivo']||'').substring(0,50)}: ${pct(v)} (${semColor(v).toUpperCase()})`;
-  }).join('
-');
+  }).join('\n');
 
   const kpisResumen = kpisQ
     .filter(k => parseFloat(k['Logro_Q']||0) < 0.7)
     .map(k => `• ${k['KPI_ID']||''} (${k['Responsable']||''}): ${pct(parseFloat(k['Logro_Q']||0))} — ${k['Comentarios']||'sin comentario'}`)
-    .join('
-');
+    .join('\n');
 
   const riskResumen = risks.slice(0,5)
     .map(r => `• ${r['ID']||''}: ${(r['Riesgo (descripción)']||'').substring(0,60)} — P×I: ${r['Nivel (P×I)']||0} (${r['Semáforo']||''})`)
-    .join('
-');
+    .join('\n');
 
   const verdes = dirs.filter(r => getQVal(r,currentQ)>=0.9).length;
   const amarillos = dirs.filter(r => { const v=getQVal(r,currentQ); return v>=0.7&&v<0.9; }).length;
@@ -3370,8 +3366,7 @@ async function analizarGerencia(gerencia, btnEl) {
   const kpiResumen = kpis.map(k => {
     const logro = parseFloat(k['Logro_Q']||0);
     return `• ${k['KPI_ID']||''} — ${(k['Objetivo']||'').substring(0,50)}: ${pct(logro)} (${k['Comentarios']||'sin comentario'})`;
-  }).join('
-');
+  }).join('\n');
 
   const prompt = `Sos un analista de gestión estratégica. Analizá el desempeño de la gerencia ${gerencia} de SOOFT Technology en ${currentQ} 2026.
 
@@ -3421,8 +3416,7 @@ async function analizarKPI(key, btnEl) {
   const historico = (d.carga_q||[])
     .filter(k => k['KPI_ID']===kpiId && k['Responsable']===kpi['Responsable'])
     .map(k => `  ${k['Q']||''}: ${pct(parseFloat(k['Logro_Q']||0))} (real: ${k['Actual_Q (cargar)']??k['Actual_Q']??'—'}, meta: ${k['Meta_Q (editable)']??k['Meta_Q']??'—'})`)
-    .join('
-');
+    .join('\n');
 
   const prompt = `Sos un analista de gestión. Analizá este KPI de SOOFT Technology.
 
