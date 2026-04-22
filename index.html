@@ -3442,8 +3442,7 @@ Sé muy específico con los números y la gerencia.`;
     const respuesta = await llamarGemini(prompt);
     if (!respuesta) return;
     // Mostrar respuesta formateada
-    const texto = respuesta.replace(/\*\*/g,'').replace(/\*/g,'').replace(/
-/g,'<br>');
+    const texto = respuesta.replace(/[*]{2}/g,'').replace(/[*]/g,'').replace(/\n/g,'<br>');
     if (resultEl) { resultEl.innerHTML = texto; resultEl.style.display='block'; }
     btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> ✓ Análisis listo';
   } catch(e) {
