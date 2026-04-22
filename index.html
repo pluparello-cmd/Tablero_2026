@@ -519,6 +519,15 @@ td.bold{color:var(--text);font-weight:500}
 .oport-estado-btn.sel-seguimiento{background:var(--amarillo-bg);border-color:var(--amarillo-border);color:var(--amarillo)}
 .oport-estado-btn.sel-concretada{background:var(--verde-bg);border-color:var(--verde-border);color:var(--verde)}
 .oport-estado-btn.sel-descartada{background:rgba(107,114,128,.08);border-color:rgba(107,114,128,.2);color:var(--neutro)}
+
+/* Formulario nuevo riesgo/oportunidad */
+.nuevo-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;display:none}
+.nuevo-form.visible{display:block;animation:fadeIn .2s ease}
+.nuevo-form-title{font-family:'DM Serif Display',serif;font-size:16px;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.nuevo-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.nuevo-form-full{grid-column:1/-1}
+.btn-nuevo{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;border:1px solid var(--verde-border);background:var(--verde-bg);color:var(--verde);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-left:auto}
+.btn-nuevo:hover{background:var(--verde);color:#fff}
 </style>
 </head>
 <body>
@@ -766,7 +775,97 @@ td.bold{color:var(--text);font-weight:500}
             <option>Abierto</option><option>En mitigación</option><option>Cerrado</option>
           </select>
           <div class="filter-count" id="riesgos-count"></div>
+          <button class="btn-nuevo admin-only" onclick="abrirFormNuevoRiesgo()" id="btn-nuevo-riesgo">
+            <span style="font-size:16px;line-height:1">+</span> Nuevo riesgo
+          </button>
         </div>
+
+        <!-- FORM NUEVO RIESGO -->
+        <div class="nuevo-form" id="form-nuevo-riesgo">
+          <div class="nuevo-form-title">
+            <span>Nuevo riesgo</span>
+            <button onclick="cerrarFormNuevoRiesgo()" style="background:none;border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px">✕</button>
+          </div>
+          <div class="nuevo-form-grid">
+            <div>
+              <label class="form-label">Q *</label>
+              <select class="form-input" id="nr-q" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+                <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Categoría *</label>
+              <select class="form-input" id="nr-categoria" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+                <option>Tecnología</option><option>Financiero</option><option>Recursos Humanos</option>
+                <option>Operativo</option><option>Comercial</option><option>Legal / Regulatorio</option><option>Reputacional</option>
+              </select>
+            </div>
+            <div class="nuevo-form-full">
+              <label class="form-label">Descripción del riesgo *</label>
+              <textarea class="form-input" id="nr-descripcion" rows="2" placeholder="Describí el riesgo de forma clara y concisa..." style="resize:vertical"></textarea>
+            </div>
+            <div>
+              <label class="form-label">Objetivo de Dirección *</label>
+              <select class="form-input" id="nr-objetivo" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Gerencia responsable *</label>
+              <select class="form-input" id="nr-gerencia" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+                <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
+                <option>MARKETING</option><option>OPERACIONES</option><option>COMERCIAL_AR</option>
+                <option>COMERCIAL_CL</option><option>CALIDAD</option><option>RECLUTAMIENTO</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Señales tempranas (KRI)</label>
+              <input type="text" class="form-input" id="nr-kri" placeholder="Ej: Alerta en KPI / tendencia negativa">
+            </div>
+            <div>
+              <label class="form-label">Fecha compromiso</label>
+              <input type="date" class="form-input" id="nr-fecha">
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px">
+            <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Evaluación inicial</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+                <div class="kpi-meta-key" style="margin-bottom:6px">Probabilidad (1–5)</div>
+                <input type="hidden" id="nr-prob-val" value="0">
+                <div id="nr-prob-wrap" class="pi-selector"></div>
+              </div>
+              <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+                <div class="kpi-meta-key" style="margin-bottom:6px">Impacto (1–5)</div>
+                <input type="hidden" id="nr-imp-val" value="0">
+                <div id="nr-imp-wrap" class="pi-selector"></div>
+              </div>
+              <div class="pi-result-box">
+                <div class="pi-result-lbl">P × I</div>
+                <div class="pi-result-val" id="nr-nivel" style="color:var(--text3)">0</div>
+                <span class="badge badge-neutro" id="nr-sem">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div style="grid-column:1/-1">
+              <label class="form-label">Plan de mitigación</label>
+              <textarea class="form-input" id="nr-plan" rows="2" placeholder="Acciones planificadas para mitigar el riesgo..." style="resize:vertical"></textarea>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn-save" onclick="guardarNuevoRiesgo()" id="btn-guardar-nr">Guardar en Sheets</button>
+            <button onclick="cerrarFormNuevoRiesgo()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
+            <span class="save-msg" id="msg-nuevo-riesgo"></span>
+          </div>
+        </div>
+
         <div class="carga-grid" id="riesgos-carga-grid"></div>
       </div>
       <div id="sub-oportunidades" style="display:none">
@@ -780,7 +879,87 @@ td.bold{color:var(--text);font-weight:500}
             <option>Activa</option><option>En seguimiento</option><option>Concretada</option><option>Descartada</option>
           </select>
           <div class="filter-count" id="oport-count"></div>
+          <button class="btn-nuevo admin-only" onclick="abrirFormNuevaOportunidad()" id="btn-nueva-oport">
+            <span style="font-size:16px;line-height:1">+</span> Nueva oportunidad
+          </button>
         </div>
+
+        <!-- FORM NUEVA OPORTUNIDAD -->
+        <div class="nuevo-form" id="form-nueva-oportunidad">
+          <div class="nuevo-form-title">
+            <span>Nueva oportunidad</span>
+            <button onclick="cerrarFormNuevaOportunidad()" style="background:none;border:1px solid var(--border);color:var(--text2);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px">✕</button>
+          </div>
+          <div class="nuevo-form-grid">
+            <div>
+              <label class="form-label">Q *</label>
+              <select class="form-input" id="no-q" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+                <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Categoría *</label>
+              <select class="form-input" id="no-categoria" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+                <option>Comercial</option><option>Tecnología</option><option>Financiero</option>
+                <option>Recursos Humanos</option><option>Operativo</option><option>Mercado</option><option>Alianzas</option>
+              </select>
+            </div>
+            <div class="nuevo-form-full">
+              <label class="form-label">Descripción de la oportunidad *</label>
+              <textarea class="form-input" id="no-descripcion" rows="2" placeholder="Describí la oportunidad de forma clara y concisa..." style="resize:vertical"></textarea>
+            </div>
+            <div>
+              <label class="form-label">Objetivo de Dirección *</label>
+              <select class="form-input" id="no-objetivo" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Gerencia responsable *</label>
+              <select class="form-input" id="no-gerencia" style="font-family:'DM Sans',sans-serif">
+                <option value="">Seleccioná</option>
+                <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
+                <option>MARKETING</option><option>OPERACIONES</option><option>COMERCIAL_AR</option>
+                <option>COMERCIAL_CL</option><option>CALIDAD</option><option>RECLUTAMIENTO</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:14px">
+            <div style="font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">Evaluación inicial</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+                <div class="kpi-meta-key" style="margin-bottom:6px">Probabilidad (1–5)</div>
+                <input type="hidden" id="no-prob-val" value="0">
+                <div id="no-prob-wrap" class="pi-selector"></div>
+              </div>
+              <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+                <div class="kpi-meta-key" style="margin-bottom:6px">Beneficio (1–5)</div>
+                <input type="hidden" id="no-ben-val" value="0">
+                <div id="no-ben-wrap" class="pi-selector"></div>
+              </div>
+              <div class="pi-result-box">
+                <div class="pi-result-lbl">P × B</div>
+                <div class="pi-result-val" id="no-valor" style="color:var(--text3)">0</div>
+                <span class="badge badge-neutro" id="no-sem">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:14px">
+            <label class="form-label">Plan de aprovechamiento</label>
+            <textarea class="form-input" id="no-plan" rows="2" placeholder="¿Cómo se va a capitalizar esta oportunidad?" style="resize:vertical"></textarea>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn-save" onclick="guardarNuevaOportunidad()" id="btn-guardar-no">Guardar en Sheets</button>
+            <button onclick="cerrarFormNuevaOportunidad()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
+            <span class="save-msg" id="msg-nueva-oportunidad"></span>
+          </div>
+        </div>
+
         <div class="carga-grid" id="oportunidades-grid"></div>
       </div>
     </div>
@@ -1908,6 +2087,218 @@ async function guardarKPI(key, comparador, meta) {
 // ═══════════════════════════════════════════════════════
 // RENDER RIESGOS CARGA
 // ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+// NUEVO RIESGO / NUEVA OPORTUNIDAD (solo admin)
+// ═══════════════════════════════════════════════════════
+
+// Inicializa los selectores P×I del formulario de nuevo riesgo
+function initNuevoRiesgoForm() {
+  document.getElementById('nr-prob-wrap').innerHTML = piSelector('nrprob','nr',0,5);
+  document.getElementById('nr-imp-wrap').innerHTML  = piSelector('nrimp','nr',0,5);
+  // Poblar objetivos de dirección
+  const d = getData();
+  const dirs = d?.res_direccion || [];
+  const sel = document.getElementById('nr-objetivo');
+  sel.innerHTML = '<option value="">Seleccioná</option>' +
+    dirs.map(r => `<option value="${r['Obj_ID']||r.id||''}">${r['Obj_ID']||''} — ${(r['Objetivo']||r.obj||'').substring(0,50)}</option>`).join('');
+}
+
+function initNuevaOportunidadForm() {
+  document.getElementById('no-prob-wrap').innerHTML = piSelector('noprob','no',0,5);
+  document.getElementById('no-ben-wrap').innerHTML  = piSelector('noben','no',0,5);
+  const d = getData();
+  const dirs = d?.res_direccion || [];
+  const sel = document.getElementById('no-objetivo');
+  sel.innerHTML = '<option value="">Seleccioná</option>' +
+    dirs.map(r => `<option value="${r['Obj_ID']||r.id||''}">${r['Obj_ID']||''} — ${(r['Objetivo']||r.obj||'').substring(0,50)}</option>`).join('');
+}
+
+// Pi selector para formularios nuevos (nr = nuevo riesgo, no = nueva oportunidad)
+function setPiValNuevo(tipo, val) {
+  const isOport = tipo.startsWith('no');
+  const prefix  = isOport ? 'no' : 'nr';
+  const subtype = isOport ? tipo.replace('no','') : tipo.replace('nr','');
+  const elId    = `${prefix}-${subtype}-val`;
+  const wrapId  = `${prefix}-${subtype}-wrap`;
+  const el = document.getElementById(elId);
+  if (el) el.value = val;
+  const wrap = document.getElementById(wrapId);
+  if (wrap) wrap.innerHTML = piSelector(tipo, prefix, val, 5);
+  // Recalcular resultado
+  if (isOport) {
+    const p = parseInt(document.getElementById('no-prob-val')?.value||0);
+    const b = parseInt(document.getElementById('no-ben-val')?.value||0);
+    const valor = p * b;
+    const el2 = document.getElementById('no-valor');
+    const semEl = document.getElementById('no-sem');
+    const col = valor >= 12 ? 'verde' : valor >= 6 ? 'amarillo' : 'rojo';
+    if (el2) { el2.textContent = valor; el2.style.color = `var(--${col})`; }
+    if (semEl) { semEl.className = `badge badge-${col}`; semEl.textContent = col.toUpperCase(); }
+  } else {
+    const p = parseInt(document.getElementById('nr-prob-val')?.value||0);
+    const im = parseInt(document.getElementById('nr-imp-val')?.value||0);
+    const nivel = p * im;
+    const el2 = document.getElementById('nr-nivel');
+    const semEl = document.getElementById('nr-sem');
+    const col = nivel >= 12 ? 'rojo' : nivel >= 6 ? 'amarillo' : 'verde';
+    if (el2) { el2.textContent = nivel; el2.style.color = `var(--${col})`; }
+    if (semEl) { semEl.className = `badge badge-${col}`; semEl.textContent = col.toUpperCase(); }
+  }
+}
+
+// Sobrescribir piSelector para que los formularios nuevos usen setPiValNuevo
+function piSelectorNuevo(tipo, val, max) {
+  const color = val >= 4 ? 'rojo' : val >= 3 ? 'amarillo' : 'verde';
+  return Array.from({length: max}, (_,i) => {
+    const n = i+1;
+    const sel = n <= val ? `sel-${color}` : '';
+    return `<button class="pi-btn ${sel}" onclick="setPiValNuevo('${tipo}',${n})">${n}</button>`;
+  }).join('');
+}
+
+// Redefinir piSelector para los IDs de formulario nuevo
+const _piSelectorOrig = piSelector;
+function piSelector(tipo, id, val, max) {
+  if (id === 'nr' || id === 'no') return piSelectorNuevo(tipo, val, max);
+  return _piSelectorOrig(tipo, id, val, max);
+}
+
+function abrirFormNuevoRiesgo() {
+  if (!SESSION || SESSION.rol !== 'admin') return;
+  document.getElementById('form-nuevo-riesgo').classList.add('visible');
+  initNuevoRiesgoForm();
+  document.getElementById('form-nuevo-riesgo').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cerrarFormNuevoRiesgo() {
+  document.getElementById('form-nuevo-riesgo').classList.remove('visible');
+  ['nr-q','nr-categoria','nr-descripcion','nr-objetivo','nr-gerencia','nr-kri','nr-fecha','nr-plan']
+    .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('nr-prob-val').value=0;
+  document.getElementById('nr-imp-val').value=0;
+  document.getElementById('nr-prob-wrap').innerHTML = piSelectorNuevo('nrprob',0,5);
+  document.getElementById('nr-imp-wrap').innerHTML  = piSelectorNuevo('nrimp',0,5);
+  document.getElementById('nr-nivel').textContent='0';
+  document.getElementById('nr-nivel').style.color='var(--text3)';
+  document.getElementById('nr-sem').className='badge badge-neutro';
+  document.getElementById('nr-sem').textContent='—';
+  document.getElementById('msg-nuevo-riesgo').textContent='';
+}
+
+function abrirFormNuevaOportunidad() {
+  if (!SESSION || SESSION.rol !== 'admin') return;
+  document.getElementById('form-nueva-oportunidad').classList.add('visible');
+  initNuevaOportunidadForm();
+  document.getElementById('form-nueva-oportunidad').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cerrarFormNuevaOportunidad() {
+  document.getElementById('form-nueva-oportunidad').classList.remove('visible');
+  ['no-q','no-categoria','no-descripcion','no-objetivo','no-gerencia','no-plan']
+    .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('no-prob-val').value=0;
+  document.getElementById('no-ben-val').value=0;
+  document.getElementById('no-prob-wrap').innerHTML = piSelectorNuevo('noprob',0,5);
+  document.getElementById('no-ben-wrap').innerHTML  = piSelectorNuevo('noben',0,5);
+  document.getElementById('no-valor').textContent='0';
+  document.getElementById('no-valor').style.color='var(--text3)';
+  document.getElementById('no-sem').className='badge badge-neutro';
+  document.getElementById('no-sem').textContent='—';
+  document.getElementById('msg-nueva-oportunidad').textContent='';
+}
+
+async function guardarNuevoRiesgo() {
+  if (!SESSION || SESSION.rol !== 'admin') return;
+  const q           = document.getElementById('nr-q')?.value;
+  const categoria   = document.getElementById('nr-categoria')?.value;
+  const descripcion = document.getElementById('nr-descripcion')?.value?.trim();
+  const objetivo    = document.getElementById('nr-objetivo')?.value;
+  const gerencia    = document.getElementById('nr-gerencia')?.value;
+  const kri         = document.getElementById('nr-kri')?.value?.trim() || '';
+  const fecha       = document.getElementById('nr-fecha')?.value || '';
+  const plan        = document.getElementById('nr-plan')?.value?.trim() || '';
+  const prob        = document.getElementById('nr-prob-val')?.value || '0';
+  const imp         = document.getElementById('nr-imp-val')?.value || '0';
+  const nivel       = parseInt(prob) * parseInt(imp);
+  const sem         = nivel >= 12 ? 'ROJO' : nivel >= 6 ? 'AMARILLO' : 'VERDE';
+
+  if (!q || !categoria || !descripcion || !objetivo || !gerencia) {
+    toast('Completá los campos obligatorios (*)', 'err'); return;
+  }
+
+  const btn = document.getElementById('btn-guardar-nr');
+  const msg = document.getElementById('msg-nuevo-riesgo');
+  btn.disabled = true; msg.textContent = 'Guardando...'; msg.className = 'save-msg';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r => setTimeout(r,700));
+    msg.textContent = '✓ Guardado (demo)'; msg.className = 'save-msg ok';
+    btn.disabled = false; toast('Modo demo — conectá Google Sheets para guardar'); return;
+  }
+  try {
+    const res = await apiPost({
+      accion: 'agregar_riesgo',
+      usuario: SESSION.usuario, password: getPass(),
+      q, categoria, descripcion, objetivo_dir: objetivo, gerencia,
+      kri, fecha_compromiso: fecha, plan_mitigacion: plan,
+      probabilidad: prob, impacto: imp, nivel, semaforo: sem, estado: 'Abierto'
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    msg.textContent = '✓ Riesgo guardado'; msg.className = 'save-msg ok';
+    toast('Riesgo agregado en Google Sheets ✓');
+    cerrarFormNuevoRiesgo();
+    setTimeout(syncData, 1000);
+  } catch(e) {
+    msg.textContent = '✗ ' + e.message; msg.className = 'save-msg err';
+    toast(e.message, 'err');
+  } finally { btn.disabled = false; }
+}
+
+async function guardarNuevaOportunidad() {
+  if (!SESSION || SESSION.rol !== 'admin') return;
+  const q           = document.getElementById('no-q')?.value;
+  const categoria   = document.getElementById('no-categoria')?.value;
+  const descripcion = document.getElementById('no-descripcion')?.value?.trim();
+  const objetivo    = document.getElementById('no-objetivo')?.value;
+  const gerencia    = document.getElementById('no-gerencia')?.value;
+  const plan        = document.getElementById('no-plan')?.value?.trim() || '';
+  const prob        = document.getElementById('no-prob-val')?.value || '0';
+  const ben         = document.getElementById('no-ben-val')?.value || '0';
+  const valor       = parseInt(prob) * parseInt(ben);
+  const sem         = valor >= 12 ? 'VERDE' : valor >= 6 ? 'AMARILLO' : 'ROJO';
+
+  if (!q || !categoria || !descripcion || !objetivo || !gerencia) {
+    toast('Completá los campos obligatorios (*)', 'err'); return;
+  }
+
+  const btn = document.getElementById('btn-guardar-no');
+  const msg = document.getElementById('msg-nueva-oportunidad');
+  btn.disabled = true; msg.textContent = 'Guardando...'; msg.className = 'save-msg';
+
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    await new Promise(r => setTimeout(r,700));
+    msg.textContent = '✓ Guardado (demo)'; msg.className = 'save-msg ok';
+    btn.disabled = false; toast('Modo demo — conectá Google Sheets para guardar'); return;
+  }
+  try {
+    const res = await apiPost({
+      accion: 'agregar_oportunidad',
+      usuario: SESSION.usuario, password: getPass(),
+      q, categoria, descripcion, objetivo_dir: objetivo, gerencia,
+      plan_aprovechamiento: plan,
+      probabilidad: prob, beneficio: ben, valor, semaforo: sem, estado: 'Activa'
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    msg.textContent = '✓ Oportunidad guardada'; msg.className = 'save-msg ok';
+    toast('Oportunidad agregada en Google Sheets ✓');
+    cerrarFormNuevaOportunidad();
+    setTimeout(syncData, 1000);
+  } catch(e) {
+    msg.textContent = '✗ ' + e.message; msg.className = 'save-msg err';
+    toast(e.message, 'err');
+  } finally { btn.disabled = false; }
+}
+
 function switchRiesgoTab(tab) {
   const isRiesgo = tab === 'riesgos';
   document.getElementById('sub-riesgos').style.display = isRiesgo ? 'block' : 'none';
