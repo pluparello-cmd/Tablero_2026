@@ -694,7 +694,7 @@ td.bold{color:var(--text);font-weight:500}
         <div><div class="page-title">Dashboard</div><div class="page-subtitle">Tablero de Seguimiento SOOFT 2026</div></div>
         <div style="display:flex;align-items:center;gap:10px">
           <span class="q-badge" id="dash-q-badge">Q4</span>
-          <button class="btn-ia-gemini" id="btn-ia-dashboard" onclick="analizarDashboard()">
+          <button class="btn-ia-gemini" id="btn-ia-dashboard" onclick="analizarDashboard()" title="Análisis IA — pendiente de activación en Workspace">
             <div class="ia-gem-icon">G</div>
             Analizar con IA
           </button>
@@ -3206,22 +3206,8 @@ function guardarConfigGemini() {
 }
 
 async function llamarGemini(prompt) {
-  const apiUrl = getApiUrl();
-  if (!apiUrl) { toast('Conectá Google Sheets primero', 'err'); return null; }
-  // Llama a Gemini a través del Apps Script (evita restricciones CORS corporativas)
-  const res = await fetch(apiUrl, {
-    method: 'POST',
-    body: JSON.stringify({
-      accion: 'analizar_gemini',
-      usuario: SESSION?.usuario || '',
-      password: getPass(),
-      prompt
-    })
-  });
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-  const data = await res.json();
-  if (data.status !== 'ok') throw new Error(data.mensaje || 'Error en Gemini');
-  return data.respuesta || '';
+  // IA temporalmente deshabilitada — pendiente de habilitación de Gemini en Workspace
+  throw new Error('Análisis IA no disponible aún. Contactá al administrador de IT para habilitar Gemini for Workspace.');
 }
 
 function parsearRespuestaIA(texto) {
@@ -3638,12 +3624,10 @@ init();
 <div class="ia-config-modal" id="ia-config-modal">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;width:480px;max-width:90vw">
     <div style="font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:6px">Conectar Gemini IA</div>
-    <div style="color:var(--text3);font-size:12px;margin-bottom:20px;line-height:1.6">El análisis de IA usa Gemini a través de tu Google Apps Script — no necesitás configurar nada extra.</div>
-    <div style="background:var(--verde-bg);border:1px solid var(--verde-border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
-      <strong style="color:var(--verde)">¿Cómo activarlo?</strong><br>
-      1. Actualizá tu Apps Script con el archivo <strong>apps_script_v5.gs</strong><br>
-      2. Publicá una <strong>nueva versión</strong> de la implementación<br>
-      3. ¡Listo! El análisis funciona automáticamente
+    <div style="color:var(--text3);font-size:12px;margin-bottom:20px;line-height:1.6">El análisis de IA con Gemini está preparado y listo para activarse.</div>
+    <div style="background:var(--amarillo-bg);border:1px solid var(--amarillo-border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
+      <strong style="color:var(--amarillo)">Pendiente de activación</strong><br>
+      Para habilitar el análisis de IA necesitás que el administrador de IT active <strong>Gemini for Google Workspace</strong> en tu organización desde <strong>admin.google.com</strong>.
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
       <button class="btn-primary" onclick="cerrarConfigGemini()">Entendido</button>
