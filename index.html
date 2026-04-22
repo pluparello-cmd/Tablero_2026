@@ -1825,7 +1825,24 @@ function renderCarga() {
 }
 
 function toggleCard(key) {
-  document.getElementById('card-'+key).classList.toggle('open');
+  // Para KPIs usa clase CSS open; para riesgos/oportunidades (r*/o*) maneja display directo
+  const card = document.getElementById('card-'+key);
+  if (!card) return;
+  const isRiesgoOport = key.startsWith('r') || key.startsWith('o');
+  if (isRiesgoOport) {
+    const isOpen = card.style.display === 'block';
+    card.style.display = isOpen ? 'none' : 'block';
+    // Rotar chevron en el padre
+    const parentId = key.startsWith('r') ? 'rcard-'+key.slice(1) : 'ocard-'+key.slice(1);
+    const parent = document.getElementById(parentId);
+    if (parent) {
+      parent.classList.toggle('open', !isOpen);
+      const chevron = parent.querySelector('.kpi-carga-expand');
+      if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    }
+  } else {
+    card.classList.toggle('open');
+  }
 }
 
 function previewLogro(key, meta, comparador) {
@@ -1909,14 +1926,6 @@ function piSelector(tipo, id, val, max) {
     const sel = n <= val ? `sel-${color}` : '';
     return `<button class="pi-btn ${sel}" onclick="setPiVal('${tipo}','${id}',${n})">${n}</button>`;
   }).join('');
-}
-
-function setPiVal(tipo, id, val) {
-  const el = document.getElementById(`pi-${tipo}-val-${id}`);
-  if (el) el.value = val;
-  const wrap = document.getElementById(`pi-${tipo}-wrap-${id}`);
-  if (wrap) wrap.innerHTML = piSelector(tipo, id, val, 5);
-  recalcNivel(id);
 }
 
 function recalcNivel(id) {
@@ -2066,9 +2075,17 @@ function selectEstado(id, estado) {
     const btn = document.getElementById(`ebtn-${slug}-${id}`);
     if (btn) btn.className = 'risk-estado-btn' + (e === estado ? ` selected-${slug}` : '');
   });
-  // Guardar selección en dataset
   const rbtn = document.getElementById('rbtn-'+id);
   if (rbtn) rbtn.dataset.estado = estado;
+  // También guardarlo en un input hidden para leerlo fácilmente
+  let hidden = document.getElementById(`restado-val-${id}`);
+  if (!hidden) {
+    hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.id = `restado-val-${id}`;
+    rbtn?.parentElement?.appendChild(hidden);
+  }
+  if (hidden) hidden.value = estado;
 }
 
 async function guardarRiesgo(id) {
@@ -2076,8 +2093,13 @@ async function guardarRiesgo(id) {
   const btn = document.getElementById('rbtn-'+id);
   const msg = document.getElementById('rmsg-'+id);
   const comentarios = document.getElementById('rcomentarios-'+id)?.value || '';
-  const estado = btn?.dataset?.estado || document.querySelector(`#ebtn-abierto-${id}.selected-abierto`) ? 'Abierto'
-    : document.querySelector(`#ebtn-mitigacion-${id}.selected-mitigacion`) ? 'En mitigación' : 'Cerrado';
+  // Leer estado desde dataset, input hidden, o detectar botón activo
+  let estado = btn?.dataset?.estado || document.getElementById(`restado-val-${id}`)?.value || '';
+  if (!estado) {
+    if (document.getElementById(`ebtn-mitigacion-${id}`)?.classList.contains('selected-mitigacion')) estado = 'En mitigación';
+    else if (document.getElementById(`ebtn-cerrado-${id}`)?.classList.contains('selected-cerrado')) estado = 'Cerrado';
+    else estado = 'Abierto';
+  }
 
   btn.disabled = true;
   msg.textContent = 'Guardando...';
