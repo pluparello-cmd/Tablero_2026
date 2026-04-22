@@ -1,118 +1,167 @@
-// --- BUSCA ESTA SECCIÓN AL FINAL DE TU ARCHIVO Y REEMPLÁZALA ---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOOFT 2026 — Dashboard de Gestión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
 
-// ═══════════════════════════════════════════════════════
-// ANÁLISIS IA — GEMINI (VERSIÓN INTEGRADA)
-// ═══════════════════════════════════════════════════════
+    <div id="login-section" class="fixed inset-0 bg-gray-950 flex items-center justify-center z-50">
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
+            <h2 class="text-3xl font-bold mb-6 text-center text-blue-400">SOOFT 2026</h2>
+            <div class="space-y-4">
+                <input type="text" id="user" placeholder="Usuario" class="w-full p-3 bg-gray-900 border border-gray-600 rounded focus:border-blue-500 outline-none">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full p-3 bg-gray-900 border border-gray-600 rounded focus:border-blue-500 outline-none">
+                <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded transition duration-300">
+                    Ingresar al Sistema
+                </button>
+            </div>
+            <p id="login-msg" class="text-red-400 mt-4 text-center hidden"></p>
+        </div>
+    </div>
 
-/**
- * Función principal para llamar a la IA a través del puente de Apps Script
- * Esto evita exponer API Keys en el cliente y usa tu conexión existente.
- */
-async function llamarGemini(prompt) {
-  const apiUrl = getApiUrl();
-  if (!apiUrl) {
-    throw new Error('Configurá la URL de Google Sheets en el login o en el panel de control.');
-  }
+    <div id="dashboard" class="hidden">
+        <header class="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-40">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-xl font-bold tracking-widest text-blue-400">SOOFT <span class="text-white">DASHBOARD</span></h1>
+                <div class="flex items-center gap-4">
+                    <span id="user-display" class="bg-gray-700 px-3 py-1 rounded text-sm"></span>
+                    <button onclick="logout()" class="text-gray-400 hover:text-white text-sm underline">Cerrar Sesión</button>
+                </div>
+            </div>
+        </header>
 
-  try {
-    // Reutilizamos tu función apiPost existente para enviar el prompt al servidor
-    const res = await apiPost({
-      accion: 'analizar_ia',
-      prompt: prompt,
-      usuario: SESSION.usuario,
-      password: getPass()
-    });
+        <main class="container mx-auto p-6 space-y-8">
+            
+            <section class="bg-gradient-to-br from-indigo-900 to-purple-900 p-6 rounded-xl border border-indigo-500 shadow-lg">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-2xl">🤖</span>
+                    <h2 class="text-xl font-bold">Asistente Gemini AI</h2>
+                </div>
+                <div class="space-y-4">
+                    <textarea id="ia-prompt" rows="2" placeholder="Ej: Analiza mis KPIs actuales y sugiere un plan de mitigación para los riesgos en rojo..." 
+                        class="w-full p-4 bg-gray-950 border border-indigo-400 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white outline-none"></textarea>
+                    
+                    <div class="flex justify-between items-center">
+                        <button onclick="preguntarIA()" id="btn-ia" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-2 rounded-full font-bold flex items-center gap-2 transition">
+                            <span>Consultar a la IA</span>
+                            <div id="ia-loader" class="hidden loading-spinner scale-50"></div>
+                        </button>
+                    </div>
 
-    if (res.status === 'ok') {
-      return res.respuesta; // Retorna el texto generado por Gemini
-    } else {
-      throw new Error(res.mensaje || 'Error en la comunicación con el servidor.');
-    }
-  } catch (e) {
-    console.error("Error en llamarGemini:", e);
-    throw e;
-  }
-}
+                    <div id="ia-result" class="hidden mt-4 p-4 bg-gray-900 rounded-lg border border-gray-700 text-gray-200 leading-relaxed italic overflow-auto max-h-60">
+                        </div>
+                </div>
+            </section>
 
-// ── Análisis general del Dashboard ──────────────────────
-async function analizarDashboard() {
-  const d = getData(); 
-  if (!d) { toast('Sin datos cargados', 'err'); return; }
-  
-  const btn = document.getElementById('btn-ia-dashboard');
-  const panelEl = document.getElementById('ia-panel-dashboard');
-  
-  btn.disabled = true;
-  btn.innerHTML = '<div class="ia-loading-dots"><div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div></div> <span>Consultando a Gemini...</span>';
-  
-  // Recolección de datos para el Prompt
-  const dirs = d.res_direccion || [];
-  const kpisQ = (d.carga_q||[]).filter(k => k['Q']===currentQ);
-  const risks = (d.riesgos||[]).filter(r => (r['Estado']||'')!=='Cerrado');
+            <section class="grid grid-cols-1 gap-6">
+                <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-300">Resumen de Operaciones</h3>
+                    <div class="text-gray-500 text-center py-10">
+                        Los datos se cargarán aquí automáticamente desde Google Sheets.
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 
-  const resumenData = dirs.map(r => `${r['Obj_ID']}: ${pct(getQVal(r, currentQ))}`).join(', ');
+    <script>
+        // CONFIGURACIÓN: PEGA AQUÍ LA URL DE TU WEB APP DE GOOGLE
+        const WEB_APP_URL = "TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI";
 
-  const prompt = `Actúa como un experto Analista de Datos de SOOFT. 
-  Analiza los resultados del Q: ${currentQ} del año 2026.
-  DATOS ACTUALES:
-  - Objetivos de Dirección: ${resumenData}
-  - KPIs en problemas: ${kpisQ.filter(k => parseFloat(k['Logro_Q']||0) < 0.7).length}
-  - Riesgos activos: ${risks.length}
+        let currentUser = null;
 
-  Proporciona:
-  1. DIAGNÓSTICO: Un resumen ejecutivo de 3 líneas.
-  2. SUGERENCIAS: 3 acciones prioritarias con el formato "→ Acción".
-  3. ALERTAS: Los 2 puntos más críticos.
-  Sé breve, profesional y directo. No uses negritas exageradas.`;
+        // --- LÓGICA DE LOGIN ---
+        async function login() {
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+            const msg = document.getElementById('login-msg');
 
-  try {
-    const respuesta = await llamarGemini(prompt);
-    const secciones = parsearRespuestaIA(respuesta);
-    const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
-    
-    panelEl.innerHTML = renderIAPanel(secciones, `Análisis Inteligente · ${currentQ}`, now);
-    panelEl.style.display = 'block';
-    panelEl.scrollIntoView({behavior:'smooth', block:'nearest'});
-    
-    btn.innerHTML = '<div class="ia-gem-icon">G</div> Actualizar análisis';
-  } catch(e) {
-    toast('Error: ' + e.message, 'err');
-    btn.innerHTML = '<div class="ia-gem-icon">G</div> Reintentar análisis';
-  } finally {
-    btn.disabled = false;
-  }
-}
+            if (!user || !pass) return;
 
-// ── Análisis por KPI individual (Carga de Avance) ────────────────
-async function analizarKPI(key, btnEl) {
-  const d = getData(); 
-  if (!d) return;
-  
-  btnEl.disabled = true;
-  const originalHtml = btnEl.innerHTML;
-  btnEl.innerHTML = '<div class="ia-loading-dots"><div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div></div>';
+            try {
+                const resp = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ accion: 'login', usuario: user, password: pass })
+                });
+                const data = await resp.json();
 
-  const kpi = (d.carga_q||[]).find(k => (k['KEY']||`${k['Q']}|${k['KPI_ID']}`) === key);
-  const resultEl = document.getElementById('ia-kpi-'+key);
+                if (data.status === 'ok') {
+                    currentUser = data.user;
+                    currentUser.password = pass; // Guardamos para re-autenticar en cada llamada
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    document.getElementById('user-display').innerText = `👤 ${data.user.usuario} (${data.user.gerencia})`;
+                } else {
+                    msg.innerText = data.mensaje;
+                    msg.classList.remove('hidden');
+                }
+            } catch (err) {
+                msg.innerText = "Error de conexión con el servidor.";
+                msg.classList.remove('hidden');
+            }
+        }
 
-  const prompt = `Analiza el KPI ${kpi['KPI_ID']} (${kpi['Objetivo']}). 
-  Logro actual: ${pct(parseFloat(kpi['Logro_Q']||0))}. 
-  Meta: ${kpi['Meta_Q (editable)'] || kpi['Meta_Q']}. 
-  Comentario del usuario: "${kpi['Comentarios'] || 'Sin comentarios'}".
-  
-  Dame un diagnóstico corto (2 líneas) y una sugerencia técnica para mejorar este indicador.`;
+        // --- LÓGICA DE IA (Gemini) ---
+        async function preguntarIA() {
+            const prompt = document.getElementById('ia-prompt').value;
+            const btn = document.getElementById('btn-ia');
+            const loader = document.getElementById('ia-loader');
+            const resultDiv = document.getElementById('ia-result');
 
-  try {
-    const respuesta = await llamarGemini(prompt);
-    if (resultEl) {
-      resultEl.innerHTML = `<strong>Análisis de Gemini:</strong><br>${respuesta.replace(/\n/g,'<br>')}`;
-      resultEl.style.display = 'block';
-    }
-    btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> ✓ Analizado';
-  } catch(e) {
-    toast('Error Gemini: ' + e.message, 'err');
-    btnEl.innerHTML = originalHtml;
-  } finally {
-    btnEl.disabled = false;
-  }
-}
+            if (!prompt) return alert("Escribe una pregunta para la IA");
+
+            // UI Loading state
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+
+            try {
+                const resp = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        accion: 'analizar_ia',
+                        usuario: currentUser.usuario,
+                        password: currentUser.password,
+                        prompt: prompt
+                    })
+                });
+                const data = await resp.json();
+
+                resultDiv.classList.remove('hidden');
+                if (data.status === 'ok') {
+                    // Convertimos saltos de línea en <br> para el HTML
+                    resultDiv.innerHTML = `<strong>Respuesta:</strong><br>${data.respuesta.replace(/\n/g, '<br>')}`;
+                } else {
+                    resultDiv.innerText = "Error: " + data.mensaje;
+                }
+            } catch (err) {
+                alert("Error al conectar con la IA.");
+            } finally {
+                btn.disabled = false;
+                loader.classList.add('hidden');
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
