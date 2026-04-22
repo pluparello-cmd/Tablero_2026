@@ -1,133 +1,118 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-    .status-verde { background-color: #10b981; color: white; }
-    .status-amarillo { background-color: #f59e0b; color: white; }
-    .status-rojo { background-color: #ef4444; color: white; }
-    .card { background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-  </style>
-</head>
-<body class="p-4 md:p-8">
-  <div class="max-w-7xl mx-auto">
-    <header class="flex justify-between items-center mb-8 bg-slate-800 p-6 rounded-lg text-white">
-      <div>
-        <h1 class="text-2xl font-bold tracking-tight">SOOFT 2026 — Business Intelligence</h1>
-        <p class="text-slate-400 text-sm">Gestión de Objetivos, Riesgos y Oportunidades</p>
-      </div>
-      <div id="userInfo" class="text-right">
-        <span id="userName" class="block font-semibold">Cargando...</span>
-        <button onclick="logout()" class="text-xs text-red-400 underline">Cerrar Sesión</button>
-      </div>
-    </header>
+// --- BUSCA ESTA SECCIÓN AL FINAL DE TU ARCHIVO Y REEMPLÁZALA ---
 
-    <div class="card p-4 mb-6 flex flex-wrap gap-4 items-end">
-      <div>
-        <label class="block text-xs font-medium text-gray-500 mb-1">GERENCIA</label>
-        <select id="filtroGerencia" class="border rounded px-3 py-2 w-48 focus:ring-2 focus:ring-blue-500 outline-none">
-          <option value="TODAS">Todas las Gerencias</option>
-        </select>
-      </div>
-      <button onclick="cargarDatos()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-medium transition">Actualizar Datos</button>
-    </div>
+// ═══════════════════════════════════════════════════════
+// ANÁLISIS IA — GEMINI (VERSIÓN INTEGRADA)
+// ═══════════════════════════════════════════════════════
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2">
-        <div class="card overflow-hidden">
-          <div class="bg-gray-50 border-b p-4"><h2 class="font-bold text-gray-700 uppercase text-sm italic">Estatus de Objetivos (KPIs)</h2></div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-              <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
-                <tr>
-                  <th class="p-3">KPI</th>
-                  <th class="p-3">Meta Q</th>
-                  <th class="p-3">Actual</th>
-                  <th class="p-3">Logro</th>
-                  <th class="p-3">Estado</th>
-                </tr>
-              </thead>
-              <tbody id="tablaKPIs"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+/**
+ * Función principal para llamar a la IA a través del puente de Apps Script
+ * Esto evita exponer API Keys en el cliente y usa tu conexión existente.
+ */
+async function llamarGemini(prompt) {
+  const apiUrl = getApiUrl();
+  if (!apiUrl) {
+    throw new Error('Configurá la URL de Google Sheets en el login o en el panel de control.');
+  }
 
-      <div class="space-y-6">
-        <div class="card p-4">
-          <h2 class="font-bold text-red-700 mb-4 flex items-center">⚠️ RIESGOS CRÍTICOS</h2>
-          <div id="listaRiesgos" class="space-y-3"></div>
-        </div>
-        <div class="card p-4 border-t-4 border-green-500">
-          <h2 class="font-bold text-green-700 mb-4 flex items-center">🚀 OPORTUNIDADES</h2>
-          <div id="listaOportunidades" class="space-y-3"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Configuración inicial
-    document.addEventListener('DOMContentLoaded', () => {
-      google.script.run.withSuccessHandler(initDashboard).getUsuarios();
-      cargarDatos();
+  try {
+    // Reutilizamos tu función apiPost existente para enviar el prompt al servidor
+    const res = await apiPost({
+      accion: 'analizar_ia',
+      prompt: prompt,
+      usuario: SESSION.usuario,
+      password: getPass()
     });
 
-    function initDashboard(users) {
-      const select = document.getElementById('filtroGerencia');
-      const gerencias = [...new Set(users.map(u => u.gerencia))];
-      gerencias.forEach(g => {
-        if(g) {
-          const opt = document.createElement('option');
-          opt.value = g; opt.innerText = g;
-          select.appendChild(opt);
-        }
-      });
+    if (res.status === 'ok') {
+      return res.respuesta; // Retorna el texto generado por Gemini
+    } else {
+      throw new Error(res.mensaje || 'Error en la comunicación con el servidor.');
     }
+  } catch (e) {
+    console.error("Error en llamarGemini:", e);
+    throw e;
+  }
+}
 
-    function cargarDatos() {
-      const gerencia = document.getElementById('filtroGerencia').value;
-      google.script.run.withSuccessHandler(renderizar).doGet();
+// ── Análisis general del Dashboard ──────────────────────
+async function analizarDashboard() {
+  const d = getData(); 
+  if (!d) { toast('Sin datos cargados', 'err'); return; }
+  
+  const btn = document.getElementById('btn-ia-dashboard');
+  const panelEl = document.getElementById('ia-panel-dashboard');
+  
+  btn.disabled = true;
+  btn.innerHTML = '<div class="ia-loading-dots"><div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div></div> <span>Consultando a Gemini...</span>';
+  
+  // Recolección de datos para el Prompt
+  const dirs = d.res_direccion || [];
+  const kpisQ = (d.carga_q||[]).filter(k => k['Q']===currentQ);
+  const risks = (d.riesgos||[]).filter(r => (r['Estado']||'')!=='Cerrado');
+
+  const resumenData = dirs.map(r => `${r['Obj_ID']}: ${pct(getQVal(r, currentQ))}`).join(', ');
+
+  const prompt = `Actúa como un experto Analista de Datos de SOOFT. 
+  Analiza los resultados del Q: ${currentQ} del año 2026.
+  DATOS ACTUALES:
+  - Objetivos de Dirección: ${resumenData}
+  - KPIs en problemas: ${kpisQ.filter(k => parseFloat(k['Logro_Q']||0) < 0.7).length}
+  - Riesgos activos: ${risks.length}
+
+  Proporciona:
+  1. DIAGNÓSTICO: Un resumen ejecutivo de 3 líneas.
+  2. SUGERENCIAS: 3 acciones prioritarias con el formato "→ Acción".
+  3. ALERTAS: Los 2 puntos más críticos.
+  Sé breve, profesional y directo. No uses negritas exageradas.`;
+
+  try {
+    const respuesta = await llamarGemini(prompt);
+    const secciones = parsearRespuestaIA(respuesta);
+    const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+    
+    panelEl.innerHTML = renderIAPanel(secciones, `Análisis Inteligente · ${currentQ}`, now);
+    panelEl.style.display = 'block';
+    panelEl.scrollIntoView({behavior:'smooth', block:'nearest'});
+    
+    btn.innerHTML = '<div class="ia-gem-icon">G</div> Actualizar análisis';
+  } catch(e) {
+    toast('Error: ' + e.message, 'err');
+    btn.innerHTML = '<div class="ia-gem-icon">G</div> Reintentar análisis';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Análisis por KPI individual (Carga de Avance) ────────────────
+async function analizarKPI(key, btnEl) {
+  const d = getData(); 
+  if (!d) return;
+  
+  btnEl.disabled = true;
+  const originalHtml = btnEl.innerHTML;
+  btnEl.innerHTML = '<div class="ia-loading-dots"><div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div></div>';
+
+  const kpi = (d.carga_q||[]).find(k => (k['KEY']||`${k['Q']}|${k['KPI_ID']}`) === key);
+  const resultEl = document.getElementById('ia-kpi-'+key);
+
+  const prompt = `Analiza el KPI ${kpi['KPI_ID']} (${kpi['Objetivo']}). 
+  Logro actual: ${pct(parseFloat(kpi['Logro_Q']||0))}. 
+  Meta: ${kpi['Meta_Q (editable)'] || kpi['Meta_Q']}. 
+  Comentario del usuario: "${kpi['Comentarios'] || 'Sin comentarios'}".
+  
+  Dame un diagnóstico corto (2 líneas) y una sugerencia técnica para mejorar este indicador.`;
+
+  try {
+    const respuesta = await llamarGemini(prompt);
+    if (resultEl) {
+      resultEl.innerHTML = `<strong>Análisis de Gemini:</strong><br>${respuesta.replace(/\n/g,'<br>')}`;
+      resultEl.style.display = 'block';
     }
-
-    function renderizar(data) {
-      const gSel = document.getElementById('filtroGerencia').value;
-      
-      // Render KPIs
-      const tbody = document.getElementById('tablaKPIs');
-      tbody.innerHTML = '';
-      const kpis = data.carga_q.filter(k => gSel === 'TODAS' || k.Responsable === gSel);
-      
-      kpis.forEach(k => {
-        const row = `
-          <tr class="border-b hover:bg-gray-50 transition">
-            <td class="p-3"><p class="font-semibold">${k.KPI_ID || '-'}</p><p class="text-xs text-gray-400">${k.Objetivo || ''}</p></td>
-            <td class="p-3 font-mono">${k['Meta_Q (editable)'] || 0}</td>
-            <td class="p-3 font-mono font-bold">${k['Actual_Q (cargar)'] || 0}</td>
-            <td class="p-3">${(k.Logro_Q * 100).toFixed(1)}%</td>
-            <td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold status-${k.Estado?.toLowerCase()}">${k.Estado}</span></td>
-          </tr>`;
-        tbody.innerHTML += row;
-      });
-
-      // Render Riesgos
-      const rDiv = document.getElementById('listaRiesgos');
-      rDiv.innerHTML = '';
-      data.riesgos.filter(r => (gSel === 'TODAS' || r['Gerencia responsable'] === gSel) && r.Semáforo === 'ROJO').forEach(r => {
-        rDiv.innerHTML += `
-          <div class="p-3 bg-red-50 border-l-4 border-red-500 rounded">
-            <p class="text-xs font-bold text-red-800">${r.ID} - ${r.Riesgo || 'Sin nombre'}</p>
-            <p class="text-xs text-red-600 mt-1">Impacto: ${r['Nivel (P×I)'] || 0}</p>
-          </div>`;
-      });
-    }
-
-    function logout() { alert('Función de desconexión en desarrollo para Apps Script.'); }
-  </script>
-</body>
-</html>
+    btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> ✓ Analizado';
+  } catch(e) {
+    toast('Error Gemini: ' + e.message, 'err');
+    btnEl.innerHTML = originalHtml;
+  } finally {
+    btnEl.disabled = false;
+  }
+}
