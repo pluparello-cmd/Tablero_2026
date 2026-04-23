@@ -5,36 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tablero SOOFT 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#f3f4f6; --surface:#ffffff; --surface2:#f9fafb; --surface3:#f1f2f4;
-  --border:rgba(0,0,0,0.09); --text:#111827; --text2:#4b5563; --text3:#9ca3af;
-  --sidebar-bg:#1f2937; --sidebar-text:#e5e7eb; --sidebar-text2:#9ca3af;
-  --sidebar-active-bg:#111827; --sidebar-accent:#6ee7b7;
-  --accent:#6ee7b7; --accent2:#34d399;
-  --verde:#16a34a; --verde-bg:rgba(22,163,74,0.08); --verde-border:rgba(22,163,74,0.25);
-  --amarillo:#d97706; --amarillo-bg:rgba(217,119,6,0.08); --amarillo-border:rgba(217,119,6,0.25);
-  --rojo:#dc2626; --rojo-bg:rgba(220,38,38,0.08); --rojo-border:rgba(220,38,38,0.25);
+  --bg:#f4f6f9; --surface:#ffffff; --surface2:#f8fafc; --surface3:#eef2f7;
+  --border:rgba(0,0,0,0.07); --text:#1a1f2e; --text2:#4a5568; --text3:#94a3b8;
+  --sidebar-bg:#1a1f2e; --sidebar-text:#e2e8f0; --sidebar-text2:#94a3b8;
+  --sidebar-active-bg:#0f1420; --sidebar-accent:#fb923c;
+  --accent:#f97316; --accent2:#fb923c;
+  --verde:#16a34a; --verde-bg:rgba(22,163,74,0.07); --verde-border:rgba(22,163,74,0.2);
+  --amarillo:#d97706; --amarillo-bg:rgba(217,119,6,0.07); --amarillo-border:rgba(217,119,6,0.2);
+  --rojo:#dc2626; --rojo-bg:rgba(220,38,38,0.07); --rojo-border:rgba(220,38,38,0.2);
   --neutro:#6b7280; --radius:10px; --radius-lg:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;line-height:1.5}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;line-height:1.5}
 body::before{display:none}
 
 /* ── LOGIN ── */
 #login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:800;background:var(--bg)}
 #login-screen.hidden{display:none}
 .login-box{width:380px;max-width:90vw}
-.login-logo{font-family:'DM Serif Display',serif;font-size:32px;letter-spacing:-1px;margin-bottom:4px}
+.login-logo{font-family:'Poppins',sans-serif;font-weight:600;font-size:32px;letter-spacing:-1px;margin-bottom:4px}
 .login-sub{color:var(--text3);font-size:12px;margin-bottom:32px;text-transform:uppercase;letter-spacing:0.8px}
 .login-field{margin-bottom:14px}
 .login-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:6px;display:block}
-.login-input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color .15s}
-.login-input:focus{border-color:#059669}
+.login-input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid var(--border);background:#ffffff;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;transition:border-color .15s}
+.login-input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.1)}
 .login-error{color:var(--rojo);font-size:12px;margin-bottom:12px;min-height:18px}
-.login-btn{width:100%;padding:12px;border-radius:8px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s;margin-top:4px}
-.login-btn:hover{opacity:.85}
+.login-btn{width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px;letter-spacing:.3px}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(249,115,22,.35)}
 .login-btn:disabled{opacity:.5;cursor:not-allowed}
 .login-config{margin-top:20px;text-align:center;font-size:11px;color:var(--text3)}
 .login-config a{color:var(--accent);cursor:pointer;text-decoration:none}
@@ -46,44 +46,44 @@ body::before{display:none}
 #app-screen.visible{display:flex}
 
 /* ── SIDEBAR ── */
-.sidebar{width:224px;flex-shrink:0;background:#1f2937;border-right:1px solid #374151;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar{width:224px;flex-shrink:0;background:#1a1f2e;border-right:1px solid #374151;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
 .sidebar-logo{padding:22px 20px 18px;border-bottom:1px solid #374151}
-.logo-name{font-family:'DM Serif Display',serif;font-size:19px;letter-spacing:-.5px;color:#f9fafb}
-.logo-sub{font-size:10px;color:#6b7280;letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+.logo-name{font-family:'Poppins',sans-serif;font-weight:600;font-size:19px;letter-spacing:-.5px;color:#f9fafb}
+.logo-sub{font-size:9px;color:#94a3b8;letter-spacing:1.5px;text-transform:uppercase;margin-top:4px;font-weight:500}
 .sidebar-section{padding:12px 0;border-bottom:1px solid #374151}
 .sidebar-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;padding:0 20px 8px}
-.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:8px 20px;background:none;border:none;color:#9ca3af;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
+.nav-btn{display:flex;align-items:center;gap:10px;width:100%;padding:8px 20px;background:none;border:none;color:#9ca3af;font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;text-align:left}
 .nav-btn:hover{background:#374151;color:#f9fafb}
-.nav-btn.active{background:#111827;color:#6ee7b7}
+.nav-btn.active{background:#0f1420;color:#fb923c;border-left:3px solid #f97316}
 .nav-icon{width:15px;opacity:.7;flex-shrink:0}
 .nav-btn.active .nav-icon{opacity:1;filter:brightness(1.2)}
 
 .q-selector{padding:14px 20px;border-top:1px solid #374151}
 .q-label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#6b7280;margin-bottom:8px}
 .q-pills{display:flex;flex-direction:column;gap:4px}
-.q-pill{padding:7px 12px;border-radius:6px;border:1px solid #374151;background:none;color:#9ca3af;font-family:'DM Mono',monospace;font-size:12px;cursor:pointer;transition:all .15s;text-align:left}
-.q-pill:hover{border-color:#6ee7b7;color:#f9fafb}
-.q-pill.active{background:rgba(110,231,183,.1);border-color:#6ee7b7;color:#6ee7b7}
+.q-pill{padding:7px 12px;border-radius:6px;border:1px solid #374151;background:none;color:#9ca3af;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;transition:all .15s;text-align:left}
+.q-pill:hover{border-color:#fb923c;color:#f9fafb}
+.q-pill.active{background:rgba(249,115,22,.1);border-color:#f97316;color:#fb923c}
 
 /* User card en sidebar */
-.user-card{margin:12px 14px;padding:12px;border-radius:8px;border:1px solid #374151;background:#111827}
+.user-card{margin:12px 14px;padding:12px;border-radius:8px;border:1px solid #374151;background:#0f1420}
 .user-name{font-size:12px;font-weight:600;color:#f9fafb}
 .user-ger{font-size:11px;color:#6b7280;margin-top:2px}
-.user-rol{display:inline-block;margin-top:6px;font-size:10px;padding:2px 7px;border-radius:3px;background:rgba(110,231,183,.1);border:1px solid #6ee7b7;color:#6ee7b7;font-family:'DM Mono',monospace}
-.logout-btn{margin-top:8px;width:100%;padding:5px;border-radius:5px;border:1px solid #374151;background:none;color:#6b7280;font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.user-rol{display:inline-block;margin-top:6px;font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.4);color:#fb923c;font-family:'JetBrains Mono',monospace;font-weight:500}
+.logout-btn{margin-top:8px;width:100%;padding:5px;border-radius:5px;border:1px solid #374151;background:none;color:#6b7280;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Poppins',sans-serif}
 .logout-btn:hover{border-color:var(--rojo);color:var(--rojo)}
 
 /* Sync bar */
-.sync-bar{margin:10px 14px 14px;padding:10px 12px;border-radius:8px;border:1px solid #374151;background:#111827;font-size:11px}
+.sync-bar{margin:10px 14px 14px;padding:10px 12px;border-radius:8px;border:1px solid #374151;background:#0f1420;font-size:11px}
 .sync-status{display:flex;align-items:center;gap:6px;color:#6b7280}
 .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
-.sync-dot.ok{background:#16a34a;box-shadow:0 0 4px rgba(22,163,74,.4)}
+.sync-dot.ok{background:#f97316;box-shadow:0 0 6px rgba(249,115,22,.5)}
 .sync-dot.loading{background:var(--amarillo);animation:pulse 1s infinite}
 .sync-dot.error{background:var(--rojo)}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .sync-time{color:var(--text3);font-size:10px;margin-top:3px}
-.sync-btn{margin-top:7px;width:100%;padding:5px;border-radius:5px;border:1px solid #374151;background:none;color:#9ca3af;font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
-.sync-btn:hover{border-color:#6ee7b7;color:#6ee7b7}
+.sync-btn{margin-top:7px;width:100%;padding:5px;border-radius:5px;border:1px solid #374151;background:none;color:#9ca3af;font-size:11px;cursor:pointer;transition:all .15s;font-family:'Poppins',sans-serif}
+.sync-btn:hover{border-color:#f97316;color:#fb923c}
 .sync-btn:disabled{opacity:.4;cursor:not-allowed}
 
 /* ── MAIN ── */
@@ -92,19 +92,19 @@ body::before{display:none}
 .page.active{display:block;animation:fadeIn .25s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .page-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border)}
-.page-title{font-family:'DM Serif Display',serif;font-size:24px;letter-spacing:-.5px}
+.page-title{font-family:'Poppins',sans-serif;font-weight:600;font-size:24px;letter-spacing:-.5px}
 .page-subtitle{color:var(--text3);font-size:12px;margin-top:2px}
-.q-badge{font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;border-radius:4px;background:rgba(110,231,183,.1);border:1px solid #059669;color:#059669}
+.q-badge{font-family:'JetBrains Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;background:rgba(249,115,22,.08);border:1px solid rgba(249,115,22,.4);color:#f97316;font-weight:500}
 
 /* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .15s;user-select:none}
-.stat-card:hover{border-color:rgba(0,0,0,.18);box-shadow:0 2px 8px rgba(0,0,0,.07);transform:translateY(-1px)}
+.stat-card:hover{border-color:rgba(249,115,22,.3);box-shadow:0 4px 16px rgba(249,115,22,.08);transform:translateY(-1px)}
 .stat-card.active-verde{border-color:var(--verde);background:var(--verde-bg)}
 .stat-card.active-amarillo{border-color:var(--amarillo);background:var(--amarillo-bg)}
 .stat-card.active-rojo{border-color:var(--rojo);background:var(--rojo-bg)}
-.stat-card.active-accent{border-color:var(--accent);background:rgba(110,231,183,.07)}
-.stat-num{font-family:'DM Mono',monospace;font-size:26px;font-weight:500}
+.stat-card.active-accent{border-color:#f97316;background:rgba(249,115,22,.05)}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:500}
 .stat-num.accent{color:var(--accent)} .stat-num.verde{color:var(--verde)} .stat-num.amarillo{color:var(--amarillo)} .stat-num.rojo{color:var(--rojo)}
 .stat-lbl{font-size:11px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
 .stat-hint{font-size:10px;color:var(--text3);margin-top:6px;opacity:.7}
@@ -118,11 +118,11 @@ body::before{display:none}
 
 /* Section */
 .section{margin-bottom:28px}
-.section-title{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
-.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-title{font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(249,115,22,.3),transparent)}
 
 /* Badges */
-.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:500;white-space:nowrap}
 .badge-verde{background:var(--verde-bg);border:1px solid var(--verde-border);color:var(--verde)}
 .badge-amarillo{background:var(--amarillo-bg);border:1px solid var(--amarillo-border);color:var(--amarillo)}
 .badge-rojo{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo)}
@@ -137,7 +137,7 @@ body::before{display:none}
 .progress-bar{flex:1;height:8px;background:var(--surface3);border-radius:4px;min-width:70px;overflow:hidden;cursor:default;position:relative}
 .progress-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1),filter .2s}
 .fill-verde{background:linear-gradient(90deg,#16a34a,#22c55e)} .fill-amarillo{background:linear-gradient(90deg,#d97706,#f59e0b)} .fill-rojo{background:linear-gradient(90deg,#dc2626,#f87171)}
-.progress-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:38px;text-align:right;font-weight:500}
+.progress-pct{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);min-width:38px;text-align:right;font-weight:500}
 
 /* Tables */
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
@@ -148,35 +148,35 @@ tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:var(--surface2)}
 td{padding:9px 13px;font-size:12px;color:var(--text2);white-space:nowrap}
 td.text-wrap{white-space:normal;min-width:160px;max-width:280px}
-td.mono{font-family:'DM Mono',monospace;font-size:11px}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:11px}
 td.bold{color:var(--text);font-weight:500}
 
 /* Filter bar */
 .filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
-.filter-select{padding:6px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;outline:none}
+.filter-select{padding:6px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-family:'Poppins',sans-serif;font-size:12px;cursor:pointer;outline:none}
 .filter-select:focus{border-color:var(--accent)}
 .filter-count{font-size:11px;color:var(--text3);margin-left:auto}
 
 /* Dir obj */
 .dir-obj-grid{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
 .dir-obj-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;display:grid;grid-template-columns:75px 1fr 120px 120px 70px 70px 70px 70px;gap:10px;align-items:center;transition:border-color .2s,box-shadow .2s,background .15s}
-.dir-obj-row:hover{border-color:rgba(110,231,183,.35);background:rgba(110,231,183,.03);box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.dir-obj-row:hover{border-color:rgba(249,115,22,.25);background:rgba(249,115,22,.02);box-shadow:0 2px 8px rgba(249,115,22,.06)}
 .dir-obj-row.header{background:var(--surface2);padding:7px 16px}
 .dir-obj-row.header span{font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3)}
-.obj-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)}
+.obj-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)}
 .obj-name{font-size:12px;color:var(--text);white-space:normal;line-height:1.3}
-.area-tag{font-size:10px;padding:2px 6px;border-radius:3px;font-family:'DM Mono',monospace;background:var(--surface3);color:var(--text3)}
+.area-tag{font-size:10px;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;background:var(--surface3);color:var(--text3)}
 
 /* Gerencias */
 .gerencias-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px;margin-bottom:24px}
 .gerencia-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;transition:border-color .2s,transform .2s,box-shadow .2s}
-.gerencia-card:hover{border-color:rgba(110,231,183,.35);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.gerencia-card:hover{border-color:rgba(249,115,22,.3);transform:translateY(-2px);box-shadow:0 4px 20px rgba(249,115,22,.1)}
 .gerencia-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .gerencia-name{font-weight:600;font-size:13px;color:var(--text);display:flex;align-items:center;gap:8px}
 .gerencia-kpis{font-size:11px;color:var(--text3)}
 .gerencia-q-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
-.q-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);width:20px}
-.mini-rojo{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo);font-family:'DM Mono',monospace;font-size:10px;padding:1px 5px;border-radius:3px}
+.q-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);width:20px}
+.mini-rojo{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo);font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 5px;border-radius:3px}
 
 /* Risk panels */
 .risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:24px}
@@ -184,26 +184,26 @@ td.bold{color:var(--text);font-weight:500}
 .risk-panel-header{padding:13px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .risk-panel-title{font-size:13px;font-weight:600;color:var(--text)}
 .risk-counters{display:flex;gap:10px}
-.risk-counter{font-size:11px;font-family:'DM Mono',monospace}
+.risk-counter{font-size:11px;font-family:'JetBrains Mono',monospace}
 .risk-counter.rojo{color:var(--rojo)} .risk-counter.amarillo{color:var(--amarillo)} .risk-counter.verde{color:var(--verde)}
 .risk-list{padding:4px 0}
 .risk-item{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);transition:background .1s;cursor:default}
 .risk-item:last-child{border-bottom:none}
 .risk-item:hover{background:var(--surface2)}
-.risk-rank{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:18px;padding-top:2px}
+.risk-rank{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);min-width:18px;padding-top:2px}
 .risk-info{flex:1;min-width:0}
 .risk-desc{font-size:12px;color:var(--text);white-space:normal;line-height:1.4}
 .risk-meta{font-size:11px;color:var(--text3);margin-top:3px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.risk-nivel{font-family:'DM Mono',monospace;font-weight:600;font-size:13px;min-width:28px;text-align:right;padding-top:2px}
+.risk-nivel{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:13px;min-width:28px;text-align:right;padding-top:2px}
 
 /* ── CARGA KPI ── */
 .carga-grid{display:flex;flex-direction:column;gap:10px}
 .kpi-carga-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .2s}
 .kpi-carga-card:hover{border-color:rgba(255,255,255,.12)}
 .kpi-carga-header{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
-.kpi-carga-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);min-width:80px}
+.kpi-carga-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);min-width:80px}
 .kpi-carga-name{flex:1;font-size:12px;color:var(--text)}
-.kpi-carga-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace}
+.kpi-carga-meta{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace}
 .kpi-carga-expand{font-size:14px;color:var(--text3);transition:transform .2s;margin-left:8px}
 .kpi-carga-card.open .kpi-carga-expand{transform:rotate(180deg)}
 
@@ -213,19 +213,19 @@ td.bold{color:var(--text);font-weight:500}
 .kpi-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
 .kpi-form-full{grid-column:1/-1}
 .form-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:5px;display:block}
-.form-input{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
-.form-input:focus{border-color:var(--accent)}
+.form-input{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
 .form-input::placeholder{color:var(--text3)}
 
 .kpi-meta-info{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border)}
 .kpi-meta-item{display:flex;flex-direction:column;gap:2px}
 .kpi-meta-key{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-.kpi-meta-val{font-size:12px;font-family:'DM Mono',monospace;color:var(--text)}
+.kpi-meta-val{font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--text)}
 
 .logro-preview{display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;border-radius:7px;background:var(--surface2)}
 .logro-preview-lbl{font-size:11px;color:var(--text3)}
 
-.btn-save{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;margin-top:14px}
+.btn-save{padding:9px 20px;border-radius:8px;border:none;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s;margin-top:14px}
 .btn-save:hover{opacity:.85}
 .btn-save:disabled{opacity:.5;cursor:not-allowed}
 .save-msg{font-size:11px;margin-left:10px;vertical-align:middle}
@@ -234,7 +234,7 @@ td.bold{color:var(--text);font-weight:500}
 
 /* Riesgos carga */
 .risk-estado-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.risk-estado-btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.risk-estado-btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Poppins',sans-serif}
 .risk-estado-btn:hover{border-color:var(--text2);color:var(--text)}
 .risk-estado-btn.selected-abierto{background:var(--rojo-bg);border-color:var(--rojo-border);color:var(--rojo)}
 .risk-estado-btn.selected-mitigacion{background:var(--amarillo-bg);border-color:var(--amarillo-border);color:var(--amarillo)}
@@ -257,24 +257,24 @@ td.bold{color:var(--text);font-weight:500}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:900;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:#ffffff;border:1px solid #e5e7eb;border-radius:var(--radius-lg);padding:26px;width:500px;max-width:90vw}
-.modal-title{font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:5px}
+.modal-title{font-family:'Poppins',sans-serif;font-weight:600;font-size:19px;margin-bottom:5px}
 .modal-sub{color:var(--text3);font-size:12px;margin-bottom:20px;line-height:1.6}
 .input-group{margin-bottom:14px}
 .input-label{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500}
-.input-field{width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
+.input-field{width:100%;padding:10px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
 .input-field:focus{border-color:var(--accent)}
 .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
-.btn-primary{padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+.btn-primary{padding:9px 20px;border-radius:7px;border:none;background:#1a1f2e;color:#fb923c;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
 .btn-primary:hover{opacity:.85}
-.btn-secondary{padding:9px 20px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer}
+.btn-secondary{padding:9px 20px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer}
 .btn-secondary:hover{border-color:var(--text2);color:var(--text)}
 
 .steps{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
 .step{display:flex;gap:12px;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2)}
-.step-num{width:22px;height:22px;border-radius:50%;background:rgba(110,231,183,.1);border:1px solid #059669;color:#059669;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-num{width:22px;height:22px;border-radius:50%;background:rgba(110,231,183,.1);border:1px solid #ea6f10;color:#ea6f10;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
 .step-title{font-weight:600;font-size:12px;color:var(--text);margin-bottom:3px}
 .step-desc{font-size:11px;color:var(--text3);line-height:1.6}
-.step-code{margin-top:5px;padding:5px 9px;border-radius:4px;background:var(--surface3);font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);word-break:break-all}
+.step-code{margin-top:5px;padding:5px 9px;border-radius:4px;background:var(--surface3);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);word-break:break-all}
 
 .empty{text-align:center;padding:36px;color:var(--text3);font-size:13px}
 ::-webkit-scrollbar{width:6px;height:6px}
@@ -289,22 +289,22 @@ td.bold{color:var(--text);font-weight:500}
 .drawer.open{transform:translateX(0)}
 .drawer-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .drawer-title-block{flex:1;min-width:0}
-.drawer-title{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.5px;color:var(--text)}
+.drawer-title{font-family:'Poppins',sans-serif;font-weight:600;font-size:20px;letter-spacing:-.5px;color:var(--text)}
 .drawer-subtitle{font-size:11px;color:var(--text3);margin-top:3px}
 .drawer-close{background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
 .drawer-close:hover{border-color:var(--text2);color:var(--text)}
 
 .drawer-tabs{display:flex;gap:2px;padding:10px 24px 0;border-bottom:1px solid #e5e7eb;flex-shrink:0}
-.dtab{padding:8px 16px;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;background:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;position:relative;bottom:-1px}
+.dtab{padding:8px 16px;border-radius:6px 6px 0 0;border:1px solid transparent;border-bottom:none;background:none;color:var(--text3);font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;position:relative;bottom:-1px}
 .dtab:hover{color:var(--text2)}
-.dtab.active{background:#ffffff;border-color:#e5e7eb;border-bottom-color:#ffffff;color:#059669}
+.dtab.active{background:#ffffff;border-color:#e5e7eb;border-bottom-color:#ffffff;color:#f97316;font-weight:600}
 
 .drawer-body{flex:1;overflow-y:auto;padding:20px 24px}
 
 /* Drawer stats mini */
 .drawer-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
 .dstat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
-.dstat-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500}
+.dstat-num{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500}
 .dstat-lbl{font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.5px}
 
 /* KPI table in drawer */
@@ -314,19 +314,19 @@ td.bold{color:var(--text);font-weight:500}
 .kpi-drawer-table tr:last-child td{border-bottom:none}
 .kpi-drawer-table tr:hover td{background:var(--surface2)}
 .kpi-drawer-table td.kpi-name{color:var(--text);max-width:200px;white-space:normal;line-height:1.35}
-.kpi-drawer-table td.kpi-id{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap}
+.kpi-drawer-table td.kpi-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap}
 
 /* Q progress mini pills */
 .q-pills-row{display:flex;gap:4px;align-items:center}
 .q-mini{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:38px}
-.q-mini-label{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace}
+.q-mini-label{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace}
 .q-mini-bar{width:34px;height:8px;border-radius:4px;background:var(--surface3);overflow:hidden}
 .q-mini-fill{height:100%;border-radius:4px;transition:width .5s cubic-bezier(.4,0,.2,1)}
-.q-mini-pct{font-size:10px;font-family:'DM Mono',monospace}
+.q-mini-pct{font-size:10px;font-family:'JetBrains Mono',monospace}
 
 /* YTD big bar */
 .ytd-row{display:flex;align-items:center;gap:10px}
-.ytd-label{font-size:11px;font-family:'DM Mono',monospace;font-weight:500;min-width:30px;text-align:right}
+.ytd-label{font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:500;min-width:30px;text-align:right}
 
 /* Dir obj clickable */
 .dir-obj-row.clickable{cursor:pointer}
@@ -342,7 +342,7 @@ td.bold{color:var(--text);font-weight:500}
 ═══════════════════════════════════════════ */
 
 /* Hamburger button */
-.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:800;width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:#1f2937;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.hamburger{display:none;position:fixed;top:14px;left:14px;z-index:800;width:40px;height:40px;border-radius:8px;border:1px solid var(--border);background:#1a1f2e;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px}
 .hamburger span{display:block;width:18px;height:2px;background:#9ca3af;border-radius:1px;transition:all .25s}
 .hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
@@ -383,7 +383,7 @@ td.bold{color:var(--text);font-weight:500}
 
   /* Show Q pills inline instead */
   .dir-obj-row-qs{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
-  .dir-obj-q-pill{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:10px}
+  .dir-obj-q-pill{display:flex;align-items:center;gap:4px;font-family:'JetBrains Mono',monospace;font-size:10px}
 
   /* Gerencias grid — single column */
   .gerencias-grid{grid-template-columns:1fr;gap:10px}
@@ -445,22 +445,22 @@ td.bold{color:var(--text);font-weight:500}
 
 /* ── GESTIONAR OBJETIVOS ── */
 .form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px;margin-bottom:16px}
-.form-section-title{font-family:'DM Serif Display',serif;font-size:15px;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.form-section-title{font-family:'Poppins',sans-serif;font-weight:600;font-size:15px;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px}
 .form-group{display:flex;flex-direction:column;gap:5px}
 .form-group.full{grid-column:1/-1}
 .form-label-main{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
-.form-input-main{padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s;width:100%}
-.form-input-main:focus{border-color:#059669;background:var(--surface)}
-.form-select-main{padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s;width:100%;cursor:pointer}
-.form-select-main:focus{border-color:#059669}
+.form-input-main{padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:border-color .15s;width:100%}
+.form-input-main:focus{border-color:#ea6f10;background:var(--surface)}
+.form-select-main{padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Poppins',sans-serif;font-size:13px;outline:none;transition:border-color .15s;width:100%;cursor:pointer}
+.form-select-main:focus{border-color:#ea6f10}
 .form-hint{font-size:10px;color:var(--text3);margin-top:2px}
-.btn-submit{padding:11px 28px;border-radius:8px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-submit{padding:11px 28px;border-radius:8px;border:none;background:#1a1f2e;color:#fb923c;font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity .15s}
 .btn-submit:hover{opacity:.85}
 .btn-submit:disabled{opacity:.5;cursor:not-allowed}
-.btn-cancel{padding:11px 20px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s}
+.btn-cancel{padding:11px 20px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer;transition:all .15s}
 .btn-cancel:hover{border-color:var(--text2);color:var(--text)}
 .form-actions{display:flex;gap:10px;align-items:center;margin-top:6px}
 .form-result{font-size:12px;font-weight:500}
@@ -473,7 +473,7 @@ td.bold{color:var(--text);font-weight:500}
 .obj-list-table tr:hover td{background:var(--surface2)}
 .obj-list-table td.kpi-name{color:var(--text);font-weight:500;white-space:normal;max-width:220px}
 .admin-only{display:none}
-.logro-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;font-weight:500}
+.logro-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:500}
 @media(max-width:768px){.form-grid,.form-grid-3,.form-grid-4{grid-template-columns:1fr}}
 
 /* Plan de Acción */
@@ -490,31 +490,31 @@ td.bold{color:var(--text);font-weight:500}
 .plan-accion-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .plan-accion-full{grid-column:1/-1}
 .plan-form-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:block}
-.plan-form-input{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;transition:border-color .15s;resize:vertical}
+.plan-form-input{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Poppins',sans-serif;font-size:12px;outline:none;transition:border-color .15s;resize:vertical}
 .plan-form-input:focus{border-color:var(--accent)}
 .plan-form-input::placeholder{color:var(--text3)}
 
 /* Riesgo / Oportunidad extra fields */
 .pi-selector{display:flex;gap:4px}
-.pi-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.pi-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text3);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .pi-btn:hover{border-color:var(--text2)}
 .pi-btn.sel-rojo{background:var(--rojo);border-color:var(--rojo);color:#fff;font-weight:700}
 .pi-btn.sel-amarillo{background:var(--amarillo);border-color:var(--amarillo);color:#fff;font-weight:700}
 .pi-btn.sel-verde{background:var(--verde);border-color:var(--verde);color:#fff;font-weight:700}
 .pi-result-box{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);min-width:68px}
 .pi-result-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-.pi-result-val{font-family:'DM Mono',monospace;font-size:22px;font-weight:700}
+.pi-result-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700}
 .cierre-box{margin-top:4px;border-radius:8px;padding:12px 14px;border:1px solid}
 .cierre-box-risk{background:rgba(37,99,235,.04);border-color:rgba(37,99,235,.2)}
 .cierre-box-oport{background:rgba(22,163,74,.04);border-color:rgba(22,163,74,.2)}
 .cierre-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .cierre-lbl-risk{color:#2563eb}
-.cierre-lbl-oport{color:#059669}
+.cierre-lbl-oport{color:#ea6f10}
 .cierre-lbl::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
-.cierre-select{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;cursor:pointer}
+.cierre-select{width:100%;padding:8px 11px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'Poppins',sans-serif;font-size:12px;outline:none;cursor:pointer}
 .cierre-select:focus{border-color:var(--accent)}
 .cierre-nota{font-size:10px;color:var(--text3);margin-top:5px}
-.oport-estado-btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
+.oport-estado-btn{padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s;font-family:'Poppins',sans-serif}
 .oport-estado-btn.sel-activa{background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.25);color:#2563eb}
 .oport-estado-btn.sel-seguimiento{background:var(--amarillo-bg);border-color:var(--amarillo-border);color:var(--amarillo)}
 .oport-estado-btn.sel-concretada{background:var(--verde-bg);border-color:var(--verde-border);color:var(--verde)}
@@ -523,29 +523,29 @@ td.bold{color:var(--text);font-weight:500}
 /* Formulario nuevo riesgo/oportunidad */
 .nuevo-form{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;display:none}
 .nuevo-form.visible{display:block;animation:fadeIn .2s ease}
-.nuevo-form-title{font-family:'DM Serif Display',serif;font-size:16px;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.nuevo-form-title{font-family:'Poppins',sans-serif;font-weight:600;font-size:16px;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .nuevo-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .nuevo-form-full{grid-column:1/-1}
-.btn-nuevo{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;border:1px solid var(--verde-border);background:var(--verde-bg);color:var(--verde);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-left:auto}
+.btn-nuevo{display:flex;align-items:center;gap:6px;padding:7px 16px;border-radius:7px;border:1px solid var(--verde-border);background:var(--verde-bg);color:var(--verde);font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;margin-left:auto}
 .btn-nuevo:hover{background:var(--verde);color:#fff}
 
 /* ── ANÁLISIS IA GEMINI ── */
 .ia-gem-icon{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#4285f4,#34a853);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;flex-shrink:0}
-.btn-ia-gemini{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-ia-gemini{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:8px;border:none;background:#1a1f2e;color:#fb923c;font-family:'Poppins',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:opacity .15s}
 .btn-ia-gemini:hover{opacity:.85}
 .btn-ia-gemini:disabled{opacity:.5;cursor:not-allowed}
-.btn-ia-sm{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:5px;border:1px solid rgba(66,133,244,.3);background:rgba(66,133,244,.06);color:#1d4ed8;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-ia-sm{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:5px;border:1px solid rgba(66,133,244,.3);background:rgba(66,133,244,.06);color:#1d4ed8;font-family:'Poppins',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
 .btn-ia-sm:hover{background:rgba(66,133,244,.12)}
 .btn-ia-sm:disabled{opacity:.5;cursor:not-allowed}
 .ia-panel{background:var(--surface);border:1px solid rgba(66,133,244,.2);border-radius:var(--radius-lg);overflow:hidden;margin-top:16px}
-.ia-panel-head{padding:12px 16px;background:#1f2937;display:flex;align-items:center;justify-content:space-between}
+.ia-panel-head{padding:12px 16px;background:#1a1f2e;display:flex;align-items:center;justify-content:space-between}
 .ia-panel-head-title{color:#f9fafb;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
 .ia-panel-body{padding:16px}
 .ia-section{margin-bottom:14px}
 .ia-section-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;display:flex;align-items:center;gap:5px}
 .ia-section-lbl::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block;flex-shrink:0}
 .ia-section-lbl.diag{color:#2563eb}
-.ia-section-lbl.sugest{color:#059669}
+.ia-section-lbl.sugest{color:#ea6f10}
 .ia-section-lbl.alerta{color:#dc2626}
 .ia-text{font-size:12px;color:var(--text2);line-height:1.7}
 .ia-item{display:flex;gap:7px;margin-bottom:5px;font-size:12px;color:var(--text2);line-height:1.5}
@@ -600,7 +600,7 @@ td.bold{color:var(--text);font-weight:500}
 <!-- ── LOGIN ── -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">SOOFT</div>
+    <?xml version="1.0" encoding="UTF-8"?> <svg xmlns="http://www.w3.org/2000/svg" width="200" height="61" style="display:block;margin-bottom:6px" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="0 0 1653.32 340" xmlns:xlink="http://www.w3.org/1999/xlink"> <defs>  </defs> <g id="Capa_x0020_1"> <metadata id="CorelCorpID_0Corel-Layer"/> <g id="_2013293861888"> <g> <path class="fil0" d="M338.65 240.63c-1.2,-36.35 -24.53,-77.76 -105.87,-91.27 -46.95,-6.87 -103.21,-8.96 -132.21,-17.91 -63.42,-19.52 -43.78,-54.04 -20.64,-70.97 17.42,-13.09 48.35,-22.47 89.85,-22.47 102.41,0 112.05,54.84 112.05,60.83 0,4.64 0,13.66 -8.62,25.14l37.4 14.68c6.4,-9.67 11.95,-22.57 12.46,-38.65 1.34,-41.16 -44.36,-100.01 -153.68,-100.01 -109.32,0 -151.82,52.69 -152.32,96.15 -0.1,27.14 18.79,54.33 64.32,70.28 50.81,17.78 133.94,13.75 170.2,28.41 68.79,26.43 51.79,77.54 -8.35,100.33 -19.08,6.84 -42.65,11.99 -74.73,11.99 -72.8,-1.34 -110.86,-21.47 -124.47,-51.84 -9.45,-21.15 -2.57,-44.05 15.12,-60.58l-32.03 -17.76c-9.33,8.26 -25.36,29.29 -27.07,62.66 -2.1,47.59 45.97,108.54 169.68,107.19 123.71,-1.34 170.32,-62.71 168.85,-106.19l0.05 -0.03z"/> <path class="fil0" d="M1325.54 44.95l0 -40.33 -154.39 0c-69.55,0 -125.91,56.38 -125.91,125.91l0 206.96 40.36 0 0 -166.6 239.94 0 0 -40.36 -239.94 0c0,-49.91 40.46,-85.57 90.36,-85.57l149.58 0z"/> <rect class="fil0" x="1482.04" y="11.13" width="40.36" height="326.16"/> <path class="fil0" d="M1653.32 44.95l0 -40.33 -172.36 0c-26.75,-0 -27.23,40.32 6.4,40.33l165.96 0z"/> <path class="fil0" d="M1351.11 44.95l0 -40.33 172.36 0c26.75,-0 27.23,40.32 -6.4,40.33l-165.96 0z"/> <path class="fil0" d="M523.29 338.7c-3.91,0 -7.87,-0.12 -11.85,-0.37 -39.94,-2.44 -73.95,-16.83 -95.71,-40.53 -44.19,-48.08 -44.53,-113.55 -44.49,-118.6l0 -15c-0.1,-5.11 -0.07,-70.55 43.87,-118.82 21.67,-23.79 55.58,-38.35 95.52,-40.99 35.49,-2.34 69.6,5.18 91.22,20.1 7.38,5.08 13.88,9.94 20.15,14.63 22.79,16.98 37.99,28.29 66.06,30.05 28.07,-1.88 43.19,-13.26 65.91,-30.36 6.28,-4.72 12.75,-9.6 20.1,-14.73 21.55,-15.05 55.62,-22.72 91.12,-20.54 39.94,2.44 73.95,16.83 95.71,40.53 44.19,48.08 44.53,113.55 44.49,118.6l0.05 15c0.07,5.08 0.05,70.53 -43.92,118.82 -21.67,23.79 -55.58,38.35 -95.52,40.99 -35.49,2.34 -69.6,-5.18 -91.22,-20.1 -7.38,-5.08 -13.88,-9.94 -20.15,-14.61 -22.79,-16.98 -37.99,-28.29 -66.06,-30.05 -28.07,1.88 -43.19,13.26 -65.89,30.36 -6.25,4.72 -12.75,9.6 -20.08,14.7 -19.15,13.36 -48.15,20.91 -79.27,20.91l-0.05 0zm-0.1 -295.22c-3.3,0 -6.62,0.1 -9.97,0.32 -29.27,1.93 -54.38,12.19 -68.94,28.17 -34.3,37.67 -33.64,91.12 -33.61,91.66l0 0.34c0,0 0.05,15.44 0.05,15.44l0 0.17c0,0.49 -0.1,54.33 34.08,91.49 14.61,15.9 39.79,26.04 69.06,27.83 26.12,1.59 52.06,-3.71 66.1,-13.51 6.77,-4.72 12.95,-9.38 18.96,-13.9 24.65,-18.54 47.93,-36.06 88.87,-38.33l0.22 3.91 0.1 -3.93 0.71 0c0,0 0.12,4.54 0.12,4.54l0.22 -4.52c40.94,2.05 64.32,19.47 89.04,37.89 6.01,4.47 12.21,9.11 19,13.8 14.09,9.75 40.06,14.93 66.18,13.19 29.27,-1.93 54.38,-12.19 68.91,-28.17 33.98,-37.33 33.64,-91.17 33.61,-91.73l0 -0.29c0,0 -0.05,-15.44 -0.05,-15.44l0 -0.17c0,-0.49 0.1,-54.33 -34.05,-91.49 -14.61,-15.9 -39.79,-26.04 -69.06,-27.83 -26.09,-1.59 -52.06,3.71 -66.1,13.51 -6.77,4.72 -12.97,9.38 -18.96,13.9 -24.65,18.54 -47.93,36.06 -88.87,38.33l-0.25 -4.32 -0.1 4.35 -0.71 -0c0,0 -0.12,-4.13 -0.12,-4.13l-0.19 4.1c-40.94,-2.05 -64.32,-19.47 -89.04,-37.89 -6.01,-4.47 -12.21,-9.11 -19,-13.8 -12.31,-8.5 -33.64,-13.53 -56.21,-13.53l0 0.05z"/> </g> <path class="fil1" d="M180.07 440.72l-24.33 0 0 62.99 -11.55 0 0 -62.99 -24.44 0 0 -10.21 60.32 0 0 10.21zm139.79 52.79l0 10.2 -50.21 0 0 -73.21 49.28 0 0 10.21 -37.74 0 0 20.82 32.69 0 0 9.59 -32.69 0 0 22.38 38.67 0zm87.41 -26.92c0,-4.4 0.79,-8.78 2.37,-13.14 1.58,-4.37 3.87,-8.29 6.86,-11.76 2.99,-3.47 6.65,-6.27 10.98,-8.4 4.33,-2.13 9.25,-3.2 14.75,-3.2 6.53,0 12.15,1.48 16.85,4.43 4.71,2.96 8.23,6.81 10.57,11.55l-9.07 6.08c-0.97,-2.2 -2.17,-4.06 -3.61,-5.57 -1.44,-1.51 -3.01,-2.71 -4.69,-3.61 -1.69,-0.89 -3.42,-1.53 -5.21,-1.91 -1.78,-0.38 -3.54,-0.57 -5.25,-0.57 -3.72,0 -7,0.77 -9.85,2.32 -2.85,1.55 -5.24,3.59 -7.17,6.13 -1.93,2.54 -3.37,5.4 -4.33,8.56 -0.96,3.17 -1.45,6.33 -1.45,9.49 0,3.58 0.57,6.98 1.7,10.21 1.13,3.23 2.74,6.09 4.8,8.56 2.06,2.48 4.5,4.45 7.32,5.93 2.82,1.47 5.91,2.21 9.28,2.21 1.72,0 3.52,-0.22 5.42,-0.67 1.89,-0.45 3.67,-1.16 5.36,-2.16 1.69,-1 3.25,-2.25 4.69,-3.76 1.44,-1.51 2.65,-3.33 3.61,-5.47l9.59 5.47c-1.17,2.75 -2.8,5.18 -4.9,7.27 -2.1,2.1 -4.45,3.87 -7.06,5.31 -2.61,1.44 -5.4,2.55 -8.35,3.3 -2.96,0.76 -5.88,1.14 -8.77,1.14 -5.09,0 -9.73,-1.1 -13.92,-3.3 -4.2,-2.2 -7.82,-5.06 -10.88,-8.61 -3.06,-3.54 -5.43,-7.56 -7.11,-12.06 -1.68,-4.5 -2.52,-9.09 -2.52,-13.77zm214.03 -36.09l0 73.21 -11.65 0 0 -32.27 -36.91 0 0 32.27 -11.55 0 0 -73.21 11.55 0 0 30.63 36.91 0 0 -30.63 11.65 0zm107.62 21.66l0 51.55 -11.55 0 0 -73.21 9.07 0 41.86 52.8 0 -52.69 11.65 0 0 73.1 -9.59 0 -41.45 -51.55zm177.22 52.07c-5.15,0 -9.85,-1.05 -14.07,-3.14 -4.23,-2.1 -7.87,-4.88 -10.93,-8.36 -3.06,-3.47 -5.41,-7.44 -7.06,-11.91 -1.65,-4.47 -2.47,-9.04 -2.47,-13.71 0,-4.88 0.88,-9.56 2.63,-14.02 1.75,-4.47 4.17,-8.42 7.27,-11.86 3.09,-3.44 6.77,-6.17 11.03,-8.2 4.26,-2.03 8.9,-3.04 13.92,-3.04 5.15,0 9.85,1.08 14.07,3.25 4.23,2.16 7.86,5 10.88,8.5 3.03,3.51 5.36,7.48 7.01,11.91 1.65,4.43 2.47,8.95 2.47,13.56 0,4.88 -0.88,9.56 -2.63,14.02 -1.75,4.47 -4.17,8.4 -7.27,11.81 -3.1,3.4 -6.76,6.12 -10.98,8.15 -4.23,2.03 -8.85,3.04 -13.87,3.04zm-22.78 -37.12c0,3.44 0.53,6.77 1.6,10 1.07,3.23 2.6,6.08 4.59,8.56 1.99,2.47 4.4,4.45 7.22,5.93 2.82,1.48 5.98,2.22 9.49,2.22 3.58,0 6.79,-0.77 9.65,-2.32 2.85,-1.55 5.25,-3.59 7.21,-6.13 1.96,-2.54 3.45,-5.4 4.49,-8.56 1.03,-3.16 1.54,-6.39 1.54,-9.69 0,-3.51 -0.55,-6.86 -1.65,-10.06 -1.1,-3.19 -2.65,-6.01 -4.64,-8.45 -1.99,-2.44 -4.4,-4.4 -7.22,-5.88 -2.82,-1.48 -5.94,-2.22 -9.38,-2.22 -3.57,0 -6.79,0.77 -9.64,2.32 -2.85,1.55 -5.26,3.56 -7.21,6.03 -1.96,2.48 -3.46,5.32 -4.49,8.51 -1.04,3.2 -1.55,6.45 -1.55,9.75zm149.17 36.6l0 -73.21 11.55 0 0 63 39.28 0 0 10.2 -50.83 0zm167.01 0.52c-5.15,0 -9.84,-1.05 -14.07,-3.14 -4.23,-2.1 -7.87,-4.88 -10.93,-8.36 -3.06,-3.47 -5.41,-7.44 -7.06,-11.91 -1.65,-4.47 -2.48,-9.04 -2.48,-13.71 0,-4.88 0.88,-9.56 2.64,-14.02 1.75,-4.47 4.17,-8.42 7.26,-11.86 3.1,-3.44 6.77,-6.17 11.04,-8.2 4.27,-2.03 8.9,-3.04 13.92,-3.04 5.16,0 9.84,1.08 14.08,3.25 4.22,2.16 7.85,5 10.88,8.5 3.03,3.51 5.36,7.48 7,11.91 1.66,4.43 2.49,8.95 2.49,13.56 0,4.88 -0.88,9.56 -2.64,14.02 -1.74,4.47 -4.17,8.4 -7.27,11.81 -3.09,3.4 -6.75,6.12 -10.98,8.15 -4.22,2.03 -8.85,3.04 -13.87,3.04zm-22.78 -37.12c0,3.44 0.53,6.77 1.6,10 1.06,3.23 2.59,6.08 4.59,8.56 1.99,2.47 4.41,4.45 7.22,5.93 2.82,1.48 5.98,2.22 9.49,2.22 3.58,0 6.78,-0.77 9.64,-2.32 2.85,-1.55 5.25,-3.59 7.22,-6.13 1.96,-2.54 3.46,-5.4 4.49,-8.56 1.02,-3.16 1.54,-6.39 1.54,-9.69 0,-3.51 -0.55,-6.86 -1.65,-10.06 -1.1,-3.19 -2.65,-6.01 -4.64,-8.45 -1.99,-2.44 -4.39,-4.4 -7.22,-5.88 -2.81,-1.48 -5.94,-2.22 -9.38,-2.22 -3.58,0 -6.79,0.77 -9.64,2.32 -2.86,1.55 -5.25,3.56 -7.21,6.03 -1.96,2.48 -3.46,5.32 -4.49,8.51 -1.03,3.2 -1.55,6.45 -1.55,9.75zm199.7 27.53c-5.98,6.39 -12.96,9.59 -20.93,9.59 -4.75,0 -9.2,-1.05 -13.36,-3.14 -4.16,-2.1 -7.76,-4.88 -10.82,-8.36 -3.06,-3.47 -5.46,-7.46 -7.22,-11.96 -1.76,-4.5 -2.64,-9.16 -2.64,-13.97 0,-4.95 0.88,-9.66 2.64,-14.12 1.76,-4.47 4.16,-8.38 7.22,-11.75 3.06,-3.37 6.68,-6.03 10.87,-7.99 4.2,-1.96 8.78,-2.94 13.72,-2.94 6.87,0 12.64,1.46 17.32,4.38 4.67,2.92 8.22,6.79 10.62,11.6l-8.87 6.39c-2,-3.99 -4.7,-6.98 -8.1,-8.97 -3.4,-1.99 -7.16,-2.99 -11.29,-2.99 -3.37,0 -6.43,0.74 -9.18,2.22 -2.75,1.47 -5.11,3.44 -7.06,5.87 -1.96,2.44 -3.48,5.28 -4.55,8.51 -1.07,3.23 -1.59,6.6 -1.59,10.11 0,3.71 0.58,7.18 1.76,10.41 1.16,3.23 2.8,6.05 4.89,8.45 2.1,2.41 4.56,4.31 7.38,5.72 2.81,1.4 5.87,2.11 9.18,2.11 7.42,0 14.09,-3.61 20,-10.82l0 -7.74 -15.37 0 0 -8.55 25.06 0 0 37.01 -9.69 0 0 -9.07zm103.8 -64.13l20.32 36.71 20.41 -36.71 12.58 0 -27.22 47.02 0 26.19 -11.64 0 0 -26.4 -27.12 -46.81 12.68 0z"/> </g> </g> </svg>
     <div class="login-sub">Tablero de Objetivos 2026</div>
     <div class="login-field">
       <label class="login-label">Usuario</label>
@@ -625,9 +625,9 @@ td.bold{color:var(--text);font-weight:500}
   </button>
   <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <nav class="sidebar" id="main-sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-name">SOOFT</div>
-      <div class="logo-sub">Tablero 2026</div>
+    <div class="sidebar-logo" style="padding:18px 20px 14px">
+      <?xml version="1.0" encoding="UTF-8"?> <svg xmlns="http://www.w3.org/2000/svg" width="140" height="43" style="display:block" version="1.1" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" viewBox="0 0 1653.32 340" xmlns:xlink="http://www.w3.org/1999/xlink"> <defs>  </defs> <g id="Capa_x0020_1"> <metadata id="CorelCorpID_0Corel-Layer"/> <g id="_2013293861888"> <g> <path class="fil0" d="M338.65 240.63c-1.2,-36.35 -24.53,-77.76 -105.87,-91.27 -46.95,-6.87 -103.21,-8.96 -132.21,-17.91 -63.42,-19.52 -43.78,-54.04 -20.64,-70.97 17.42,-13.09 48.35,-22.47 89.85,-22.47 102.41,0 112.05,54.84 112.05,60.83 0,4.64 0,13.66 -8.62,25.14l37.4 14.68c6.4,-9.67 11.95,-22.57 12.46,-38.65 1.34,-41.16 -44.36,-100.01 -153.68,-100.01 -109.32,0 -151.82,52.69 -152.32,96.15 -0.1,27.14 18.79,54.33 64.32,70.28 50.81,17.78 133.94,13.75 170.2,28.41 68.79,26.43 51.79,77.54 -8.35,100.33 -19.08,6.84 -42.65,11.99 -74.73,11.99 -72.8,-1.34 -110.86,-21.47 -124.47,-51.84 -9.45,-21.15 -2.57,-44.05 15.12,-60.58l-32.03 -17.76c-9.33,8.26 -25.36,29.29 -27.07,62.66 -2.1,47.59 45.97,108.54 169.68,107.19 123.71,-1.34 170.32,-62.71 168.85,-106.19l0.05 -0.03z"/> <path class="fil0" d="M1325.54 44.95l0 -40.33 -154.39 0c-69.55,0 -125.91,56.38 -125.91,125.91l0 206.96 40.36 0 0 -166.6 239.94 0 0 -40.36 -239.94 0c0,-49.91 40.46,-85.57 90.36,-85.57l149.58 0z"/> <rect class="fil0" x="1482.04" y="11.13" width="40.36" height="326.16"/> <path class="fil0" d="M1653.32 44.95l0 -40.33 -172.36 0c-26.75,-0 -27.23,40.32 6.4,40.33l165.96 0z"/> <path class="fil0" d="M1351.11 44.95l0 -40.33 172.36 0c26.75,-0 27.23,40.32 -6.4,40.33l-165.96 0z"/> <path class="fil0" d="M523.29 338.7c-3.91,0 -7.87,-0.12 -11.85,-0.37 -39.94,-2.44 -73.95,-16.83 -95.71,-40.53 -44.19,-48.08 -44.53,-113.55 -44.49,-118.6l0 -15c-0.1,-5.11 -0.07,-70.55 43.87,-118.82 21.67,-23.79 55.58,-38.35 95.52,-40.99 35.49,-2.34 69.6,5.18 91.22,20.1 7.38,5.08 13.88,9.94 20.15,14.63 22.79,16.98 37.99,28.29 66.06,30.05 28.07,-1.88 43.19,-13.26 65.91,-30.36 6.28,-4.72 12.75,-9.6 20.1,-14.73 21.55,-15.05 55.62,-22.72 91.12,-20.54 39.94,2.44 73.95,16.83 95.71,40.53 44.19,48.08 44.53,113.55 44.49,118.6l0.05 15c0.07,5.08 0.05,70.53 -43.92,118.82 -21.67,23.79 -55.58,38.35 -95.52,40.99 -35.49,2.34 -69.6,-5.18 -91.22,-20.1 -7.38,-5.08 -13.88,-9.94 -20.15,-14.61 -22.79,-16.98 -37.99,-28.29 -66.06,-30.05 -28.07,1.88 -43.19,13.26 -65.89,30.36 -6.25,4.72 -12.75,9.6 -20.08,14.7 -19.15,13.36 -48.15,20.91 -79.27,20.91l-0.05 0zm-0.1 -295.22c-3.3,0 -6.62,0.1 -9.97,0.32 -29.27,1.93 -54.38,12.19 -68.94,28.17 -34.3,37.67 -33.64,91.12 -33.61,91.66l0 0.34c0,0 0.05,15.44 0.05,15.44l0 0.17c0,0.49 -0.1,54.33 34.08,91.49 14.61,15.9 39.79,26.04 69.06,27.83 26.12,1.59 52.06,-3.71 66.1,-13.51 6.77,-4.72 12.95,-9.38 18.96,-13.9 24.65,-18.54 47.93,-36.06 88.87,-38.33l0.22 3.91 0.1 -3.93 0.71 0c0,0 0.12,4.54 0.12,4.54l0.22 -4.52c40.94,2.05 64.32,19.47 89.04,37.89 6.01,4.47 12.21,9.11 19,13.8 14.09,9.75 40.06,14.93 66.18,13.19 29.27,-1.93 54.38,-12.19 68.91,-28.17 33.98,-37.33 33.64,-91.17 33.61,-91.73l0 -0.29c0,0 -0.05,-15.44 -0.05,-15.44l0 -0.17c0,-0.49 0.1,-54.33 -34.05,-91.49 -14.61,-15.9 -39.79,-26.04 -69.06,-27.83 -26.09,-1.59 -52.06,3.71 -66.1,13.51 -6.77,4.72 -12.97,9.38 -18.96,13.9 -24.65,18.54 -47.93,36.06 -88.87,38.33l-0.25 -4.32 -0.1 4.35 -0.71 -0c0,0 -0.12,-4.13 -0.12,-4.13l-0.19 4.1c-40.94,-2.05 -64.32,-19.47 -89.04,-37.89 -6.01,-4.47 -12.21,-9.11 -19,-13.8 -12.31,-8.5 -33.64,-13.53 -56.21,-13.53l0 0.05z"/> </g> <path class="fil1" d="M180.07 440.72l-24.33 0 0 62.99 -11.55 0 0 -62.99 -24.44 0 0 -10.21 60.32 0 0 10.21zm139.79 52.79l0 10.2 -50.21 0 0 -73.21 49.28 0 0 10.21 -37.74 0 0 20.82 32.69 0 0 9.59 -32.69 0 0 22.38 38.67 0zm87.41 -26.92c0,-4.4 0.79,-8.78 2.37,-13.14 1.58,-4.37 3.87,-8.29 6.86,-11.76 2.99,-3.47 6.65,-6.27 10.98,-8.4 4.33,-2.13 9.25,-3.2 14.75,-3.2 6.53,0 12.15,1.48 16.85,4.43 4.71,2.96 8.23,6.81 10.57,11.55l-9.07 6.08c-0.97,-2.2 -2.17,-4.06 -3.61,-5.57 -1.44,-1.51 -3.01,-2.71 -4.69,-3.61 -1.69,-0.89 -3.42,-1.53 -5.21,-1.91 -1.78,-0.38 -3.54,-0.57 -5.25,-0.57 -3.72,0 -7,0.77 -9.85,2.32 -2.85,1.55 -5.24,3.59 -7.17,6.13 -1.93,2.54 -3.37,5.4 -4.33,8.56 -0.96,3.17 -1.45,6.33 -1.45,9.49 0,3.58 0.57,6.98 1.7,10.21 1.13,3.23 2.74,6.09 4.8,8.56 2.06,2.48 4.5,4.45 7.32,5.93 2.82,1.47 5.91,2.21 9.28,2.21 1.72,0 3.52,-0.22 5.42,-0.67 1.89,-0.45 3.67,-1.16 5.36,-2.16 1.69,-1 3.25,-2.25 4.69,-3.76 1.44,-1.51 2.65,-3.33 3.61,-5.47l9.59 5.47c-1.17,2.75 -2.8,5.18 -4.9,7.27 -2.1,2.1 -4.45,3.87 -7.06,5.31 -2.61,1.44 -5.4,2.55 -8.35,3.3 -2.96,0.76 -5.88,1.14 -8.77,1.14 -5.09,0 -9.73,-1.1 -13.92,-3.3 -4.2,-2.2 -7.82,-5.06 -10.88,-8.61 -3.06,-3.54 -5.43,-7.56 -7.11,-12.06 -1.68,-4.5 -2.52,-9.09 -2.52,-13.77zm214.03 -36.09l0 73.21 -11.65 0 0 -32.27 -36.91 0 0 32.27 -11.55 0 0 -73.21 11.55 0 0 30.63 36.91 0 0 -30.63 11.65 0zm107.62 21.66l0 51.55 -11.55 0 0 -73.21 9.07 0 41.86 52.8 0 -52.69 11.65 0 0 73.1 -9.59 0 -41.45 -51.55zm177.22 52.07c-5.15,0 -9.85,-1.05 -14.07,-3.14 -4.23,-2.1 -7.87,-4.88 -10.93,-8.36 -3.06,-3.47 -5.41,-7.44 -7.06,-11.91 -1.65,-4.47 -2.47,-9.04 -2.47,-13.71 0,-4.88 0.88,-9.56 2.63,-14.02 1.75,-4.47 4.17,-8.42 7.27,-11.86 3.09,-3.44 6.77,-6.17 11.03,-8.2 4.26,-2.03 8.9,-3.04 13.92,-3.04 5.15,0 9.85,1.08 14.07,3.25 4.23,2.16 7.86,5 10.88,8.5 3.03,3.51 5.36,7.48 7.01,11.91 1.65,4.43 2.47,8.95 2.47,13.56 0,4.88 -0.88,9.56 -2.63,14.02 -1.75,4.47 -4.17,8.4 -7.27,11.81 -3.1,3.4 -6.76,6.12 -10.98,8.15 -4.23,2.03 -8.85,3.04 -13.87,3.04zm-22.78 -37.12c0,3.44 0.53,6.77 1.6,10 1.07,3.23 2.6,6.08 4.59,8.56 1.99,2.47 4.4,4.45 7.22,5.93 2.82,1.48 5.98,2.22 9.49,2.22 3.58,0 6.79,-0.77 9.65,-2.32 2.85,-1.55 5.25,-3.59 7.21,-6.13 1.96,-2.54 3.45,-5.4 4.49,-8.56 1.03,-3.16 1.54,-6.39 1.54,-9.69 0,-3.51 -0.55,-6.86 -1.65,-10.06 -1.1,-3.19 -2.65,-6.01 -4.64,-8.45 -1.99,-2.44 -4.4,-4.4 -7.22,-5.88 -2.82,-1.48 -5.94,-2.22 -9.38,-2.22 -3.57,0 -6.79,0.77 -9.64,2.32 -2.85,1.55 -5.26,3.56 -7.21,6.03 -1.96,2.48 -3.46,5.32 -4.49,8.51 -1.04,3.2 -1.55,6.45 -1.55,9.75zm149.17 36.6l0 -73.21 11.55 0 0 63 39.28 0 0 10.2 -50.83 0zm167.01 0.52c-5.15,0 -9.84,-1.05 -14.07,-3.14 -4.23,-2.1 -7.87,-4.88 -10.93,-8.36 -3.06,-3.47 -5.41,-7.44 -7.06,-11.91 -1.65,-4.47 -2.48,-9.04 -2.48,-13.71 0,-4.88 0.88,-9.56 2.64,-14.02 1.75,-4.47 4.17,-8.42 7.26,-11.86 3.1,-3.44 6.77,-6.17 11.04,-8.2 4.27,-2.03 8.9,-3.04 13.92,-3.04 5.16,0 9.84,1.08 14.08,3.25 4.22,2.16 7.85,5 10.88,8.5 3.03,3.51 5.36,7.48 7,11.91 1.66,4.43 2.49,8.95 2.49,13.56 0,4.88 -0.88,9.56 -2.64,14.02 -1.74,4.47 -4.17,8.4 -7.27,11.81 -3.09,3.4 -6.75,6.12 -10.98,8.15 -4.22,2.03 -8.85,3.04 -13.87,3.04zm-22.78 -37.12c0,3.44 0.53,6.77 1.6,10 1.06,3.23 2.59,6.08 4.59,8.56 1.99,2.47 4.41,4.45 7.22,5.93 2.82,1.48 5.98,2.22 9.49,2.22 3.58,0 6.78,-0.77 9.64,-2.32 2.85,-1.55 5.25,-3.59 7.22,-6.13 1.96,-2.54 3.46,-5.4 4.49,-8.56 1.02,-3.16 1.54,-6.39 1.54,-9.69 0,-3.51 -0.55,-6.86 -1.65,-10.06 -1.1,-3.19 -2.65,-6.01 -4.64,-8.45 -1.99,-2.44 -4.39,-4.4 -7.22,-5.88 -2.81,-1.48 -5.94,-2.22 -9.38,-2.22 -3.58,0 -6.79,0.77 -9.64,2.32 -2.86,1.55 -5.25,3.56 -7.21,6.03 -1.96,2.48 -3.46,5.32 -4.49,8.51 -1.03,3.2 -1.55,6.45 -1.55,9.75zm199.7 27.53c-5.98,6.39 -12.96,9.59 -20.93,9.59 -4.75,0 -9.2,-1.05 -13.36,-3.14 -4.16,-2.1 -7.76,-4.88 -10.82,-8.36 -3.06,-3.47 -5.46,-7.46 -7.22,-11.96 -1.76,-4.5 -2.64,-9.16 -2.64,-13.97 0,-4.95 0.88,-9.66 2.64,-14.12 1.76,-4.47 4.16,-8.38 7.22,-11.75 3.06,-3.37 6.68,-6.03 10.87,-7.99 4.2,-1.96 8.78,-2.94 13.72,-2.94 6.87,0 12.64,1.46 17.32,4.38 4.67,2.92 8.22,6.79 10.62,11.6l-8.87 6.39c-2,-3.99 -4.7,-6.98 -8.1,-8.97 -3.4,-1.99 -7.16,-2.99 -11.29,-2.99 -3.37,0 -6.43,0.74 -9.18,2.22 -2.75,1.47 -5.11,3.44 -7.06,5.87 -1.96,2.44 -3.48,5.28 -4.55,8.51 -1.07,3.23 -1.59,6.6 -1.59,10.11 0,3.71 0.58,7.18 1.76,10.41 1.16,3.23 2.8,6.05 4.89,8.45 2.1,2.41 4.56,4.31 7.38,5.72 2.81,1.4 5.87,2.11 9.18,2.11 7.42,0 14.09,-3.61 20,-10.82l0 -7.74 -15.37 0 0 -8.55 25.06 0 0 37.01 -9.69 0 0 -9.07zm103.8 -64.13l20.32 36.71 20.41 -36.71 12.58 0 -27.22 47.02 0 26.19 -11.64 0 0 -26.4 -27.12 -46.81 12.68 0z"/> </g> </g> </svg>
+      <div class="logo-sub" style="margin-top:5px">Tablero 2026</div>
     </div>
 
     <div class="sidebar-section">
@@ -682,7 +682,7 @@ td.bold{color:var(--text);font-weight:500}
       <div class="sync-status"><div class="sync-dot" id="sync-dot"></div><span id="sync-label">Sin configurar</span></div>
       <div class="sync-time" id="sync-time"></div>
       <button class="sync-btn" id="sync-btn" onclick="syncData()">↻ Actualizar datos</button>
-      <button class="sync-btn" onclick="abrirConfigGemini()" style="margin-top:4px;color:#6ee7b7;border-color:#374151">✦ Configurar Gemini IA</button>
+      <button class="sync-btn" onclick="abrirConfigGemini()" style="margin-top:4px;color:#fb923c;border-color:#374151">✦ Configurar Gemini IA</button>
     </div>
   </nav>
 
@@ -799,11 +799,11 @@ td.bold{color:var(--text);font-weight:500}
       </div>
       <div style="display:flex;gap:3px;margin-bottom:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px">
         <button id="tab-riesgos-btn" onclick="switchRiesgoTab('riesgos')"
-          style="flex:1;padding:7px 12px;border-radius:6px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
+          style="flex:1;padding:7px 12px;border-radius:6px;border:none;background:#1a1f2e;color:#fb923c;font-family:'Poppins',sans-serif;font-size:12px;font-weight:600;cursor:pointer">
           Riesgos
         </button>
         <button id="tab-oport-btn" onclick="switchRiesgoTab('oportunidades')"
-          style="flex:1;padding:7px 12px;border-radius:6px;border:none;background:none;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer">
+          style="flex:1;padding:7px 12px;border-radius:6px;border:none;background:none;color:var(--text3);font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer">
           Oportunidades
         </button>
       </div>
@@ -832,14 +832,14 @@ td.bold{color:var(--text);font-weight:500}
           <div class="nuevo-form-grid">
             <div>
               <label class="form-label">Q *</label>
-              <select class="form-input" id="nr-q" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="nr-q" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
                 <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
               </select>
             </div>
             <div>
               <label class="form-label">Categoría *</label>
-              <select class="form-input" id="nr-categoria" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="nr-categoria" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
                 <option>Tecnología</option><option>Financiero</option><option>Recursos Humanos</option>
                 <option>Operativo</option><option>Comercial</option><option>Legal / Regulatorio</option><option>Reputacional</option>
@@ -851,13 +851,13 @@ td.bold{color:var(--text);font-weight:500}
             </div>
             <div>
               <label class="form-label">Objetivo de Dirección *</label>
-              <select class="form-input" id="nr-objetivo" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="nr-objetivo" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
               </select>
             </div>
             <div>
               <label class="form-label">Gerencia responsable *</label>
-              <select class="form-input" id="nr-gerencia" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="nr-gerencia" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
                 <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
                 <option>MARKETING</option><option>OPERACIONES</option><option>COMERCIAL_AR</option>
@@ -904,7 +904,7 @@ td.bold{color:var(--text);font-weight:500}
 
           <div style="display:flex;align-items:center;gap:10px">
             <button class="btn-save" onclick="guardarNuevoRiesgo()" id="btn-guardar-nr">Guardar en Sheets</button>
-            <button onclick="cerrarFormNuevoRiesgo()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
+            <button onclick="cerrarFormNuevoRiesgo()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
             <span class="save-msg" id="msg-nuevo-riesgo"></span>
           </div>
         </div>
@@ -936,14 +936,14 @@ td.bold{color:var(--text);font-weight:500}
           <div class="nuevo-form-grid">
             <div>
               <label class="form-label">Q *</label>
-              <select class="form-input" id="no-q" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="no-q" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
                 <option>Q1</option><option>Q2</option><option>Q3</option><option>Q4</option>
               </select>
             </div>
             <div>
               <label class="form-label">Categoría *</label>
-              <select class="form-input" id="no-categoria" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="no-categoria" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
                 <option>Comercial</option><option>Tecnología</option><option>Financiero</option>
                 <option>Recursos Humanos</option><option>Operativo</option><option>Mercado</option><option>Alianzas</option>
@@ -955,13 +955,13 @@ td.bold{color:var(--text);font-weight:500}
             </div>
             <div>
               <label class="form-label">Objetivo de Dirección *</label>
-              <select class="form-input" id="no-objetivo" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="no-objetivo" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
               </select>
             </div>
             <div>
               <label class="form-label">Gerencia responsable *</label>
-              <select class="form-input" id="no-gerencia" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="no-gerencia" style="font-family:'Poppins',sans-serif">
                 <option value="">Seleccioná</option>
                 <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
                 <option>MARKETING</option><option>OPERACIONES</option><option>COMERCIAL_AR</option>
@@ -998,7 +998,7 @@ td.bold{color:var(--text);font-weight:500}
 
           <div style="display:flex;align-items:center;gap:10px">
             <button class="btn-save" onclick="guardarNuevaOportunidad()" id="btn-guardar-no">Guardar en Sheets</button>
-            <button onclick="cerrarFormNuevaOportunidad()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
+            <button onclick="cerrarFormNuevaOportunidad()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
             <span class="save-msg" id="msg-nueva-oportunidad"></span>
           </div>
         </div>
@@ -1020,7 +1020,7 @@ td.bold{color:var(--text);font-weight:500}
         <select class="filter-select" id="gest-ger-filter" onchange="renderGestionar()">
           <option value="">Todas las gerencias</option>
         </select>
-        <button onclick="abrirFormNuevoKPI()" style="margin-left:auto;padding:8px 18px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
+        <button onclick="abrirFormNuevoKPI()" style="margin-left:auto;padding:8px 18px;border-radius:7px;border:none;background:#1a1f2e;color:#fb923c;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">
           <span style="font-size:16px;line-height:1">+</span> Nuevo objetivo
         </button>
       </div>
@@ -1047,7 +1047,7 @@ td.bold{color:var(--text);font-weight:500}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
             <div>
               <label class="form-label">Gerencia *</label>
-              <select class="form-input" id="new-gerencia" style="font-family:'DM Sans',sans-serif" onchange="sugerirKpiId()">
+              <select class="form-input" id="new-gerencia" style="font-family:'Poppins',sans-serif" onchange="sugerirKpiId()">
                 <option value="">Seleccioná una gerencia</option>
                 <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
                 <option>MARKETING</option><option>OPERACIONES</option>
@@ -1059,7 +1059,7 @@ td.bold{color:var(--text);font-weight:500}
               <label class="form-label">KPI ID * <span style="font-size:10px;color:var(--text3)" id="kpi-id-hint">Se genera al elegir gerencia</span></label>
               <div style="display:flex;gap:8px">
                 <input type="text" class="form-input" id="new-kpi-id" placeholder="Elegí una gerencia primero" style="flex:1">
-                <button type="button" onclick="sugerirKpiId()" style="padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif">↻</button>
+                <button type="button" onclick="sugerirKpiId()" style="padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;font-family:'Poppins',sans-serif">↻</button>
               </div>
             </div>
             <div style="grid-column:1/-1">
@@ -1072,7 +1072,7 @@ td.bold{color:var(--text);font-weight:500}
             </div>
             <div>
               <label class="form-label">Unidad *</label>
-              <select class="form-input" id="new-unidad" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="new-unidad" style="font-family:'Poppins',sans-serif">
                 <option value="%">% (porcentaje)</option>
                 <option value="ARS">ARS (pesos)</option>
                 <option value="USD">USD (dólares)</option>
@@ -1086,7 +1086,7 @@ td.bold{color:var(--text);font-weight:500}
             </div>
             <div>
               <label class="form-label">Comparador *</label>
-              <select class="form-input" id="new-comparador" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="new-comparador" style="font-family:'Poppins',sans-serif">
                 <option value=">=">≥ mayor o igual (más es mejor)</option>
                 <option value="<=">≤ menor o igual (menos es mejor)</option>
                 <option value="=">=  igual exacto (cumple/no cumple)</option>
@@ -1098,7 +1098,7 @@ td.bold{color:var(--text);font-weight:500}
             </div>
             <div>
               <label class="form-label">Frecuencia</label>
-              <select class="form-input" id="new-frecuencia" style="font-family:'DM Sans',sans-serif">
+              <select class="form-input" id="new-frecuencia" style="font-family:'Poppins',sans-serif">
                 <option value="Q">Trimestral (Q)</option>
                 <option value="Mensual">Mensual</option>
                 <option value="Milestone">Milestone / Hito</option>
@@ -1116,7 +1116,7 @@ td.bold{color:var(--text);font-weight:500}
               <div><label class="form-label">Q4</label><input type="number" step="any" class="form-input" id="new-meta-q4" placeholder="0"></div>
             </div>
             <div style="margin-top:10px">
-              <button onclick="distribuirMetaAnual()" style="font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif">
+              <button onclick="distribuirMetaAnual()" style="font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:'Poppins',sans-serif">
                 ↻ Distribuir meta anual en partes iguales
               </button>
             </div>
@@ -1129,7 +1129,7 @@ td.bold{color:var(--text);font-weight:500}
 
           <div style="display:flex;align-items:center;gap:12px">
             <button class="btn-save" id="btn-guardar-kpi" onclick="guardarNuevoKPI()">Guardar en Google Sheets</button>
-            <button onclick="cerrarFormNuevoKPI()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
+            <button onclick="cerrarFormNuevoKPI()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer">Cancelar</button>
             <span class="save-msg" id="msg-nuevo-kpi"></span>
           </div>
         </div>
@@ -1546,9 +1546,9 @@ function toggleStatPanel(tipo, card) {
             return `<div style="display:flex;gap:10px;padding:7px 10px;border-radius:6px;background:var(--${col}-bg);border:1px solid var(--${col}-border);margin-bottom:5px">
               <div style="flex:1;min-width:0">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-                  <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${k['KPI_ID']||''}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">${k['KPI_ID']||''}</span>
                   <span style="font-size:11px;color:var(--text);font-weight:500">${k['Objetivo']||''}</span>
-                  <span style="margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--${col})">${pct(logro)}</span>
+                  <span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--${col})">${pct(logro)}</span>
                 </div>
                 <div style="font-size:11px;color:var(--text2)">
                   <span style="color:var(--text3);font-size:10px">Gerencia:</span> <span style="font-weight:500">${k['Responsable']||''}</span>
@@ -1562,14 +1562,14 @@ function toggleStatPanel(tipo, card) {
     }
 
     return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;display:grid;grid-template-columns:65px 1fr 110px 110px 55px 55px 55px 55px;gap:8px;align-items:start;margin-bottom:1px">
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text3)">${id}</div>
-      <div style="font-size:11px;color:var(--text);line-height:1.3">${obj}<br><span style="font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--text3);font-family:'DM Mono',monospace">${area}</span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">${id}</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.3">${obj}<br><span style="font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--text3);font-family:'JetBrains Mono',monospace">${area}</span></div>
       <div>${progressBar(qv,cls)}</div>
       <div>${progressBar(ytd,semColor(ytd))}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q1)})">${pct(q1)}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q2)})">${pct(q2)}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q3)})">${pct(q3)}</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--${semColor(q4)})">${pct(q4)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--${semColor(q1)})">${pct(q1)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--${semColor(q2)})">${pct(q2)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--${semColor(q3)})">${pct(q3)}</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--${semColor(q4)})">${pct(q4)}</div>
       ${comentariosHtml}
     </div>`;
   }).join('') : `<div style="padding:20px 16px;color:var(--text3);font-size:13px">Sin objetivos en esta categoría para ${currentQ}</div>`;
@@ -1647,7 +1647,7 @@ function renderDireccion() {
     return `<div class="dir-obj-row" style="${needsPlan?'display:grid;grid-template-columns:75px 1fr 120px 120px 70px 70px 70px 70px;align-items:start':''}">
       <div class="obj-id">${objId}</div>
       <div class="obj-name">${r['Objetivo']||r.obj||''}<br><span class="area-tag">${r['Área']||r.area||''}</span>
-        ${needsPlan ? `<button onclick="toggleDirPlan('${objId}')" style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 8px;border-radius:4px;border:1px solid var(--${cls}-border);background:var(--${cls}-bg);color:var(--${cls});font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif">! Plan de acción</button>` : ''}
+        ${needsPlan ? `<button onclick="toggleDirPlan('${objId}')" style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 8px;border-radius:4px;border:1px solid var(--${cls}-border);background:var(--${cls}-bg);color:var(--${cls});font-size:10px;cursor:pointer;font-family:'Poppins',sans-serif">! Plan de acción</button>` : ''}
       </div>
       <div>${progressBar(qv,cls)}</div><div>${progressBar(ytd,semColor(ytd))}</div>
       <div class="mono" style="color:var(--${semColor(q1)})">${pct(q1)}</div>
@@ -1786,14 +1786,14 @@ function renderDrawerContent() {
           const v=[q1,q2,q3,q4][i]; const cls=semColor(v);
           const rojos=parseInt(gRow[q+' Rojos']||0);
           return `<div style="display:flex;align-items:center;gap:12px">
-            <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);min-width:22px">${q}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);min-width:22px">${q}</span>
             <div style="flex:1">${progressBar(v,cls)}</div>
             ${rojos>0?`<span class="mini-rojo">${rojos} KPI rojo</span>`:''}
             ${semBadge(logroSem(v))}
           </div>`;
         }).join('')}
         <div style="display:flex;align-items:center;gap:12px;padding-top:8px;border-top:1px solid var(--border)">
-          <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--text);min-width:22px">YTD</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text);min-width:22px">YTD</span>
           <div style="flex:1">${progressBar(ytd,semColor(ytd))}</div>
           ${semBadge(logroSem(ytd))}
         </div>
@@ -1821,9 +1821,9 @@ function renderDrawerContent() {
             return `<tr>
               <td class="kpi-id">${k['KPI_ID']||''}</td>
               <td class="kpi-name">${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica']||''}</span></td>
-              <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent)">${comp} ${fmtVal(metaAnual)}</td>
-              <td style="font-family:'DM Mono',monospace;font-size:11px">${fmtVal(meta)}</td>
-              <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">${fmtVal(actual)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent)">${comp} ${fmtVal(metaAnual)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${fmtVal(meta)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">${fmtVal(actual)}</td>
               <td style="min-width:120px">${progressBar(logro,cls)}</td>
               <td>${semBadge(logroSem(logro))}</td>
             </tr>`;
@@ -1862,13 +1862,13 @@ function renderDrawerContent() {
             const mini = v => v===null ? '<span style="color:var(--text3);font-size:11px">—</span>' :
               `<div style="display:flex;flex-direction:column;align-items:center;gap:2px">
                 <div class="q-mini-bar" style="width:48px"><div class="q-mini-fill fill-${semColor(v)}" style="width:${Math.min(v*100,100)}%"></div></div>
-                <div class="q-mini-pct" style="color:var(--${semColor(v)});font-size:10px;font-family:'DM Mono',monospace">${pct(v)}</div>
+                <div class="q-mini-pct" style="color:var(--${semColor(v)});font-size:10px;font-family:'JetBrains Mono',monospace">${pct(v)}</div>
               </div>`;
             return `<tr>
               <td class="kpi-id">${kid}</td>
               <td class="kpi-name">${firstRow['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${firstRow['Métrica']||''}</span></td>
-              <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);white-space:nowrap">${fmtMeta(metaAnual)}</td>
-              <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3)">${comp}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);white-space:nowrap">${fmtMeta(metaAnual)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">${comp}</td>
               <td>${mini(l1)}</td>
               <td>${mini(l2)}</td>
               <td>${mini(l3)}</td>
@@ -1902,9 +1902,9 @@ function renderDrawerContent() {
             const col=sem==='ROJO'?'rojo':sem==='AMARILLO'?'amarillo':'verde';
             return `<tr>
               <td class="kpi-id">${r['ID']||''}</td>
-              <td style="font-family:'DM Mono',monospace;font-size:11px">${r['Q']||''}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r['Q']||''}</td>
               <td class="kpi-name">${r['Riesgo (descripción)']||''}</td>
-              <td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--${col})">${nivel}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--${col})">${nivel}</td>
               <td>${semBadge(sem)}</td>
               <td style="font-size:11px;color:var(--text3)">${r['Estado']||''}</td>
             </tr>`;
@@ -1921,9 +1921,9 @@ function renderDrawerContent() {
             const col=sem==='VERDE'?'verde':sem==='AMARILLO'?'amarillo':'rojo';
             return `<tr>
               <td class="kpi-id">${o['ID']||''}</td>
-              <td style="font-family:'DM Mono',monospace;font-size:11px">${o['Q']||''}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${o['Q']||''}</td>
               <td class="kpi-name">${o['Oportunidad (descripción)']||''}</td>
-              <td style="font-family:'DM Mono',monospace;font-weight:600;color:var(--${col})">${valor}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--${col})">${valor}</td>
               <td>${semBadge(sem)}</td>
               <td style="font-size:11px;color:var(--text3)">${o['Estado']||''}</td>
             </tr>`;
@@ -2354,8 +2354,8 @@ function switchRiesgoTab(tab) {
   document.getElementById('sub-oportunidades').style.display = isRiesgo ? 'none' : 'block';
   const rBtn = document.getElementById('tab-riesgos-btn');
   const oBtn = document.getElementById('tab-oport-btn');
-  if (rBtn) { rBtn.style.background = isRiesgo ? '#1f2937' : 'none'; rBtn.style.color = isRiesgo ? '#6ee7b7' : 'var(--text3)'; }
-  if (oBtn) { oBtn.style.background = isRiesgo ? 'none' : '#1f2937'; oBtn.style.color = isRiesgo ? 'var(--text3)' : '#6ee7b7'; }
+  if (rBtn) { rBtn.style.background = isRiesgo ? '#1a1f2e' : 'none'; rBtn.style.color = isRiesgo ? '#fb923c' : 'var(--text3)'; }
+  if (oBtn) { oBtn.style.background = isRiesgo ? 'none' : '#1a1f2e'; oBtn.style.color = isRiesgo ? 'var(--text3)' : '#fb923c'; }
   if (isRiesgo) renderRiesgosCarga(); else renderOportunidades();
 }
 
@@ -2851,7 +2851,7 @@ function renderGestionar() {
         <button onclick="abrirEditarKPI('${kpiId}','${gerencia}')"
           style="padding:4px 10px;border-radius:5px;border:1px solid var(--verde-border);
           background:var(--verde-bg);color:var(--verde);font-size:11px;cursor:pointer;
-          font-family:'DM Sans',sans-serif;transition:all .15s;margin-right:5px"
+          font-family:'Poppins',sans-serif;transition:all .15s;margin-right:5px"
           onmouseover="this.style.background='var(--verde)';this.style.color='#fff'"
           onmouseout="this.style.background='var(--verde-bg)';this.style.color='var(--verde)'">
           Editar
@@ -2859,7 +2859,7 @@ function renderGestionar() {
         <button onclick="confirmarEliminarKPI('${kpiId}','${gerencia}')"
           style="padding:4px 10px;border-radius:5px;border:1px solid var(--rojo-border);
           background:var(--rojo-bg);color:var(--rojo);font-size:11px;cursor:pointer;
-          font-family:'DM Sans',sans-serif;transition:all .15s"
+          font-family:'Poppins',sans-serif;transition:all .15s"
           onmouseover="this.style.background='var(--rojo)';this.style.color='#fff'"
           onmouseout="this.style.background='var(--rojo-bg)';this.style.color='var(--rojo)'">
           Eliminar
@@ -3263,7 +3263,7 @@ function renderIAPanel(secciones, titulo, timestamp) {
       <div class="ia-panel-head-title">
         <div class="ia-gem-icon">G</div>${titulo}
       </div>
-      <span style="color:#6b7280;font-size:10px;font-family:'DM Mono',monospace">${timestamp}</span>
+      <span style="color:#6b7280;font-size:10px;font-family:'JetBrains Mono',monospace">${timestamp}</span>
     </div>
     <div class="ia-panel-body">
       ${secciones.diagnostico ? `<div class="ia-section">
@@ -3506,10 +3506,10 @@ init();
 <!-- ── MODAL CONFIRMAR ELIMINAR KPI ── -->
 <div id="modal-eliminar" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:900;align-items:center;justify-content:center">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:420px;max-width:90vw">
-    <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text);margin-bottom:8px">Eliminar objetivo</div>
+    <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:18px;color:var(--text);margin-bottom:8px">Eliminar objetivo</div>
     <p style="font-size:13px;color:var(--text2);margin-bottom:6px">Estás por eliminar:</p>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px">
-      <div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--rojo)" id="modal-kpi-id-display"></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--rojo)" id="modal-kpi-id-display"></div>
       <div style="font-size:12px;color:var(--text2);margin-top:4px" id="modal-kpi-ger-display"></div>
     </div>
     <p style="font-size:12px;color:var(--rojo);margin-bottom:20px;padding:10px;background:var(--rojo-bg);border:1px solid var(--rojo-border);border-radius:7px">
@@ -3517,11 +3517,11 @@ init();
     </p>
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button onclick="cerrarModalEliminar()"
-        style="padding:9px 18px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
+        style="padding:9px 18px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer">
         Cancelar
       </button>
       <button id="btn-confirmar-eliminar" onclick="ejecutarEliminarKPI()"
-        style="padding:9px 18px;border-radius:7px;border:none;background:var(--rojo);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
+        style="padding:9px 18px;border-radius:7px;border:none;background:var(--rojo);color:#fff;font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;cursor:pointer">
         Sí, eliminar
       </button>
     </div>
@@ -3537,7 +3537,7 @@ init();
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div>
-        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text)">Editar objetivo</div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:20px;color:var(--text)">Editar objetivo</div>
         <div style="font-size:11px;color:var(--text3);margin-top:3px" id="edit-kpi-header-sub">KPI ID · Gerencia</div>
       </div>
       <button onclick="cerrarEditarKPI()" style="background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px">✕</button>
@@ -3547,7 +3547,7 @@ init();
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
       <div>
         <label class="form-label">Gerencia *</label>
-        <select class="form-input" id="edit-gerencia" style="font-family:'DM Sans',sans-serif">
+        <select class="form-input" id="edit-gerencia" style="font-family:'Poppins',sans-serif">
           <option value="">Seleccioná</option>
           <option>PEOPLE_RRHH</option><option>ADMIN</option><option>FINANZAS</option>
           <option>MARKETING</option><option>OPERACIONES</option>
@@ -3569,7 +3569,7 @@ init();
       </div>
       <div>
         <label class="form-label">Unidad *</label>
-        <select class="form-input" id="edit-unidad" style="font-family:'DM Sans',sans-serif">
+        <select class="form-input" id="edit-unidad" style="font-family:'Poppins',sans-serif">
           <option value="%">% (porcentaje)</option>
           <option value="ARS">ARS (pesos)</option>
           <option value="USD">USD (dólares)</option>
@@ -3583,7 +3583,7 @@ init();
       </div>
       <div>
         <label class="form-label">Comparador *</label>
-        <select class="form-input" id="edit-comparador" style="font-family:'DM Sans',sans-serif">
+        <select class="form-input" id="edit-comparador" style="font-family:'Poppins',sans-serif">
           <option value=">=">≥ mayor o igual (más es mejor)</option>
           <option value="<=">≤ menor o igual (menos es mejor)</option>
           <option value="=">=  igual exacto (cumple/no cumple)</option>
@@ -3595,7 +3595,7 @@ init();
       </div>
       <div>
         <label class="form-label">Frecuencia</label>
-        <select class="form-input" id="edit-frecuencia" style="font-family:'DM Sans',sans-serif">
+        <select class="form-input" id="edit-frecuencia" style="font-family:'Poppins',sans-serif">
           <option value="Q">Trimestral (Q)</option>
           <option value="Mensual">Mensual</option>
           <option value="Milestone">Milestone / Hito</option>
@@ -3613,7 +3613,7 @@ init();
         <div><label class="form-label">Q4</label><input type="number" step="any" class="form-input" id="edit-meta-q4" placeholder="0"></div>
       </div>
       <div style="margin-top:8px">
-        <button onclick="distribuirMetaAnualEdit()" style="font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif">
+        <button onclick="distribuirMetaAnualEdit()" style="font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--text2);cursor:pointer;font-family:'Poppins',sans-serif">
           ↻ Distribuir meta anual en partes iguales
         </button>
       </div>
@@ -3631,11 +3631,11 @@ init();
 
     <div style="display:flex;align-items:center;gap:12px">
       <button id="btn-guardar-editar" onclick="guardarEditarKPI()"
-        style="padding:9px 20px;border-radius:7px;border:none;background:#1f2937;color:#6ee7b7;
-        font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
+        style="padding:9px 20px;border-radius:7px;border:none;background:#1a1f2e;color:#fb923c;
+        font-family:'Poppins',sans-serif;font-size:13px;font-weight:700;cursor:pointer">
         Guardar cambios
       </button>
-      <button onclick="cerrarEditarKPI()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer">
+      <button onclick="cerrarEditarKPI()" style="padding:9px 16px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--text2);font-family:'Poppins',sans-serif;font-size:13px;cursor:pointer">
         Cancelar
       </button>
       <span class="save-msg" id="msg-editar-kpi"></span>
@@ -3646,7 +3646,7 @@ init();
 <!-- ── MODAL CONFIG GEMINI API KEY ── -->
 <div class="ia-config-modal" id="ia-config-modal">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;width:480px;max-width:90vw">
-    <div style="font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:6px">Conectar Gemini IA</div>
+    <div style="font-family:'Poppins',sans-serif;font-weight:600;font-size:19px;margin-bottom:6px">Conectar Gemini IA</div>
     <div style="color:var(--text3);font-size:12px;margin-bottom:16px;line-height:1.6">Ingresá tu API Key de Google Gemini para habilitar el análisis inteligente del tablero.</div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.7">
       <strong style="color:var(--text)">¿Cómo obtener la API Key?</strong><br>
@@ -3659,7 +3659,7 @@ init();
       <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">API Key de Gemini</label>
       <input type="password" id="gemini-key-input" class="form-input"
         placeholder="AIzaSy..."
-        style="font-family:'DM Mono',monospace;font-size:12px">
+        style="font-family:'JetBrains Mono',monospace;font-size:12px">
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button class="btn-secondary" onclick="cerrarConfigGemini()">Cancelar</button>
