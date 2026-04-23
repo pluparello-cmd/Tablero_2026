@@ -1,47 +1,131 @@
-// ═══════════════════════════════════════════════════════
-// ANÁLISIS IA — GEMINI (CORREGIDO)
-// ═══════════════════════════════════════════════════════
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero SOOFT 2026 - IA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Mono&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+/* --- ESTILOS COMPRIMIDOS --- */
+:root {
+  --bg:#f3f4f6; --surface:#ffffff; --text:#111827; --accent:#6ee7b7; --border:rgba(0,0,0,0.09);
+  --verde:#16a34a; --amarillo:#d97706; --rojo:#dc2626; --radius:12px;
+}
+body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); margin:0; padding:20px; }
+.dashboard { max-width:1100px; margin:auto; }
+.header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; border-bottom:1px solid var(--border); padding-bottom:20px; }
+.page-title { font-family:'DM Serif Display',serif; font-size:28px; margin:0; }
+.btn-ia { background:#1f2937; color:var(--accent); border:none; padding:10px 20px; border-radius:8px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:8px; }
+.ia-panel { background:#fff; border:1px solid rgba(66,133,244,0.3); border-radius:var(--radius); padding:20px; margin-bottom:20px; display:none; animation:fadeIn 0.4s ease; }
+@keyframes fadeIn { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
+.ia-section-lbl { font-size:11px; font-weight:700; text-transform:uppercase; color:#2563eb; margin-bottom:8px; display:block; }
+.ia-text { font-size:14px; line-height:1.6; color:#4b5563; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom:30px; }
+.stat-card { background:#fff; padding:20px; border-radius:var(--radius); border:1px solid var(--border); }
+.stat-num { font-family:'DM Mono',monospace; font-size:32px; font-weight:700; color:var(--text); }
+.stat-label { font-size:12px; color:#6b7280; text-transform:uppercase; }
+/* --- LOADING DOTS --- */
+.ia-loading { display:flex; gap:4px; }
+.dot { width:8px; height:8px; background:var(--accent); border-radius:50%; animation:blink 1.4s infinite; }
+.dot:nth-child(2) { animation-delay:0.2s; }
+.dot:nth-child(3) { animation-delay:0.4s; }
+@keyframes blink { 0%,100% {opacity:0.3} 50% {opacity:1} }
+</style>
+</head>
+<body>
 
-// Función corregida: Llama al servidor (Apps Script) que tiene la clave segura
-async function llamarGemini(prompt) {
-  const apiUrl = getApiUrl();
-  if (!apiUrl) throw new Error('Configurá la URL de Google Sheets primero.');
+<div class="dashboard">
+  <div class="header">
+    <div>
+      <h1 class="page-title">Tablero SOOFT 2026</h1>
+      <p style="color:#6b7280; margin:5px 0 0 0;">Análisis Estratégico con Inteligencia Artificial</p>
+    </div>
+    <button class="btn-ia" id="btn-analizar" onclick="analizarDashboard()">
+      <span id="btn-text">Analizar con IA</span>
+    </button>
+  </div>
 
-  const res = await apiPost({ 
-    accion: 'analizar_ia', 
-    prompt: prompt,
-    usuario: SESSION.usuario,
-    password: getPass()
-  });
-  
-  if (res.status !== 'ok') throw new Error(res.mensaje);
-  return res.respuesta;
+  <div id="ia-panel" class="ia-panel">
+    <div class="ia-section-lbl">Diagnóstico Inteligente</div>
+    <div id="ia-content" class="ia-text"></div>
+    <div style="font-size:10px; color:#9ca3af; margin-top:15px; border-top:1px solid #f3f4f6; padding-top:10px;">
+      Generado por Gemini 1.5 Flash • Datos en tiempo real
+    </div>
+  </div>
+
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card">Cargando datos...</div>
+  </div>
+</div>
+
+<script>
+const API_URL_KEY = 'sooft_api_url';
+let DATA = null;
+
+function getApiUrl() { 
+    const saved = localStorage.getItem(API_URL_KEY);
+    return saved || prompt("Por favor, ingresa la URL de tu Web App de Google Sheets (terminada en /exec):");
 }
 
-// ── Análisis Dashboard ──────────────────────
+async function fetchDatos() {
+    const url = getApiUrl();
+    if (!url) return;
+    localStorage.setItem(API_URL_KEY, url);
+    try {
+        const res = await fetch(url);
+        DATA = await res.json();
+        renderStats();
+    } catch (e) { alert("Error al conectar con Google Sheets"); }
+}
+
+function renderStats() {
+    const dirs = DATA.res_direccion || [];
+    const avg = dirs.length ? (dirs.reduce((s,r) => s + (parseFloat(r.YTD) || 0), 0) / dirs.length * 100).toFixed(1) : 0;
+    
+    document.getElementById('stats-grid').innerHTML = `
+        <div class="stat-card"><div class="stat-num">${avg}%</div><div class="stat-label">Avance General YTD</div></div>
+        <div class="stat-card"><div class="stat-num">${dirs.length}</div><div class="stat-label">Obj. Estratégicos</div></div>
+        <div class="stat-card"><div class="stat-num">${DATA.riesgos?.length || 0}</div><div class="stat-label">Riesgos Activos</div></div>
+    `;
+}
+
+async function llamarIA(prompt) {
+    const url = getApiUrl();
+    const res = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ accion: 'analizar_ia', prompt: prompt })
+    });
+    const json = await res.json();
+    if (json.status === 'ok') return json.respuesta;
+    throw new Error(json.mensaje);
+}
+
 async function analizarDashboard() {
-  const d = getData(); if (!d) { toast('Sin datos cargados', 'err'); return; }
-  const btn = document.getElementById('btn-ia-dashboard');
-  const panelEl = document.getElementById('ia-panel-dashboard');
-  
-  btn.disabled = true;
-  btn.innerHTML = '<div class="ia-loading-dots"><div class="ia-dot"></div><div class="ia-dot"></div><div class="ia-dot"></div></div> <span>Analizando...</span>';
-  panelEl.style.display = 'none';
+    if (!DATA) return;
+    const btn = document.getElementById('btn-analizar');
+    const panel = document.getElementById('ia-panel');
+    const content = document.getElementById('ia-content');
 
-  const dirs = d.res_direccion || [];
-  const resumen = dirs.map(r => `• ${r['Obj_ID']}: ${pct(getQVal(r, currentQ))}`).join('\n');
-  
-  const prompt = `Sos un experto analista. Analiza este tablero de SOOFT para ${currentQ}: \n${resumen} \nEstructura: DIAGNÓSTICO (3 líneas), SUGERENCIAS (con →) y ALERTAS.`;
+    btn.disabled = true;
+    btn.innerHTML = '<div class="ia-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
 
-  try {
-    const respuesta = await llamarGemini(prompt);
-    const secciones = parsearRespuestaIA(respuesta);
-    const now = new Date().toLocaleTimeString('es-AR');
-    panelEl.innerHTML = renderIAPanel(secciones, `Análisis SOOFT · ${currentQ}`, now);
-    panelEl.style.display = 'block';
-    btn.innerHTML = '<div class="ia-gem-icon">G</div> Actualizar análisis';
-  } catch(e) {
-    toast('Error: ' + e.message, 'err');
-    btn.innerHTML = 'Reintentar análisis';
-  } finally { btn.disabled = false; }
+    const resumen = DATA.res_direccion.map(r => `${r.Obj_ID}: ${r.Objetivo} (${(r.YTD*100).toFixed(1)}%)`).join('\n');
+    const prompt = `Actúa como un experto consultor de SOOFT. Analiza estos datos: \n${resumen} \n\nDame un diagnóstico de 3 párrafos cortos y 3 sugerencias de acción.`;
+
+    try {
+        const respuesta = await llamarIA(prompt);
+        content.innerHTML = respuesta.replace(/\n/g, '<br>');
+        panel.style.display = 'block';
+        btn.innerHTML = 'Análisis Completo';
+    } catch (e) {
+        alert("Error: " + e.message);
+        btn.innerHTML = 'Reintentar';
+        btn.disabled = false;
+    }
 }
+
+window.onload = fetchDatos;
+</script>
+
+</body>
+</html>
