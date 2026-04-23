@@ -3206,8 +3206,31 @@ function guardarConfigGemini() {
 }
 
 async function llamarGemini(prompt) {
-  // IA temporalmente deshabilitada — pendiente de habilitación de Gemini en Workspace
-  throw new Error('Análisis IA no disponible aún. Contactá al administrador de IT para habilitar Gemini for Workspace.');
+  const key = getGeminiKey();
+  if (!key) {
+    abrirConfigGemini();
+    throw new Error('Configurá tu API Key de Gemini primero (botón ✦ en el sidebar)');
+  }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.4, maxOutputTokens: 1200 }
+    })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const msg = err?.error?.message || `Error ${res.status}`;
+    if (res.status === 400) throw new Error('API Key inválida. Verificá la clave en ✦ Configurar Gemini IA');
+    if (res.status === 429) throw new Error('Límite de uso de Gemini alcanzado. Esperá unos minutos e intentá de nuevo');
+    throw new Error('Error Gemini: ' + msg);
+  }
+  const data = await res.json();
+  const texto = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!texto) throw new Error('Gemini no devolvió respuesta. Intentá de nuevo');
+  return texto;
 }
 
 function parsearRespuestaIA(texto) {
@@ -3624,13 +3647,23 @@ init();
 <div class="ia-config-modal" id="ia-config-modal">
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;width:480px;max-width:90vw">
     <div style="font-family:'DM Serif Display',serif;font-size:19px;margin-bottom:6px">Conectar Gemini IA</div>
-    <div style="color:var(--text3);font-size:12px;margin-bottom:20px;line-height:1.6">El análisis de IA con Gemini está preparado y listo para activarse.</div>
-    <div style="background:var(--amarillo-bg);border:1px solid var(--amarillo-border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
-      <strong style="color:var(--amarillo)">Pendiente de activación</strong><br>
-      Para habilitar el análisis de IA necesitás que el administrador de IT active <strong>Gemini for Google Workspace</strong> en tu organización desde <strong>admin.google.com</strong>.
+    <div style="color:var(--text3);font-size:12px;margin-bottom:16px;line-height:1.6">Ingresá tu API Key de Google Gemini para habilitar el análisis inteligente del tablero.</div>
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.7">
+      <strong style="color:var(--text)">¿Cómo obtener la API Key?</strong><br>
+      1. Entrá a <a href="https://aistudio.google.com/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com/apikey</a><br>
+      2. Hacé clic en <strong>Create API Key</strong><br>
+      3. Copiá la clave y pegala acá abajo<br>
+      <span style="color:var(--text3);font-size:11px">La clave se guarda solo en tu navegador, no se envía a ningún servidor.</span>
     </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
-      <button class="btn-primary" onclick="cerrarConfigGemini()">Entendido</button>
+    <div style="margin-bottom:16px">
+      <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">API Key de Gemini</label>
+      <input type="password" id="gemini-key-input" class="form-input"
+        placeholder="AIzaSy..."
+        style="font-family:'DM Mono',monospace;font-size:12px">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn-secondary" onclick="cerrarConfigGemini()">Cancelar</button>
+      <button class="btn-primary" onclick="guardarConfigGemini()">Guardar y activar</button>
     </div>
   </div>
 </div>
