@@ -3191,7 +3191,7 @@ const _origKeydown = document.onkeydown;
 // ANÁLISIS IA — GEMINI
 // ═══════════════════════════════════════════════════════
 const GEMINI_KEY_STORAGE = 'sooft_gemini_key';
-const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_MODEL = 'gemini-2.0-flash-exp';
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }
 
@@ -3211,7 +3211,7 @@ async function llamarGemini(prompt) {
     abrirConfigGemini();
     throw new Error('Configurá tu API Key de Gemini primero (botón ✦ en el sidebar)');
   }
-  const url = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
