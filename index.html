@@ -3238,22 +3238,39 @@ async function llamarGemini(prompt) {
 }
 
 function parsearRespuestaIA(texto) {
-  const secciones = { diagnostico: '', sugerencias: [], alertas: [], oportunidades: [], evaluacion: '' };
+  const secciones = { diagnostico: '', sugerencias: [], alertas: [], oportunidades: [], evaluacion: '', textoCompleto: '' };
+  // Guardar texto completo siempre
+  secciones.textoCompleto = texto.replace(/\*\*/g,'').replace(/\*/g,'').trim();
+
   const lines = texto.split('\n').map(l => l.trim()).filter(Boolean);
   let seccion = 'diagnostico';
+
   lines.forEach(line => {
     const l = line.toLowerCase();
-    if (l.includes('diagnós') || l.includes('situaci')) { seccion = 'diagnostico'; return; }
-    if (l.includes('suger') || l.includes('accion') || l.includes('recomend')) { seccion = 'sugerencias'; return; }
-    if (l.includes('alerta') || l.includes('riesgo') || l.includes('atenci')) { seccion = 'alertas'; return; }
-    const clean = line.replace(/^[-*•→\d.]+\s*/, '').replace(/\*\*/g,'');
-    if (!clean) return;
-    if (seccion === 'diagnostico') secciones.diagnostico += (secciones.diagnostico ? ' ' : '') + clean;
-    else if (seccion === 'sugerencias') secciones.sugerencias.push(clean);
-    else if (seccion === 'alertas') secciones.alertas.push(clean);
+    // Detectar encabezados de sección (con o sin número, con o sin dos puntos)
+    const isDiag  = l.match(/^(1[\s.)]|##?\s)?diagnós|^diagnós|situación actual/);
+    const isSugg  = l.match(/^(2[\s.)]|##?\s)?suger|^suger|recomend|acciones/);
+    const isAlert = l.match(/^(3[\s.)]|##?\s)?alerta|^alerta|atención inmediata/);
+    const isOport = l.match(/^(4[\s.)]|##?\s)?oportun|^oportun/);
+    const isEval  = l.match(/^(4[\s.)]|##?\s)?evaluac|^evaluac/);
+
+    if (isDiag)  { seccion = 'diagnostico'; return; }
+    if (isSugg)  { seccion = 'sugerencias'; return; }
+    if (isAlert) { seccion = 'alertas';     return; }
+    if (isOport) { seccion = 'oportunidades'; return; }
+    if (isEval)  { seccion = 'evaluacion';  return; }
+
+    // Limpiar formato markdown
+    const clean = line.replace(/^[-*•→⚠✦\d.):]+\s*/, '').replace(/\*\*/g,'').replace(/\*/g,'').trim();
+    if (!clean || clean.length < 3) return;
+
+    if (seccion === 'diagnostico')     secciones.diagnostico += (secciones.diagnostico ? ' ' : '') + clean;
+    else if (seccion === 'sugerencias')  secciones.sugerencias.push(clean);
+    else if (seccion === 'alertas')      secciones.alertas.push(clean);
+    else if (seccion === 'oportunidades') secciones.oportunidades.push(clean);
+    else if (seccion === 'evaluacion')   secciones.evaluacion += (secciones.evaluacion ? ' ' : '') + clean;
   });
-  // Fallback: si no parsea bien, poner todo en diagnóstico
-  if (!secciones.diagnostico && !secciones.sugerencias.length) secciones.diagnostico = texto;
+
   return secciones;
 }
 
@@ -3275,23 +3292,27 @@ function renderIAPanel(secciones, titulo, timestamp) {
       <span style="color:#6b7280;font-size:10px;font-family:'JetBrains Mono',monospace">${timestamp}</span>
     </div>
     <div class="ia-panel-body">
-      ${secciones.diagnostico ? `<div class="ia-section">
-        <div class="ia-section-lbl diag">Diagnóstico</div>
-        <div class="ia-text">${secciones.diagnostico}</div>
-      </div><hr class="ia-divider">` : ''}
-      ${sugs ? `<div class="ia-section">
-        <div class="ia-section-lbl sugest">Sugerencias de acción</div>
-        ${sugs}
-      </div><hr class="ia-divider">` : ''}
-      ${alerts ? `<div class="ia-section">
-        <div class="ia-section-lbl alerta">Alertas identificadas</div>
-        ${alerts}
-      </div><hr class="ia-divider">` : ''}
-      ${oports ? `<div class="ia-section">
-        <div class="ia-section-lbl" style="background:rgba(22,163,74,.08);color:var(--verde)">Oportunidades</div>
-        ${oports}
-      </div><hr class="ia-divider">` : ''}
-      ${evalPlan}
+      ${(secciones.diagnostico || secciones.sugerencias.length || secciones.alertas.length) ? `
+        ${secciones.diagnostico ? `<div class="ia-section">
+          <div class="ia-section-lbl diag">Diagnóstico</div>
+          <div class="ia-text">${secciones.diagnostico}</div>
+        </div><hr class="ia-divider">` : ''}
+        ${sugs ? `<div class="ia-section">
+          <div class="ia-section-lbl sugest">Sugerencias de acción</div>
+          ${sugs}
+        </div><hr class="ia-divider">` : ''}
+        ${alerts ? `<div class="ia-section">
+          <div class="ia-section-lbl alerta">Alertas identificadas</div>
+          ${alerts}
+        </div><hr class="ia-divider">` : ''}
+        ${oports ? `<div class="ia-section">
+          <div class="ia-section-lbl" style="color:var(--verde)">Oportunidades</div>
+          ${oports}
+        </div><hr class="ia-divider">` : ''}
+        ${evalPlan}
+      ` : `<div class="ia-section">
+        <div class="ia-text" style="white-space:pre-line;line-height:1.7">${secciones.textoCompleto}</div>
+      </div>`}
     </div>
     <div class="ia-footer">
       <div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>
