@@ -3191,9 +3191,7 @@ const _origKeydown = document.onkeydown;
 // ANÁLISIS IA — GEMINI
 // ═══════════════════════════════════════════════════════
 const GEMINI_KEY_STORAGE = 'sooft_gemini_key';
-// Modelos disponibles en Google AI Studio (probar en orden):
-// 'gemini-pro' | 'gemini-1.5-pro' | 'gemini-1.5-flash' | 'gemini-2.0-flash-exp'
-const GEMINI_MODEL = localStorage.getItem('sooft_gemini_model') || 'gemini-pro';
+const GEMINI_MODEL = localStorage.getItem('sooft_gemini_model') || 'gemini-2.5-flash';
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }
 
@@ -3808,10 +3806,10 @@ init();
     <div style="margin-bottom:16px">
       <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Modelo</label>
       <select id="gemini-model-select" class="form-input" style="font-family:'JetBrains Mono',monospace;font-size:12px">
-        <option value="gemini-pro">gemini-pro (recomendado)</option>
-        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
-        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-        <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash (recomendado)</option>
+        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (más rápido)</option>
+        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+        <option value="gemini-1.5-flash-001">gemini-1.5-flash-001</option>
       </select>
       <div style="font-size:10px;color:var(--text3);margin-top:4px">Si un modelo da error, probá con otro. Todos usan la misma key.</div>
     </div>
