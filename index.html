@@ -3191,7 +3191,7 @@ const _origKeydown = document.onkeydown;
 // ANÁLISIS IA — GEMINI
 // ═══════════════════════════════════════════════════════
 const GEMINI_KEY_STORAGE = 'sooft_gemini_key';
-const GEMINI_MODEL = 'gemini-2.0-flash-lite';
+const GEMINI_MODEL = 'gemini-2.0-flash';
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }
 
@@ -3223,7 +3223,9 @@ async function llamarGemini(prompt) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     const msg = err?.error?.message || `Error ${res.status}`;
-    if (res.status === 400) throw new Error('API Key inválida. Verificá la clave en ✦ Configurar Gemini IA');
+    if (res.status === 400 && msg.includes('API key')) throw new Error('API Key inválida. Verificá la clave en ✦ Configurar Gemini IA');
+    if (res.status === 400 && msg.includes('no longer available')) throw new Error('Modelo discontinuado. Ya fue actualizado a gemini-2.0-flash.');
+    if (res.status === 403) throw new Error('API Key sin permisos. Verificá que tenga acceso a Gemini API.');
     if (res.status === 429) throw new Error('Límite de uso de Gemini alcanzado. Esperá unos minutos e intentá de nuevo');
     throw new Error('Error Gemini: ' + msg);
   }
