@@ -3191,7 +3191,9 @@ const _origKeydown = document.onkeydown;
 // ANÁLISIS IA — GEMINI
 // ═══════════════════════════════════════════════════════
 const GEMINI_KEY_STORAGE = 'sooft_gemini_key';
-const GEMINI_MODEL = 'gemini-2.0-flash-exp';
+// Modelos disponibles en Google AI Studio (probar en orden):
+// 'gemini-pro' | 'gemini-1.5-pro' | 'gemini-1.5-flash' | 'gemini-2.0-flash-exp'
+const GEMINI_MODEL = localStorage.getItem('sooft_gemini_model') || 'gemini-pro';
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }
 
@@ -3200,9 +3202,11 @@ function cerrarConfigGemini() { document.getElementById('ia-config-modal').class
 function guardarConfigGemini() {
   const key = document.getElementById('gemini-key-input').value.trim();
   if (!key) { alert('Ingresá la API Key'); return; }
+  const modelo = document.getElementById('gemini-model-select')?.value || 'gemini-pro';
   localStorage.setItem(GEMINI_KEY_STORAGE, key);
+  localStorage.setItem('sooft_gemini_model', modelo);
   cerrarConfigGemini();
-  toast('API Key de Gemini guardada ✓');
+  toast('Gemini configurado: ' + modelo + ' ✓');
 }
 
 async function llamarGemini(prompt) {
@@ -3795,11 +3799,21 @@ init();
       3. Copiá la clave y pegala acá abajo<br>
       <span style="color:var(--text3);font-size:11px">La clave se guarda solo en tu navegador, no se envía a ningún servidor.</span>
     </div>
-    <div style="margin-bottom:16px">
+    <div style="margin-bottom:12px">
       <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">API Key de Gemini</label>
       <input type="password" id="gemini-key-input" class="form-input"
         placeholder="AIzaSy..."
         style="font-family:'JetBrains Mono',monospace;font-size:12px">
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Modelo</label>
+      <select id="gemini-model-select" class="form-input" style="font-family:'JetBrains Mono',monospace;font-size:12px">
+        <option value="gemini-pro">gemini-pro (recomendado)</option>
+        <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+        <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+        <option value="gemini-2.0-flash-exp">gemini-2.0-flash-exp</option>
+      </select>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Si un modelo da error, probá con otro. Todos usan la misma key.</div>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button class="btn-secondary" onclick="cerrarConfigGemini()">Cancelar</button>
