@@ -3191,7 +3191,7 @@ const _origKeydown = document.onkeydown;
 // ANÁLISIS IA — GEMINI
 // ═══════════════════════════════════════════════════════
 const GEMINI_KEY_STORAGE = 'sooft_gemini_key';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 
 function getGeminiKey() { return localStorage.getItem(GEMINI_KEY_STORAGE) || ''; }
 
@@ -3211,7 +3211,7 @@ async function llamarGemini(prompt) {
     abrirConfigGemini();
     throw new Error('Configurá tu API Key de Gemini primero (botón ✦ en el sidebar)');
   }
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+  const url = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${key}`;
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -3236,8 +3236,7 @@ async function llamarGemini(prompt) {
 }
 
 function parsearRespuestaIA(texto) {
-  // Intenta parsear secciones del texto en bloques estructurados
-  const secciones = { diagnostico: '', sugerencias: [], alertas: [] };
+  const secciones = { diagnostico: '', sugerencias: [], alertas: [], oportunidades: [], evaluacion: '' };
   const lines = texto.split('\n').map(l => l.trim()).filter(Boolean);
   let seccion = 'diagnostico';
   lines.forEach(line => {
@@ -3257,9 +3256,15 @@ function parsearRespuestaIA(texto) {
 }
 
 function renderIAPanel(secciones, titulo, timestamp) {
-  const sugs = secciones.sugerencias.slice(0,5).map(s => `<div class="ia-item">${s}</div>`).join('');
+  const sugs = secciones.sugerencias.slice(0,6).map(s =>
+    `<div class="ia-item"><span style="color:#f97316;font-weight:700;margin-right:6px">→</span>${s}</div>`).join('');
   const alerts = secciones.alertas.slice(0,4).map((a,i) =>
-    `<div class="ia-alert-item ${i<2?'high':'med'}">${a}</div>`).join('');
+    `<div class="ia-alert-item ${i<2?'high':'med'}"><span style="margin-right:6px">⚠</span>${a}</div>`).join('');
+  const oports = (secciones.oportunidades||[]).slice(0,3).map(o =>
+    `<div class="ia-item" style="border-left:2px solid var(--verde)"><span style="color:var(--verde);font-weight:700;margin-right:6px">✦</span>${o}</div>`).join('');
+  const evalPlan = secciones.evaluacion
+    ? `<div class="ia-section"><div class="ia-section-lbl" style="background:rgba(249,115,22,.08);color:#f97316">Evaluación del plan</div><div class="ia-text" style="font-size:11px">${secciones.evaluacion}</div></div><hr class="ia-divider">`
+    : '';
   return `<div class="ia-panel">
     <div class="ia-panel-head">
       <div class="ia-panel-head-title">
@@ -3279,11 +3284,16 @@ function renderIAPanel(secciones, titulo, timestamp) {
       ${alerts ? `<div class="ia-section">
         <div class="ia-section-lbl alerta">Alertas identificadas</div>
         ${alerts}
-      </div>` : ''}
+      </div><hr class="ia-divider">` : ''}
+      ${oports ? `<div class="ia-section">
+        <div class="ia-section-lbl" style="background:rgba(22,163,74,.08);color:var(--verde)">Oportunidades</div>
+        ${oports}
+      </div><hr class="ia-divider">` : ''}
+      ${evalPlan}
     </div>
     <div class="ia-footer">
       <div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>
-      Generado por Gemini · Datos en tiempo real desde Google Sheets
+      Generado por Gemini · Análisis basado en datos del tablero
       <button onclick="abrirConfigGemini()" style="margin-left:auto;background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;text-decoration:underline">⚙ Config API Key</button>
     </div>
   </div>`;
@@ -3321,31 +3331,77 @@ async function analizarDashboard() {
   const rojos = dirs.filter(r => getQVal(r,currentQ)<0.7).length;
   const avg = dirs.length ? dirs.reduce((s,r)=>s+getQVal(r,currentQ),0)/dirs.length : 0;
 
+  // Planes de acción activos (KPIs rojos/amarillos con plan cargado)
+  const kpisConPlan = kpisQ.filter(k => (k['Plan_Causa']||'').trim());
+  const planesResumen = kpisConPlan.slice(0,5).map(k =>
+    `• ${k['KPI_ID']||''} (${k['Responsable']||''}): Causa: ${k['Plan_Causa']||''} | Acción: ${(k['Plan_Acciones']||'').substring(0,60)}`
+  ).join('\n');
+
+  // Oportunidades activas
+  const oports = (d.oportunidades||[]).filter(o => (o['Estado']||'')!=='Descartada' && (o['Estado']||'')!=='Concretada');
+  const oportsResumen = oports.slice(0,4).map(o =>
+    `• ${o['ID']||''}: ${(o['Oportunidad (descripción)']||'').substring(0,60)} — P×B: ${o['Valor (P×B)']||0} (${o['Semáforo']||''})`
+  ).join('\n');
+
+  // Evolución trimestral de objetivos de dirección
+  const evolucion = dirs.slice(0,5).map(r => {
+    const q1=getQVal(r,'Q1'), q2=getQVal(r,'Q2'), q3=getQVal(r,'Q3'), q4=getQVal(r,'Q4');
+    return `• ${r['Obj_ID']||''}: Q1 ${pct(q1)} | Q2 ${pct(q2)} | Q3 ${pct(q3)} | Q4 ${pct(q4)}`;
+  }).join('\n');
+
+  // KPIs amarillos con comentario
+  const kpisAmarillo = kpisQ
+    .filter(k => { const v=parseFloat(k['Logro_Q']||0); return v>=0.7&&v<0.9; })
+    .slice(0,4).map(k => `• ${k['KPI_ID']||''} (${k['Responsable']||''}): ${pct(parseFloat(k['Logro_Q']||0))} — ${k['Comentarios']||'sin comentario'}`)
+    .join('\n');
+
+  // Avance por gerencia
+  const gerenResumen = (d.res_gerencia||[]).map(g =>
+    `• ${g['Gerencia']||''}: YTD ${pct(parseFloat(g['YTD Logro']||0))} | ${currentQ} ${pct(parseFloat(g[currentQ+' Logro']||0))} | KPIs rojos: ${g[currentQ+' Rojos']||0}`
+  ).join('\n');
+
   const prompt = `Sos un analista de gestión estratégica experto. Analizá el siguiente tablero de objetivos corporativos de SOOFT Technology para ${currentQ} 2026.
 
 RESUMEN EJECUTIVO:
-- Avance general: ${pct(avg)}
+- Avance general ${currentQ}: ${pct(avg)}
 - Objetivos en verde (≥90%): ${verdes}
-- Objetivos en amarillo (70-89%): ${amarillos}  
+- Objetivos en amarillo (70-89%): ${amarillos}
 - Objetivos críticos (<70%): ${rojos}
 - Total objetivos de dirección: ${dirs.length}
 - Riesgos abiertos: ${risks.length}
+- Oportunidades activas: ${oports.length}
 
-OBJETIVOS DE DIRECCIÓN (${currentQ}):
+OBJETIVOS DE DIRECCIÓN — ESTADO ACTUAL (${currentQ}):
 ${resumen}
 
-KPIs DE GERENCIA EN ROJO:
+EVOLUCIÓN TRIMESTRAL (primeros objetivos):
+${evolucion}
+
+AVANCE POR GERENCIA:
+${gerenResumen || 'Sin datos de gerencias'}
+
+KPIs CRÍTICOS EN ROJO (<70%):
 ${kpisResumen || 'Ninguno en rojo'}
+
+KPIs EN RIESGO AMARILLO (70-89%):
+${kpisAmarillo || 'Ninguno en amarillo'}
+
+PLANES DE ACCIÓN ACTIVOS:
+${planesResumen || 'Sin planes de acción cargados'}
 
 RIESGOS ABIERTOS PRINCIPALES:
 ${riskResumen || 'Sin riesgos críticos'}
 
-Respondé en español con estas tres secciones claramente separadas:
-1. DIAGNÓSTICO: análisis de la situación actual en 3-4 oraciones
-2. SUGERENCIAS: 4-5 acciones concretas y priorizadas (una por línea con →)
-3. ALERTAS: 3-4 alertas críticas que requieren atención inmediata (una por línea)
+OPORTUNIDADES ACTIVAS:
+${oportsResumen || 'Sin oportunidades activas'}
 
-Sé específico con los datos, mencioná KPIs y gerencias por nombre. Sé directo y accionable.`;
+Respondé en español con estas cuatro secciones claramente separadas:
+1. DIAGNÓSTICO: análisis ejecutivo de la situación actual (4-5 oraciones, con datos concretos)
+2. SUGERENCIAS: 5-6 acciones priorizadas y concretas (una por línea con →, mencioná gerencias y KPIs específicos)
+3. ALERTAS: 3-4 alertas críticas que requieren atención inmediata (una por línea con ⚠)
+4. OPORTUNIDADES: 2-3 oportunidades de mejora o captura de valor (una por línea con ✦)
+
+Sé muy específico con los datos, citá KPIs y gerencias por nombre. Sé directo y accionable.`;
 
   try {
     const respuesta = await llamarGemini(prompt);
@@ -3378,22 +3434,67 @@ async function analizarGerencia(gerencia, btnEl) {
     return `• ${k['KPI_ID']||''} — ${(k['Objetivo']||'').substring(0,50)}: ${pct(logro)} (${k['Comentarios']||'sin comentario'})`;
   }).join('\n');
 
+  // Evolución trimestral de la gerencia
+  const evolucionGer = ['Q1','Q2','Q3','Q4'].map(q => {
+    const qVal = parseFloat(gRow[q+' Logro']||0);
+    const rojos = gRow[q+' Rojos']||0;
+    return `  ${q}: ${pct(qVal)} | KPIs rojos: ${rojos}`;
+  }).join('\n');
+
+  // KPIs con plan de acción
+  const kpisConPlanGer = kpis.filter(k => (k['Plan_Causa']||'').trim());
+  const planesGer = kpisConPlanGer.map(k =>
+    `• ${k['KPI_ID']||''}: Causa: ${k['Plan_Causa']||''} | Responsable plan: ${k['Plan_Responsable']||''}`
+  ).join('\n');
+
+  // Riesgos de esta gerencia
+  const riesgosGer = (d.riesgos||[]).filter(r =>
+    (r['Gerencia responsable']||r['Gerencia']||'') === gerencia && (r['Estado']||'')!=='Cerrado'
+  );
+  const riesgosResGer = riesgosGer.map(r =>
+    `• ${r['ID']||''}: ${(r['Riesgo (descripción)']||'').substring(0,60)} — P×I: ${r['Nivel (P×I)']||0} (${r['Semáforo']||''})`
+  ).join('\n');
+
+  // Oportunidades de esta gerencia
+  const oportGer = (d.oportunidades||[]).filter(o =>
+    (o['Gerencia responsable']||o['Gerencia']||'') === gerencia && (o['Estado']||'')!=='Descartada'
+  );
+  const oportResGer = oportGer.map(o =>
+    `• ${o['ID']||''}: ${(o['Oportunidad (descripción)']||'').substring(0,60)} — P×B: ${o['Valor (P×B)']||0}`
+  ).join('\n');
+
   const prompt = `Sos un analista de gestión estratégica. Analizá el desempeño de la gerencia ${gerencia} de SOOFT Technology en ${currentQ} 2026.
 
 AVANCE GERENCIA:
 - Logro ${currentQ}: ${pct(qv)}
 - YTD: ${pct(ytd)}
 - Total KPIs: ${kpis.length}
+- KPIs con plan de acción activo: ${kpisConPlanGer.length}
+- Riesgos abiertos: ${riesgosGer.length}
+- Oportunidades activas: ${oportGer.length}
+
+EVOLUCIÓN TRIMESTRAL:
+${evolucionGer}
 
 DETALLE KPIs (${currentQ}):
 ${kpiResumen || 'Sin datos de KPIs'}
 
-Respondé en español con:
-1. DIAGNÓSTICO: situación de la gerencia en 2-3 oraciones
-2. SUGERENCIAS: 3 acciones concretas (una por línea con →)
-3. ALERTAS: 2 alertas críticas si las hay
+PLANES DE ACCIÓN ACTIVOS:
+${planesGer || 'Sin planes de acción cargados'}
 
-Sé específico y directo.`;
+RIESGOS ABIERTOS:
+${riesgosResGer || 'Sin riesgos'}
+
+OPORTUNIDADES ACTIVAS:
+${oportResGer || 'Sin oportunidades'}
+
+Respondé en español con:
+1. DIAGNÓSTICO: situación de la gerencia con datos concretos (3-4 oraciones)
+2. SUGERENCIAS: 4 acciones concretas priorizadas (una por línea con →, citá KPIs específicos)
+3. ALERTAS: 2-3 alertas críticas (una por línea con ⚠)
+4. OPORTUNIDADES: 1-2 oportunidades de mejora (una por línea con ✦)
+
+Sé muy específico, citá KPIs y números reales.`;
 
   try {
     const respuesta = await llamarGemini(prompt);
@@ -3428,24 +3529,61 @@ async function analizarKPI(key, btnEl) {
     .map(k => `  ${k['Q']||''}: ${pct(parseFloat(k['Logro_Q']||0))} (real: ${k['Actual_Q (cargar)']??k['Actual_Q']??'—'}, meta: ${k['Meta_Q (editable)']??k['Meta_Q']??'—'})`)
     .join('\n');
 
-  const prompt = `Sos un analista de gestión. Analizá este KPI de SOOFT Technology.
+  // Plan de acción cargado
+  const planKpi = [
+    kpi['Plan_Causa'] ? `Causa raíz: ${kpi['Plan_Causa']}` : '',
+    kpi['Plan_Acciones'] ? `Acciones: ${kpi['Plan_Acciones']}` : '',
+    kpi['Plan_Responsable'] ? `Responsable: ${kpi['Plan_Responsable']}` : '',
+    kpi['Plan_Fecha'] ? `Fecha compromiso: ${kpi['Plan_Fecha']}` : '',
+  ].filter(Boolean).join('\n');
 
-KPI: ${kpi['KPI_ID']||''} — ${kpi['Objetivo']||''}
+  // Todos los KPIs de la misma gerencia en este Q para contexto
+  const pares = (d.carga_q||[])
+    .filter(k => k['Responsable']===kpi['Responsable'] && k['Q']===currentQ && k['KPI_ID']!==kpiId)
+    .slice(0,5).map(k => `• ${k['KPI_ID']}: ${pct(parseFloat(k['Logro_Q']||0))} (${k['Estado_lookup']||k['Estado']||''})`)
+    .join('\n');
+
+  // Riesgos relacionados al mismo objetivo de dirección
+  const objDir = kpi['Objetivo Dirección'] || '';
+  const riesgosKpi = (d.riesgos||[])
+    .filter(r => r['Objetivo Dirección']===objDir && (r['Estado']||'')!=='Cerrado')
+    .map(r => `• ${r['ID']||''}: ${(r['Riesgo (descripción)']||'').substring(0,50)} (P×I: ${r['Nivel (P×I)']||0})`)
+    .join('\n');
+
+  const logro = parseFloat(kpi['Logro_Q']||0);
+  const metaQ = kpi['Meta_Q (editable)']??kpi['Meta_Q']??'';
+  const actualQ = kpi['Actual_Q (cargar)']??kpi['Actual_Q']??'';
+  const metaAnual = kpi['Meta_Anual']||'';
+
+  const prompt = `Sos un analista de gestión. Analizá en profundidad este KPI de SOOFT Technology.
+
+KPI: ${kpiId} — ${kpi['Objetivo']||''}
 Gerencia: ${kpi['Responsable']||''}
 Métrica: ${kpi['Métrica']||''} (${kpi['Unidad']||''})
-Comparador: ${kpi['Comparador']||''} ${kpi['Meta_Q (editable)']??kpi['Meta_Q']??''} ${kpi['Unidad']||''}
-Logro actual: ${pct(parseFloat(kpi['Logro_Q']||0))} — Estado: ${kpi['Estado_lookup']||kpi['Estado']||''}
-Comentario cargado: ${kpi['Comentarios']||'sin comentario'}
+Comparador: ${kpi['Comparador']||''} — Meta anual: ${metaAnual} ${kpi['Unidad']||''}
+Meta ${currentQ}: ${metaQ} ${kpi['Unidad']||''} | Valor real: ${actualQ} ${kpi['Unidad']||''}
+Logro ${currentQ}: ${pct(logro)} — Estado: ${kpi['Estado_lookup']||kpi['Estado']||''}
+Comentario del responsable: ${kpi['Comentarios']||'sin comentario'}
 
-HISTÓRICO:
+HISTÓRICO POR TRIMESTRE:
 ${historico || 'Sin datos históricos'}
 
-Respondé en español con:
-1. DIAGNÓSTICO: qué está pasando con este KPI (2-3 oraciones, mencioná el valor vs meta)
-2. SUGERENCIAS: 3 acciones concretas para mejorar (una por línea con →)
-3. ALERTAS: 1-2 riesgos si el KPI no mejora
+PLAN DE ACCIÓN CARGADO:
+${planKpi || 'Sin plan de acción cargado aún'}
 
-Sé muy específico con los números y la gerencia.`;
+OTROS KPIs DE LA MISMA GERENCIA (${currentQ}):
+${pares || 'Sin datos de otros KPIs'}
+
+RIESGOS RELACIONADOS AL MISMO OBJETIVO:
+${riesgosKpi || 'Sin riesgos relacionados'}
+
+Respondé en español con:
+1. DIAGNÓSTICO: qué está pasando con este KPI, gap vs meta, tendencia histórica (3-4 oraciones con números concretos)
+2. SUGERENCIAS: 4 acciones concretas y priorizadas para mejorar (una por línea con →)
+3. ALERTAS: 2-3 riesgos o consecuencias si el KPI no mejora (una por línea con ⚠)
+4. EVALUACIÓN DEL PLAN: si hay plan de acción cargado, evaluá si es suficiente y qué falta (1-2 oraciones)
+
+Sé muy específico con los valores reales vs meta. Citá números exactos.`;
 
   const resultEl = document.getElementById('ia-kpi-'+key);
   try {
