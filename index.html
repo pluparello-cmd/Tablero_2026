@@ -1356,11 +1356,13 @@ function getData() { return DATA; }
 function pct(v) { return v != null ? (v * 100).toFixed(1) + '%' : '—'; }
 
 function semColor(v, frecuencia) {
-  if (frecuencia && frecuencia !== 'Q' && currentQ !== 'Q4') return 'neutro';
+  // Solo Milestone (hito anual) → neutro fuera de Q4
+  // Mensual y Q → semáforo normal siempre
+  if (frecuencia === 'Milestone' && currentQ !== 'Q4') return 'neutro';
   return v >= 0.9 ? 'verde' : v >= 0.7 ? 'amarillo' : 'rojo';
 }
 function logroSem(v, frecuencia) {
-  if (frecuencia && frecuencia !== 'Q' && currentQ !== 'Q4') return 'EN CURSO';
+  if (frecuencia === 'Milestone' && currentQ !== 'Q4') return 'EN CURSO';
   return v >= 0.9 ? 'VERDE' : v >= 0.7 ? 'AMARILLO' : 'ROJO';
 }
 
@@ -1816,7 +1818,7 @@ function renderDrawerContent() {
           // Calcular si este Q tiene mayoría de KPIs Milestone/Mensual
           const kpisQ = allKPIs.filter(k=>k['Q']===q);
           const milestoneCount = kpisQ.filter(k=>(k['Frecuencia']||k['Tipo']||'Q')!=='Q').length;
-          const frecQ = milestoneCount > kpisQ.length/2 ? 'Milestone' : 'Q';
+          const frecQ = kpisQ.filter(k=>(k['Frecuencia']||k['Tipo']||'Q')==='Milestone').length > kpisQ.length/2 ? 'Milestone' : 'Q';
           const savedQ = currentQ; currentQ = q; // temporalmente para semColor
           const cls = semColor(v, frecQ);
           currentQ = savedQ;
@@ -2001,9 +2003,9 @@ function renderCarga() {
   document.getElementById('carga-grid').innerHTML = kpis.map(k => {
     const key = k['KEY'] || `${k['Q']}|${k['KPI_ID']}`;
     const frec = k['Frecuencia']||k['Tipo']||'Q';
-    const esMilestone = frec !== 'Q' && currentQ !== 'Q4';
+    const esMilestone = frec === 'Milestone' && currentQ !== 'Q4';
     const logro = parseFloat(k['Logro_Q']||k['Logro lookup']||0);
-    const estado = esMilestone ? 'EN CURSO' : (k['Estado_lookup']||k['Estado']||logroSem(logro));
+    const estado = esMilestone ? 'EN CURSO' : (k['Estado_lookup']||k['Estado']||logroSem(logro,frec));
     const cls = semColor(logro, frec);
     const meta = k['Meta_Q (editable)'] ?? k['Meta_Q'];
     const actual = k['Actual_Q (cargar)'] ?? k['Actual_Q'];
