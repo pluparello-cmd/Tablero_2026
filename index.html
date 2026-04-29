@@ -1355,7 +1355,6 @@ function getData() { return DATA; }
 function pct(v) { return v != null ? (v * 100).toFixed(1) + '%' : '—'; }
 
 function semColor(v, frecuencia) {
-  // KPIs Milestone/Mensual fuera de Q4 → neutro (sin alarma prematura)
   if (frecuencia && frecuencia !== 'Q' && currentQ !== 'Q4') return 'neutro';
   return v >= 0.9 ? 'verde' : v >= 0.7 ? 'amarillo' : 'rojo';
 }
@@ -1366,7 +1365,7 @@ function logroSem(v, frecuencia) {
 
 function semBadge(s) {
   if (!s || s === '-') return '<span class="badge badge-neutro">—</span>';
-  if (s === 'EN CURSO') return '<span class="badge badge-neutro" style="color:#64748b">⏳ EN CURSO</span>';
+  if (s === 'EN CURSO') return '<span class="badge badge-neutro">⏳ EN CURSO</span>';
   const cls = s === 'VERDE' ? 'verde' : s === 'AMARILLO' ? 'amarillo' : 'rojo';
   return `<span class="badge badge-${cls}"><span class="dot dot-${cls}"></span>${s}</span>`;
 }
@@ -1444,10 +1443,9 @@ function renderDashboard() {
 
   const vals = dirs.map(r => getQVal(r, currentQ));
   const avg = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
-  // Milestone KPIs fuera de Q4 no cuentan como rojo/amarillo
-  const verdes   = dirs.filter(r => { const frec=r['Frecuencia']||r['Tipo']||'Q'; const v=getQVal(r,currentQ); return semColor(v,frec)==='verde'; }).length;
-  const amarillos= dirs.filter(r => { const frec=r['Frecuencia']||r['Tipo']||'Q'; const v=getQVal(r,currentQ); return semColor(v,frec)==='amarillo'; }).length;
-  const rojos    = dirs.filter(r => { const frec=r['Frecuencia']||r['Tipo']||'Q'; const v=getQVal(r,currentQ); return semColor(v,frec)==='rojo'; }).length;
+  const verdes    = dirs.filter(r=>{const frec=r['Frecuencia']||r['Tipo']||'Q';return semColor(getQVal(r,currentQ),frec)==='verde';}).length;
+  const amarillos = dirs.filter(r=>{const frec=r['Frecuencia']||r['Tipo']||'Q';return semColor(getQVal(r,currentQ),frec)==='amarillo';}).length;
+  const rojos     = dirs.filter(r=>{const frec=r['Frecuencia']||r['Tipo']||'Q';return semColor(getQVal(r,currentQ),frec)==='rojo';}).length;
 
   document.getElementById('dash-stats').innerHTML = `
     <div class="stat-card" onclick="toggleStatPanel('all', this)"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div><div class="stat-hint">▾ clic para ver detalle</div></div>
@@ -1457,17 +1455,21 @@ function renderDashboard() {
 
   document.getElementById('dash-dir-table').innerHTML = dirs.map(r => {
     const frec = r['Frecuencia']||r['Tipo']||'Q';
-    const qv = getQVal(r, currentQ); const cls = semColor(qv, frec);
+    const qv = getQVal(r, currentQ); const cls = semColor(qv,frec);
     const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
     const id = r['Obj_ID']||r.id||''; const obj = r['Objetivo']||r.obj||''; const area = r['Área']||r.area||'';
+    const savedQ=currentQ;
+    const c1=()=>{currentQ='Q1';const c=semColor(q1,frec);currentQ=savedQ;return c;};
+    const c2=()=>{currentQ='Q2';const c=semColor(q2,frec);currentQ=savedQ;return c;};
+    const c3=()=>{currentQ='Q3';const c=semColor(q3,frec);currentQ=savedQ;return c;};
     return `<div class="dir-obj-row">
       <div class="obj-id">${id}</div>
       <div class="obj-name">${obj}<br><span class="area-tag">${area}</span></div>
       <div>${progressBar(qv,cls)}</div>
       <div>${progressBar(ytd,semColor(ytd))}</div>
-      <div class="mono" style="color:var(--${semColor(q1,frec)})">${pct(q1)}</div>
-      <div class="mono" style="color:var(--${semColor(q2,frec)})">${pct(q2)}</div>
-      <div class="mono" style="color:var(--${semColor(q3,frec)})">${pct(q3)}</div>
+      <div class="mono" style="color:var(--${c1()})">${pct(q1)}</div>
+      <div class="mono" style="color:var(--${c2()})">${pct(q2)}</div>
+      <div class="mono" style="color:var(--${c3()})">${pct(q3)}</div>
       <div class="mono" style="color:var(--${semColor(q4)})">${pct(q4)}</div>
     </div>`;
   }).join('');
@@ -1530,9 +1532,9 @@ function toggleStatPanel(tipo, card) {
     amarillo:`Objetivos en riesgo — 70–89% (${currentQ})`,
     rojo:`Objetivos críticos — <70% (${currentQ})`
   };
-  if (tipo==='verde')    filtered = dirs.filter(r => semColor(getQVal(r,currentQ), r['Frecuencia']||r['Tipo']||'Q')==='verde');
-  if (tipo==='amarillo') filtered = dirs.filter(r => semColor(getQVal(r,currentQ), r['Frecuencia']||r['Tipo']||'Q')==='amarillo');
-  if (tipo==='rojo')     filtered = dirs.filter(r => semColor(getQVal(r,currentQ), r['Frecuencia']||r['Tipo']||'Q')==='rojo');
+  if (tipo==='verde')    filtered = dirs.filter(r => getQVal(r,currentQ)>=0.9);
+  if (tipo==='amarillo') filtered = dirs.filter(r => { const v=getQVal(r,currentQ); return v>=0.7&&v<0.9; });
+  if (tipo==='rojo')     filtered = dirs.filter(r => getQVal(r,currentQ)<0.7);
   document.getElementById('stat-drill-title').textContent = labels[tipo];
 
   document.getElementById('stat-drill-rows').innerHTML = filtered.length ? filtered.map(r => {
@@ -1617,9 +1619,10 @@ function renderDireccion() {
   const gerencias = (d.res_gerencia||[]).map(g => g['Gerencia']||'').filter(Boolean);
 
   document.getElementById('dir-table').innerHTML = dirs.map(r => {
-    const frec = r['Frecuencia']||r['Tipo']||'Q';
+    const frec=r['Frecuencia']||r['Tipo']||'Q';
     const qv=getQVal(r,currentQ); const cls=semColor(qv,frec);
     const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
+    const savedQ=currentQ;
     const objId = r['Obj_ID']||r.id||'';
     const needsPlan = (cls === 'rojo' || cls === 'amarillo') && cls !== 'neutro';
     const planHtml = needsPlan ? `
@@ -1661,9 +1664,9 @@ function renderDireccion() {
         ${needsPlan ? `<button onclick="toggleDirPlan('${objId}')" style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 8px;border-radius:4px;border:1px solid var(--${cls}-border);background:var(--${cls}-bg);color:var(--${cls});font-size:10px;cursor:pointer;font-family:'Poppins',sans-serif">! Plan de acción</button>` : ''}
       </div>
       <div>${progressBar(qv,cls)}</div><div>${progressBar(ytd,semColor(ytd))}</div>
-      <div class="mono" style="color:var(--${semColor(q1,frec)})">${pct(q1)}</div>
-      <div class="mono" style="color:var(--${semColor(q2,frec)})">${pct(q2)}</div>
-      <div class="mono" style="color:var(--${semColor(q3,frec)})">${pct(q3)}</div>
+      <div class="mono" style="color:var(--${(()=>{currentQ='Q1';const c=semColor(q1,frec);currentQ=savedQ;return c;})()})">${pct(q1)}</div>
+      <div class="mono" style="color:var(--${(()=>{currentQ='Q2';const c=semColor(q2,frec);currentQ=savedQ;return c;})()})">${pct(q2)}</div>
+      <div class="mono" style="color:var(--${(()=>{currentQ='Q3';const c=semColor(q3,frec);currentQ=savedQ;return c;})()})">${pct(q3)}</div>
       <div class="mono" style="color:var(--${semColor(q4)})">${pct(q4)}</div>
       ${planHtml}
       <div class="dir-obj-row-qs" style="display:none">
@@ -1781,26 +1784,48 @@ function renderDrawerContent() {
   if (drawerTab === 'resumen') {
     // Stats cards
     const qVals = [q1,q2,q3,q4];
-    const rojoTotal = ['Q1','Q2','Q3','Q4'].reduce((s,q)=>s+parseInt(gRow[q+' Rojos']||0),0);
-    const verdeCount = qVals.filter(v=>v>=0.9).length;
+    // Contar rojos reales excluyendo milestone fuera de Q4
+    const kpisActualQ = allKPIs.filter(k=>(k['Q']||'')===currentQ);
+    const rojoReal = kpisActualQ.filter(k=>{
+      const frec=k['Frecuencia']||k['Tipo']||'Q';
+      const logro=parseFloat(k['Logro_Q']||0);
+      return semColor(logro,frec)==='rojo';
+    }).length;
+    const verdeReal = kpisActualQ.filter(k=>{
+      const frec=k['Frecuencia']||k['Tipo']||'Q';
+      const logro=parseFloat(k['Logro_Q']||0);
+      return semColor(logro,frec)==='verde';
+    }).length;
+    const enCursoCount = kpisActualQ.filter(k=>{
+      const frec=k['Frecuencia']||k['Tipo']||'Q';
+      return frec!=='Q' && currentQ!=='Q4';
+    }).length;
     body.innerHTML = `
-      <div class="drawer-stats">
+      <div class="drawer-stats" style="grid-template-columns:repeat(4,1fr)">
         <div class="dstat"><div class="dstat-num accent">${pct(ytd)}</div><div class="dstat-lbl">YTD</div></div>
-        <div class="dstat"><div class="dstat-num verde">${verdeCount}</div><div class="dstat-lbl">Q Verde</div></div>
-        <div class="dstat"><div class="dstat-num rojo">${rojoTotal}</div><div class="dstat-lbl">KPIs Rojo</div></div>
-        <div class="dstat"><div class="dstat-num" style="color:var(--text)">${nKPIs}</div><div class="dstat-lbl">Total KPIs</div></div>
+        <div class="dstat"><div class="dstat-num verde">${verdeReal}</div><div class="dstat-lbl">Verde ${currentQ}</div></div>
+        <div class="dstat"><div class="dstat-num rojo">${rojoReal}</div><div class="dstat-lbl">Rojo ${currentQ}</div></div>
+        <div class="dstat"><div class="dstat-num" style="color:#94a3b8">${enCursoCount}</div><div class="dstat-lbl">En curso</div></div>
       </div>
 
       <div class="dsection">Avance por trimestre</div>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
         ${['Q1','Q2','Q3','Q4'].map((q,i)=>{
-          const v=[q1,q2,q3,q4][i]; const cls=semColor(v);
+          const v=[q1,q2,q3,q4][i];
+          // Calcular si este Q tiene mayoría de KPIs Milestone/Mensual
+          const kpisQ = allKPIs.filter(k=>k['Q']===q);
+          const milestoneCount = kpisQ.filter(k=>(k['Frecuencia']||k['Tipo']||'Q')!=='Q').length;
+          const frecQ = milestoneCount > kpisQ.length/2 ? 'Milestone' : 'Q';
+          const savedQ = currentQ; currentQ = q; // temporalmente para semColor
+          const cls = semColor(v, frecQ);
+          currentQ = savedQ;
           const rojos=parseInt(gRow[q+' Rojos']||0);
+          const rojosReales = cls === 'neutro' ? 0 : rojos;
           return `<div style="display:flex;align-items:center;gap:12px">
             <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);min-width:22px">${q}</span>
             <div style="flex:1">${progressBar(v,cls)}</div>
-            ${rojos>0?`<span class="mini-rojo">${rojos} KPI rojo</span>`:''}
-            ${semBadge(logroSem(v))}
+            ${rojosReales>0?`<span class="mini-rojo">${rojosReales} KPI rojo</span>`:''}
+            ${semBadge(logroSem(v,frecQ))}
           </div>`;
         }).join('')}
         <div style="display:flex;align-items:center;gap:12px;padding-top:8px;border-top:1px solid var(--border)">
@@ -1815,7 +1840,8 @@ function renderDrawerContent() {
         <thead><tr><th>ID</th><th>KPI</th><th>Meta Anual</th><th>Meta Q</th><th>Actual Q</th><th>Logro</th><th>Estado</th></tr></thead>
         <tbody>
           ${allKPIs.filter(k=>(k['Q']||'')===currentQ).map(k=>{
-            const logro=parseFloat(k['Logro_Q']||0); const frecK=k['Frecuencia']||k['Tipo']||'Q'; const cls=semColor(logro,frecK);
+            const frecK = k['Frecuencia']||k['Tipo']||'Q';
+            const logro=parseFloat(k['Logro_Q']||0); const cls=semColor(logro,frecK);
             const metaAnual=k['Meta_Anual']??'—';
             const meta=k['Meta_Q (editable)']??k['Meta_Q']??'—';
             const actual=k['Actual_Q (cargar)']??k['Actual_Q']??'—';
@@ -1831,12 +1857,12 @@ function renderDrawerContent() {
             };
             return `<tr>
               <td class="kpi-id">${k['KPI_ID']||''}</td>
-              <td class="kpi-name">${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica']||''}</span></td>
+              <td class="kpi-name">${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica']||''}</span>${frecK!=='Q'?`<br><span style="font-size:9px;color:#94a3b8">⏳ ${frecK}</span>`:''}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent)">${comp} ${fmtVal(metaAnual)}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${fmtVal(meta)}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">${fmtVal(actual)}</td>
               <td style="min-width:120px">${progressBar(logro,cls)}</td>
-              <td>${semBadge(logroSem(logro))}</td>
+              <td>${semBadge(logroSem(logro,frecK))}</td>
             </tr>`;
           }).join('')||`<tr><td colspan="7" class="empty">Sin datos para ${currentQ}</td></tr>`}
         </tbody>
@@ -2002,11 +2028,9 @@ function renderCarga() {
           <div class="kpi-meta-item"><div class="kpi-meta-key">Métrica</div><div class="kpi-meta-val">${k['Métrica']||''}</div></div>
           <div class="kpi-meta-item"><div class="kpi-meta-key">Comparador</div><div class="kpi-meta-val">${comparador} ${meta} ${unidad}</div></div>
           <div class="kpi-meta-item"><div class="kpi-meta-key">Meta anual</div><div class="kpi-meta-val">${k['Meta_Anual']||''} ${unidad}</div></div>
-          ${frec !== 'Q' ? `<div class="kpi-meta-item"><div class="kpi-meta-key">Frecuencia</div><div class="kpi-meta-val" style="color:var(--neutro)">${frec}</div></div>` : ''}
         </div>
         ${esMilestone ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:8px;border-radius:7px;background:rgba(107,114,128,.07);border:1px solid rgba(107,114,128,.2);font-size:11px;color:#64748b">
-          <span style="font-size:14px">⏳</span>
-          <span><strong>KPI anual / hito:</strong> El semáforo es informativo hasta el cierre del año (Q4). No se computa como incumplido en trimestres anteriores.</span>
+          <span>⏳</span><span><strong>KPI anual / hito:</strong> El semáforo es informativo hasta el cierre del año (Q4).</span>
         </div>` : ''}
         <div class="kpi-form-grid">
           <div>
@@ -2030,7 +2054,7 @@ function renderCarga() {
           <span class="logro-preview-lbl">Logro estimado:</span>
           ${progressBar(logro, cls)}
         </div>
-        ${!esMilestone && (cls === 'rojo' || cls === 'amarillo') ? `
+        ${(cls === 'rojo' || cls === 'amarillo') ? `
         <div class="plan-accion-box ${cls}">
           <div class="plan-accion-header">
             <div class="plan-accion-icon ${cls}">!</div>
@@ -3840,24 +3864,4 @@ init();
       <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">API Key de Gemini</label>
       <input type="password" id="gemini-key-input" class="form-input"
         placeholder="AIzaSy..."
-        style="font-family:'JetBrains Mono',monospace;font-size:12px">
-    </div>
-    <div style="margin-bottom:16px">
-      <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Modelo</label>
-      <select id="gemini-model-select" class="form-input" style="font-family:'JetBrains Mono',monospace;font-size:12px">
-        <option value="gemini-2.5-flash">gemini-2.5-flash (recomendado)</option>
-        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (más rápido)</option>
-        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-        <option value="gemini-1.5-flash-001">gemini-1.5-flash-001</option>
-      </select>
-      <div style="font-size:10px;color:var(--text3);margin-top:4px">Si un modelo da error, probá con otro. Todos usan la misma key.</div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn-secondary" onclick="cerrarConfigGemini()">Cancelar</button>
-      <button class="btn-primary" onclick="guardarConfigGemini()">Guardar y activar</button>
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
+        style="font-family:'JetBrains Mono',monospace;font-size:12px
