@@ -214,6 +214,7 @@ td.bold{color:var(--text);font-weight:500}
 .kpi-form-full{grid-column:1/-1}
 .form-label{font-size:11px;color:var(--text2);font-weight:500;margin-bottom:5px;display:block}
 .form-input{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .15s}
+textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:break-word;white-space:pre-wrap;line-height:1.5}
 .form-input:focus{border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.08)}
 .form-input::placeholder{color:var(--text3)}
 
@@ -1857,7 +1858,7 @@ function renderDrawerContent() {
             };
             return `<tr>
               <td class="kpi-id">${k['KPI_ID']||''}</td>
-              <td class="kpi-name">${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica']||''}</span>${frecK!=='Q'?`<br><span style="font-size:9px;color:#94a3b8">⏳ ${frecK}</span>`:''}</td>
+              <td class="kpi-name">${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica']||''}</span>${frecK!=='Q'?`<br><span style="font-size:9px;color:#94a3b8">⏳ ${frecK}</span>`:''}<br>${k['Comentarios']?`<span style="font-size:10px;color:var(--text3)">💬 ${k['Comentarios']}</span>`:''}<br>${k['Motivo_No_Logro']?`<span style="font-size:10px;color:var(--rojo);font-style:italic">⚠ ${k['Motivo_No_Logro']}</span>`:''}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent)">${comp} ${fmtVal(metaAnual)}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${fmtVal(meta)}</td>
               <td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">${fmtVal(actual)}</td>
@@ -2046,9 +2047,30 @@ function renderCarga() {
           </div>
           <div class="kpi-form-full">
             <label class="form-label">Comentarios</label>
-            <input type="text" class="form-input" id="comentarios-${key}"
-              value="${comentarios}" placeholder="Observaciones, contexto, etc.">
+            <textarea class="form-input" id="comentarios-${key}" rows="2"
+              placeholder="Observaciones, contexto, etc."
+              style="resize:vertical;min-height:38px"
+              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"
+              >${comentarios}</textarea>
           </div>
+          ${(cls === 'rojo' || cls === 'amarillo') && !esMilestone ? `
+          <div class="kpi-form-full" style="margin-top:2px">
+            <label class="form-label" style="display:flex;align-items:center;gap:6px">
+              <span style="background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo);font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600">REQUERIDO</span>
+              ¿Por qué no se logró el objetivo este trimestre?
+            </label>
+            <textarea class="form-input" id="motivo-${key}" rows="2"
+              placeholder="Describí brevemente la causa del incumplimiento..."
+              style="resize:vertical;min-height:38px"
+              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${k['Motivo_No_Logro']||''}</textarea>
+          </div>` : (cls === 'verde' ? '' : `
+          <div class="kpi-form-full" style="margin-top:2px">
+            <label class="form-label">¿Por qué no se logró el objetivo? <span style="color:var(--text3);font-weight:400">(opcional)</span></label>
+            <textarea class="form-input" id="motivo-${key}" rows="2"
+              placeholder="Si hay contexto relevante, podés explicarlo acá..."
+              style="resize:vertical;min-height:38px"
+              oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'">${k['Motivo_No_Logro']||''}</textarea>
+          </div>`)}
         </div>
         <div class="logro-preview" id="preview-${key}">
           <span class="logro-preview-lbl">Logro estimado:</span>
@@ -2135,6 +2157,7 @@ async function guardarKPI(key, comparador, meta) {
   const actual = document.getElementById('actual-'+key)?.value?.trim();
   const comentarios = document.getElementById('comentarios-'+key)?.value || '';
   const evidencia = document.getElementById('evidencia-'+key)?.value || '';
+  const motivo_no_logro = document.getElementById('motivo-'+key)?.value || '';
   const plan_causa = document.getElementById('causa-'+key)?.value || '';
   const plan_acciones = document.getElementById('acciones-'+key)?.value || '';
   const plan_responsable = document.getElementById('plan-resp-'+key)?.value || '';
@@ -2163,6 +2186,7 @@ async function guardarKPI(key, comparador, meta) {
       usuario: SESSION.usuario,
       password: getPass(),
       key, actual_q: actual, comentarios, evidencia,
+      motivo_no_logro,
       plan_causa, plan_acciones, plan_responsable, plan_fecha
     });
     if (res.status !== 'ok') throw new Error(res.mensaje);
@@ -3864,4 +3888,24 @@ init();
       <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">API Key de Gemini</label>
       <input type="password" id="gemini-key-input" class="form-input"
         placeholder="AIzaSy..."
-        style="font-family:'JetBrains Mono',monospace;font-size:12px
+        style="font-family:'JetBrains Mono',monospace;font-size:12px">
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Modelo</label>
+      <select id="gemini-model-select" class="form-input" style="font-family:'JetBrains Mono',monospace;font-size:12px">
+        <option value="gemini-2.5-flash">gemini-2.5-flash (recomendado)</option>
+        <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite (más rápido)</option>
+        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+        <option value="gemini-1.5-flash-001">gemini-1.5-flash-001</option>
+      </select>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px">Si un modelo da error, probá con otro. Todos usan la misma key.</div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn-secondary" onclick="cerrarConfigGemini()">Cancelar</button>
+      <button class="btn-primary" onclick="guardarConfigGemini()">Guardar y activar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
