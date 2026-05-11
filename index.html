@@ -564,6 +564,48 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
 .ia-kpi-result{margin-top:10px;padding:12px 14px;border-radius:8px;background:rgba(66,133,244,.04);border:1px solid rgba(66,133,244,.15);font-size:12px;color:var(--text2);line-height:1.7}
 .ia-config-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;align-items:center;justify-content:center}
 .ia-config-modal.open{display:flex}
+
+/* ── CIERRE Q — TABLERO EJECUTIVO ── */
+.cq-tabs{display:flex;gap:3px;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px}
+.cq-tab{flex:1;padding:7px 12px;border-radius:6px;border:none;background:none;color:var(--text3);font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.cq-tab.active{background:#1a1f2e;color:#fb923c;font-weight:600}
+.cq-kpi-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.cq-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.cq-kpi-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px;font-weight:600}
+.cq-kpi-val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:500;line-height:1}
+.cq-kpi-delta{font-size:11px;margin-top:4px}
+.cq-kpi-delta.up{color:var(--verde)}.cq-kpi-delta.dn{color:var(--rojo)}.cq-kpi-delta.fl{color:var(--text3)}
+.cq-section-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin:0 0 10px}
+.cq-ger-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:18px}
+.cq-ger-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 15px;cursor:pointer;transition:border-color .15s,transform .15s}
+.cq-ger-card:hover{border-color:rgba(249,115,22,.3);transform:translateY(-1px)}
+.cq-ger-card.cq-sel{border:2px solid #f97316;background:rgba(249,115,22,.02)}
+.cq-ger-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cq-ger-name{font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px}
+.cq-bar-bg{height:6px;border-radius:3px;background:var(--surface3);overflow:hidden;margin-bottom:5px}
+.cq-bar-fill{height:100%;border-radius:3px}
+.cq-ger-foot{display:flex;justify-content:space-between;font-size:11px}
+.cq-det{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:18px}
+.cq-det-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.cq-det-title{font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.cq-det-pct{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:500;line-height:1}
+.cq-det-meta{font-size:11px;color:var(--text3);margin-top:3px}
+.cq-col-hdr{display:flex;justify-content:flex-end;gap:8px;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.cq-obj-list{display:flex;flex-direction:column;gap:9px}
+.cq-obj-row{display:flex;align-items:center;gap:8px}
+.cq-obj-nm{font-size:11px;color:var(--text2);width:145px;flex-shrink:0;line-height:1.3}
+.cq-obj-bar-bg{flex:1;height:6px;border-radius:3px;background:var(--surface3);overflow:hidden}
+.cq-obj-bar-f{height:100%;border-radius:3px}
+.cq-obj-nums{display:flex;align-items:center;gap:6px;width:128px;flex-shrink:0;justify-content:flex-end}
+.cq-obj-pct{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;width:30px;text-align:right}
+.cq-obj-cifra{font-size:10px;color:var(--text3);width:60px;text-align:right}
+.cq-obj-delta{font-size:10px;width:34px;text-align:right;font-family:'JetBrains Mono',monospace}
+.cq-obj-delta.up{color:var(--verde)}.cq-obj-delta.dn{color:var(--rojo)}.cq-obj-delta.fl{color:var(--text3)}
+.cq-charts{display:grid;grid-template-columns:1.3fr 1fr;gap:12px;margin-top:18px}
+.cq-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px}
+.cq-chart-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px}
+.cq-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:10px;color:var(--text2)}
+.cq-leg-sq{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:3px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -767,10 +809,52 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
     <!-- GERENCIAS -->
     <div id="page-gerencias" class="page">
       <div class="page-header">
-        <div><div class="page-title">Gerencias</div><div class="page-subtitle">Avance por trimestre y YTD</div></div>
+        <div><div class="page-title">Gerencias</div><div class="page-subtitle" id="ger-subtitle">Avance por trimestre y YTD</div></div>
         <span class="q-badge" id="ger-q-badge">Q4</span>
       </div>
-      <div class="gerencias-grid" id="gerencias-grid"></div>
+
+      <!-- Tabs: vista estándar / cierre Q -->
+      <div class="cq-tabs">
+        <button class="cq-tab active" id="cq-tab-std" onclick="switchGerTab('std')">KPIs por trimestre</button>
+        <button class="cq-tab" id="cq-tab-cierre" onclick="switchGerTab('cierre')">✦ Cierre Q — vista directorio</button>
+      </div>
+
+      <!-- Vista estándar -->
+      <div id="ger-view-std">
+        <div class="gerencias-grid" id="gerencias-grid"></div>
+      </div>
+
+      <!-- Vista cierre Q -->
+      <div id="ger-view-cierre" style="display:none">
+
+        <!-- KPI strip -->
+        <div class="cq-kpi-strip" id="cq-kpi-strip"></div>
+
+        <div class="cq-section-lbl">Gerencias — hacé clic para ver el desglose</div>
+        <div class="cq-ger-grid" id="cq-ger-grid"></div>
+
+        <!-- Detalle gerencia seleccionada -->
+        <div class="cq-det" id="cq-det" style="display:none"></div>
+
+        <!-- Gráficas -->
+        <div class="cq-charts">
+          <div class="cq-chart-card">
+            <div class="cq-chart-title">Comparativa Q anterior → Q actual por gerencia</div>
+            <div style="position:relative;height:200px">
+              <canvas id="cq-bar" role="img" aria-label="Barras comparativas Q anterior vs Q actual por gerencia">Avance comparativo por gerencia.</canvas>
+            </div>
+            <div class="cq-legend" id="cq-bar-legend"></div>
+          </div>
+          <div class="cq-chart-card">
+            <div class="cq-chart-title">Distribución de estados</div>
+            <div style="position:relative;height:160px">
+              <canvas id="cq-donut" role="img" aria-label="Distribución: gerencias en meta, alerta y riesgo">Distribución de estados por gerencia.</canvas>
+            </div>
+            <div class="cq-legend" id="cq-donut-legend" style="justify-content:center;margin-top:4px"></div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- CARGA DE AVANCE -->
@@ -1732,6 +1816,263 @@ function renderGerencias() {
       <div>${qRows}</div>
     </div>`;
   }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// CIERRE Q — TABLERO EJECUTIVO PARA DIRECTORIO
+// ═══════════════════════════════════════════════════════
+let cqSelGer = null;
+let cqBarChart = null;
+let cqDonutChart = null;
+
+function switchGerTab(tab) {
+  const isStd = tab === 'std';
+  document.getElementById('cq-tab-std').classList.toggle('active', isStd);
+  document.getElementById('cq-tab-cierre').classList.toggle('active', !isStd);
+  document.getElementById('ger-view-std').style.display = isStd ? '' : 'none';
+  document.getElementById('ger-view-cierre').style.display = isStd ? 'none' : '';
+  if (!isStd) renderCierreQ();
+}
+
+function cqBarColor(v) {
+  if (v >= 0.75) return '#16a34a';
+  if (v >= 0.55) return '#d97706';
+  return '#dc2626';
+}
+function cqPctColor(v) {
+  if (v >= 0.75) return 'var(--verde)';
+  if (v >= 0.55) return 'var(--amarillo)';
+  return 'var(--rojo)';
+}
+function cqStatus(v) {
+  if (v >= 0.75) return { cls:'badge-verde', txt:'En meta' };
+  if (v >= 0.55) return { cls:'badge-amarillo', txt:'Alerta' };
+  return { cls:'badge-rojo', txt:'En riesgo' };
+}
+function cqDeltaHtml(curr, prev) {
+  const d = Math.round((curr - prev) * 100);
+  if (d > 0) return `<span class="cq-obj-delta up">+${d}pp</span>`;
+  if (d < 0) return `<span class="cq-obj-delta dn">${d}pp</span>`;
+  return `<span class="cq-obj-delta fl">—</span>`;
+}
+function cqGerDelta(curr, prev) {
+  const d = Math.round((curr - prev) * 100);
+  if (d > 0) return `<span style="color:var(--verde);font-size:11px">▲ +${d}pp</span>`;
+  if (d < 0) return `<span style="color:var(--rojo);font-size:11px">▼ ${d}pp</span>`;
+  return `<span style="color:var(--text3);font-size:11px">—</span>`;
+}
+function cqPrevQ() {
+  const qs = ['Q1','Q2','Q3','Q4'];
+  const i = qs.indexOf(currentQ);
+  return i > 0 ? qs[i-1] : null;
+}
+
+function renderCierreQ() {
+  const d = getData(); if (!d) return;
+  const gers = d.res_gerencia || [];
+  const prevQ = cqPrevQ();
+
+  // ── KPI strip global ──
+  const totGers = gers.length;
+  const enMeta = gers.filter(g => parseFloat(g[currentQ+' Logro']||0) >= 0.75).length;
+  const enAlerta = gers.filter(g => { const v=parseFloat(g[currentQ+' Logro']||0); return v>=0.55&&v<0.75; }).length;
+  const enRiesgo = gers.filter(g => parseFloat(g[currentQ+' Logro']||0) < 0.55).length;
+  const avgActual = totGers ? gers.reduce((s,g)=>s+parseFloat(g[currentQ+' Logro']||0),0)/totGers : 0;
+  const avgPrev = prevQ && totGers ? gers.reduce((s,g)=>s+parseFloat(g[prevQ+' Logro']||0),0)/totGers : null;
+  const avgDelta = avgPrev !== null ? Math.round((avgActual - avgPrev)*100) : null;
+
+  document.getElementById('cq-kpi-strip').innerHTML = `
+    <div class="cq-kpi">
+      <div class="cq-kpi-lbl">Avance global ${currentQ}</div>
+      <div class="cq-kpi-val" style="color:${cqPctColor(avgActual)}">${Math.round(avgActual*100)}%</div>
+      ${avgDelta!==null?`<div class="cq-kpi-delta ${avgDelta>0?'up':avgDelta<0?'dn':'fl'}">${avgDelta>0?'▲ +':'▼ '}${Math.abs(avgDelta)}pp vs ${prevQ}</div>`:'<div class="cq-kpi-delta fl">—</div>'}
+    </div>
+    <div class="cq-kpi">
+      <div class="cq-kpi-lbl">En meta</div>
+      <div class="cq-kpi-val verde">${enMeta}<span style="font-size:14px;color:var(--text3)">/${totGers}</span></div>
+      <div class="cq-kpi-delta fl">≥ 75% logro</div>
+    </div>
+    <div class="cq-kpi">
+      <div class="cq-kpi-lbl">En alerta</div>
+      <div class="cq-kpi-val amarillo">${enAlerta}</div>
+      <div class="cq-kpi-delta fl">55–74% logro</div>
+    </div>
+    <div class="cq-kpi">
+      <div class="cq-kpi-lbl">En riesgo</div>
+      <div class="cq-kpi-val rojo">${enRiesgo}</div>
+      <div class="cq-kpi-delta fl">< 55% logro</div>
+    </div>`;
+
+  // ── Grid de gerencias ──
+  if (!cqSelGer && gers.length) cqSelGer = gers[0]['Gerencia']||'';
+
+  document.getElementById('cq-ger-grid').innerHTML = gers.map(g => {
+    const name = g['Gerencia']||'';
+    const curr = parseFloat(g[currentQ+' Logro']||0);
+    const prev = prevQ ? parseFloat(g[prevQ+' Logro']||0) : null;
+    const st = cqStatus(curr);
+    const kpis = g['# KPIs']||0;
+    return `<div class="cq-ger-card${name===cqSelGer?' cq-sel':''}" onclick="cqSelectGer('${name}')">
+      <div class="cq-ger-top">
+        <div class="cq-ger-name"><span class="dot dot-${semColor(curr)}"></span>${name}</div>
+        <span class="badge ${st.cls}">${st.txt}</span>
+      </div>
+      <div class="cq-bar-bg"><div class="cq-bar-fill" style="width:${Math.min(curr*100,100)}%;background:${cqBarColor(curr)}"></div></div>
+      <div class="cq-ger-foot">
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${cqPctColor(curr)}">${Math.round(curr*100)}%</span>
+        <span style="color:var(--text3)">${kpis} KPIs</span>
+        ${prev!==null ? cqGerDelta(curr,prev) : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  renderCqDetalle(cqSelGer);
+  renderCqCharts(gers, prevQ);
+}
+
+function cqSelectGer(name) {
+  cqSelGer = name;
+  // Re-render solo las cards (sin recrear charts)
+  const d = getData(); if (!d) return;
+  document.querySelectorAll('.cq-ger-card').forEach(el => {
+    const isThis = el.getAttribute('onclick').includes(`'${name}'`);
+    el.classList.toggle('cq-sel', isThis);
+  });
+  renderCqDetalle(name);
+}
+
+function renderCqDetalle(gerName) {
+  const d = getData(); if (!d || !gerName) return;
+  const det = document.getElementById('cq-det');
+  if (!det) return;
+  det.style.display = '';
+
+  const gRow = (d.res_gerencia||[]).find(g=>(g['Gerencia']||'')===gerName)||{};
+  const curr = parseFloat(gRow[currentQ+' Logro']||0);
+  const prevQ = cqPrevQ();
+  const prev = prevQ ? parseFloat(gRow[prevQ+' Logro']||0) : null;
+  const delta = prev !== null ? Math.round((curr-prev)*100) : null;
+  const st = cqStatus(curr);
+  const nKPIs = gRow['# KPIs']||0;
+
+  // KPIs de esta gerencia para el Q actual
+  const kpisGer = (d.carga_q||[]).filter(k =>
+    (k['Responsable']||'')===gerName && k['Nivel']==='GERENCIA' && (k['Q']||'')===currentQ
+  );
+
+  // Para "cifra real" usamos Actual_Q formateado; para delta usamos Logro_Q vs Q anterior
+  const kpisPrevMap = {};
+  if (prevQ) {
+    (d.carga_q||[]).filter(k=>
+      (k['Responsable']||'')===gerName && k['Nivel']==='GERENCIA' && (k['Q']||'')===prevQ
+    ).forEach(k=>{ kpisPrevMap[k['KPI_ID']||''] = parseFloat(k['Logro_Q']||0); });
+  }
+
+  const fmtVal = (v, unidad) => {
+    if (v===undefined||v===null||v==='') return '—';
+    const n = parseFloat(v);
+    if (isNaN(n)) return v;
+    if (unidad==='%') return (n*100).toFixed(1)+'%';
+    if (unidad==='ARS') return '$'+n.toLocaleString('es-AR',{maximumFractionDigits:0});
+    if (unidad==='USD') return 'U$'+n.toLocaleString('es-AR',{maximumFractionDigits:0});
+    return n.toLocaleString('es-AR',{maximumFractionDigits:1})+(unidad?' '+unidad:'');
+  };
+
+  const objRows = kpisGer.map(k => {
+    const logro = parseFloat(k['Logro_Q']||0);
+    const actual = k['Actual_Q (cargar)']??k['Actual_Q']??'—';
+    const meta = k['Meta_Q (editable)']??k['Meta_Q']??'—';
+    const unidad = k['Unidad']||'';
+    const prevLogro = kpisPrevMap[k['KPI_ID']||''];
+    const dHtml = prevLogro!==undefined ? cqDeltaHtml(logro, prevLogro) : '<span class="cq-obj-delta fl">—</span>';
+    const pct = Math.round(logro*100);
+    return `<div class="cq-obj-row">
+      <div class="cq-obj-nm">${k['Objetivo']||k['KPI_ID']||''}</div>
+      <div class="cq-obj-bar-bg"><div class="cq-obj-bar-f" style="width:${Math.min(pct,100)}%;background:${cqBarColor(logro)}"></div></div>
+      <div class="cq-obj-nums">
+        <span class="cq-obj-pct" style="color:${cqPctColor(logro)}">${pct}%</span>
+        <span class="cq-obj-cifra">${fmtVal(actual,unidad)}</span>
+        ${dHtml}
+      </div>
+    </div>`;
+  }).join('') || `<div style="color:var(--text3);font-size:12px;padding:8px 0">Sin KPIs cargados para ${currentQ}</div>`;
+
+  det.innerHTML = `
+    <div class="cq-det-hdr">
+      <div>
+        <div class="cq-det-title">
+          <span class="dot dot-${semColor(curr)}"></span>
+          ${gerName}
+          <span class="badge ${st.cls}">${st.txt}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">${nKPIs} KPIs · ${currentQ} 2026${prevQ?` · vs ${prevQ}`:''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="cq-det-pct" style="color:${cqPctColor(curr)}">${Math.round(curr*100)}%</div>
+        ${delta!==null?`<div class="cq-det-meta" style="color:${delta>0?'var(--verde)':delta<0?'var(--rojo)':'var(--text3)'}">${delta>0?'▲ +':'▼ '}${Math.abs(delta)} pp vs ${prevQ}</div>`:''}
+      </div>
+    </div>
+    <div class="cq-col-hdr">
+      <span style="width:30px;text-align:right">Av.</span>
+      <span style="width:60px;text-align:right">Cifra</span>
+      <span style="width:34px;text-align:right">${prevQ?'vs '+prevQ:'Δ'}</span>
+    </div>
+    <div class="cq-obj-list">${objRows}</div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center">
+      <button class="btn-ia-gemini" onclick="analizarGerencia('${gerName}',this)">
+        <div class="ia-gem-icon">G</div> Analizar con Gemini IA
+      </button>
+      <span style="font-size:11px;color:var(--text3)">Diagnóstico, sugerencias y alertas para ${currentQ}</span>
+    </div>
+    <div id="cq-ia-${gerName.replace(/[^a-zA-Z0-9]/g,'_')}" style="margin-top:12px"></div>
+  `;
+}
+
+function renderCqCharts(gers, prevQ) {
+  const labels = gers.map(g => (g['Gerencia']||'').replace('COMERCIAL_','COM.').replace('PEOPLE_RRHH','RRHH').substring(0,8));
+  const currData = gers.map(g => Math.round(parseFloat(g[currentQ+' Logro']||0)*100));
+  const prevData = prevQ ? gers.map(g => Math.round(parseFloat(g[prevQ+' Logro']||0)*100)) : null;
+
+  // Bar chart
+  const barEl = document.getElementById('cq-bar');
+  if (!barEl) return;
+  if (cqBarChart) { try { cqBarChart.destroy(); } catch(e){} }
+  const barDatasets = [];
+  if (prevData) barDatasets.push({ label: prevQ, data: prevData, backgroundColor: '#94a3b8', borderRadius: 3, barPercentage: .4 });
+  barDatasets.push({ label: currentQ, data: currData, backgroundColor: '#f97316', borderRadius: 3, barPercentage: .4 });
+  const tc = 'rgba(0,0,0,0.4)'; const gc = 'rgba(0,0,0,0.07)';
+  cqBarChart = new Chart(barEl, {
+    type: 'bar',
+    data: { labels, datasets: barDatasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: tc, font: { size: 9 } }, grid: { color: gc }, autoSkip: false, maxRotation: 30 },
+        y: { min: 0, max: 100, ticks: { color: tc, font: { size: 9 }, callback: v => v+'%' }, grid: { color: gc } }
+      }
+    }
+  });
+  document.getElementById('cq-bar-legend').innerHTML = (prevData ? `<span><span class="cq-leg-sq" style="background:#94a3b8"></span>${prevQ}</span>` : '') +
+    `<span><span class="cq-leg-sq" style="background:#f97316"></span>${currentQ}</span>`;
+
+  // Donut
+  const donutEl = document.getElementById('cq-donut');
+  if (!donutEl) return;
+  if (cqDonutChart) { try { cqDonutChart.destroy(); } catch(e){} }
+  const meta = gers.filter(g=>parseFloat(g[currentQ+' Logro']||0)>=0.75).length;
+  const alerta = gers.filter(g=>{const v=parseFloat(g[currentQ+' Logro']||0);return v>=0.55&&v<0.75;}).length;
+  const riesgo = gers.filter(g=>parseFloat(g[currentQ+' Logro']||0)<0.55).length;
+  cqDonutChart = new Chart(donutEl, {
+    type: 'doughnut',
+    data: { labels:['En meta','Alerta','En riesgo'], datasets:[{ data:[meta,alerta,riesgo], backgroundColor:['#16a34a','#d97706','#dc2626'], borderWidth:0, hoverOffset:5 }] },
+    options: { responsive:true, maintainAspectRatio:false, cutout:'65%', plugins:{ legend:{ display:false } } }
+  });
+  const tot = gers.length || 1;
+  document.getElementById('cq-donut-legend').innerHTML =
+    `<span><span class="cq-leg-sq" style="background:#16a34a"></span>En meta ${Math.round(meta/tot*100)}%</span>` +
+    `<span><span class="cq-leg-sq" style="background:#d97706"></span>Alerta ${Math.round(alerta/tot*100)}%</span>` +
+    `<span><span class="cq-leg-sq" style="background:#dc2626"></span>Riesgo ${Math.round(riesgo/tot*100)}%</span>`;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -3908,6 +4249,8 @@ init();
     </div>
   </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
 </body>
 </html>
