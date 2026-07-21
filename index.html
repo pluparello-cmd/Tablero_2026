@@ -587,22 +587,6 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
 .ia-config-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;align-items:center;justify-content:center}
 .ia-config-modal.open{display:flex}
 
-/* ── GESTIÓN KPIs — chips y plan expandible ── */
-.gestion-chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap}
-.chip-plan{background:var(--verde-bg);border:1px solid var(--verde-border);color:var(--verde)}
-.chip-missing{background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo)}
-.chip-motivo{background:var(--amarillo-bg);border:1px solid var(--amarillo-border);color:var(--amarillo)}
-.chip-comment{background:var(--surface3);border:1px solid var(--border);color:var(--text2)}
-.kpi-expandable:hover td{background:rgba(249,115,22,.03)!important}
-.plan-detail-panel td{padding:0!important;border-bottom:2px solid var(--accent)!important}
-.plan-detail-box{margin:0 0 0 0;padding:12px 16px 14px;background:linear-gradient(135deg,rgba(249,115,22,.03),rgba(249,115,22,.01));border-top:1px solid rgba(249,115,22,.15)}
-.plan-detail-row{display:flex;gap:12px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border)}
-.plan-detail-row:last-child{border-bottom:none}
-.plan-detail-key{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);min-width:140px;flex-shrink:0;padding-top:2px}
-.plan-detail-val{font-size:12px;color:var(--text);line-height:1.5;flex:1}
-.plan-detail-val.motivo{color:var(--amarillo);font-style:italic}
-.plan-row-arrow{display:inline-block;margin-left:4px;font-size:10px;color:var(--text3);transition:transform .15s}
-
 /* ── CIERRE Q — TABLERO EJECUTIVO ── */
 .cq-tabs{display:flex;gap:3px;margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px}
 .cq-tab{flex:1;padding:7px 12px;border-radius:6px;border:none;background:none;color:var(--text3);font-family:'Poppins',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
@@ -2168,19 +2152,6 @@ function toggleDrawerExpand() {
   if (lbl) lbl.textContent = isExpanded ? 'Reducir' : 'Ampliar';
 }
 
-function togglePlanRow(rowId) {
-  const row = document.getElementById(rowId);
-  if (!row) return;
-  const isOpen = row.style.display !== 'none';
-  row.style.display = isOpen ? 'none' : 'table-row';
-  // rotar el ▾ en la fila padre
-  const prev = row.previousElementSibling;
-  if (prev) {
-    const arrow = prev.querySelector('.plan-row-arrow');
-    if (arrow) arrow.textContent = isOpen ? '▾' : '▴';
-  }
-}
-
 function switchDrawerTab(tab) {
   drawerTab = tab;
   document.querySelectorAll('.dtab').forEach(t => {
@@ -2230,11 +2201,7 @@ function renderDrawerContent() {
         <div class="dstat"><div class="dstat-num accent">${pct(ytd)}</div><div class="dstat-lbl">YTD</div></div>
         <div class="dstat"><div class="dstat-num verde">${verdeReal}</div><div class="dstat-lbl">Verde ${currentQ}</div></div>
         <div class="dstat"><div class="dstat-num rojo">${rojoReal}</div><div class="dstat-lbl">Rojo ${currentQ}</div></div>
-        <div class="dstat" style="${(() => { const conPlan = kpisActualQ.filter(k=>(k['Plan_Causa']||'').trim()||(k['Plan_Acciones']||'').trim()).length; const sinPlan = kpisActualQ.filter(k=>{const cls2=semColor(parseFloat(k['Logro_Q']||0),k['Frecuencia']||k['Tipo']||'Q');return (cls2==='rojo'||cls2==='amarillo')&&!(k['Plan_Causa']||'').trim()&&!(k['Plan_Acciones']||'').trim();}).length; return sinPlan > 0 ? 'border-color:var(--rojo-border);background:var(--rojo-bg)' : conPlan > 0 ? 'border-color:var(--verde-border);background:var(--verde-bg)' : ''; })()}">
-          <div class="dstat-num" style="${(() => { const conPlan = kpisActualQ.filter(k=>(k['Plan_Causa']||'').trim()||(k['Plan_Acciones']||'').trim()).length; const sinPlan = kpisActualQ.filter(k=>{const cls2=semColor(parseFloat(k['Logro_Q']||0),k['Frecuencia']||k['Tipo']||'Q');return (cls2==='rojo'||cls2==='amarillo')&&!(k['Plan_Causa']||'').trim()&&!(k['Plan_Acciones']||'').trim();}).length; return sinPlan > 0 ? 'color:var(--rojo)' : conPlan > 0 ? 'color:var(--verde)' : 'color:var(--text3)'; })()}">${(() => { return kpisActualQ.filter(k=>(k['Plan_Causa']||'').trim()||(k['Plan_Acciones']||'').trim()).length; })()}</div>
-          <div class="dstat-lbl">Planes cargados</div>
-          <div style="font-size:9px;margin-top:3px;color:var(--text3)">${(() => { const sinPlan = kpisActualQ.filter(k=>{const cls2=semColor(parseFloat(k['Logro_Q']||0),k['Frecuencia']||k['Tipo']||'Q');return (cls2==='rojo'||cls2==='amarillo')&&!(k['Plan_Causa']||'').trim()&&!(k['Plan_Acciones']||'').trim();}).length; return sinPlan > 0 ? sinPlan+' KPI sin plan' : ''; })()}</div>
-        </div>
+        <div class="dstat"><div class="dstat-num" style="color:#94a3b8">${enCursoCount}</div><div class="dstat-lbl">En curso</div></div>
       </div>
 
       <div class="dsection">Avance por trimestre</div>
@@ -2266,19 +2233,16 @@ function renderDrawerContent() {
 
       <div class="dsection">KPIs del trimestre actual (${currentQ})</div>
       <table class="kpi-drawer-table">
-        <thead><tr><th>ID</th><th>KPI</th><th>Meta Q</th><th>Actual Q</th><th>Logro</th><th>Estado</th><th title="Plan de acción / Comentario cargado">Gestión</th></tr></thead>
+        <thead><tr><th>ID</th><th>KPI</th><th>Meta Anual</th><th>Meta Q</th><th>Actual Q</th><th>Logro</th><th>Estado</th></tr></thead>
         <tbody>
           ${allKPIs.filter(k=>(k['Q']||'')===currentQ).map(k=>{
             const frecK = k['Frecuencia']||k['Tipo']||'Q';
             const logro=parseFloat(k['Logro_Q']||0); const cls=semColor(logro,frecK);
+            const metaAnual=k['Meta_Anual']??'—';
             const meta=k['Meta_Q (editable)']??k['Meta_Q']??'—';
             const actual=k['Actual_Q (cargar)']??k['Actual_Q']??'—';
             const unidad=k['Unidad']||'';
             const comp=k['Comparador']||'';
-            const kpiId = k['KPI_ID']||'';
-            const tienePlan = !!(k['Plan_Causa']||'').trim() || !!(k['Plan_Acciones']||'').trim();
-            const tieneComentario = !!(k['Comentarios']||'').trim();
-            const tieneMotivo = !!(k['Motivo_No_Logro']||'').trim();
             const fmtVal = v => {
               if (v === '—' || v === undefined || v === null) return '—';
               const n = parseFloat(v);
@@ -2287,37 +2251,15 @@ function renderDrawerContent() {
               if (unidad === 'ARS' || unidad === 'USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
               return n+' '+unidad;
             };
-            // Chips de gestión
-            const gestionChips = [
-              tienePlan ? \`<span class="gestion-chip chip-plan" title="Plan de acción cargado">✓ Plan</span>\` : (cls==='rojo'||cls==='amarillo' ? \`<span class="gestion-chip chip-missing" title="Sin plan de acción">! Sin plan</span>\` : ''),
-              tieneMotivo ? \`<span class="gestion-chip chip-motivo" title="Motivo de no logro cargado">⚠ Motivo</span>\` : '',
-              tieneComentario ? \`<span class="gestion-chip chip-comment" title="Comentario cargado">💬</span>\` : '',
-            ].filter(Boolean).join(' ');
-
-            // Panel detalle plan (expandible)
-            const planRows = [
-              tieneMotivo ? \`<div class="plan-detail-row"><span class="plan-detail-key">⚠ Motivo de no logro</span><span class="plan-detail-val motivo">\${k['Motivo_No_Logro']}</span></div>\` : '',
-              (k['Plan_Causa']||'').trim() ? \`<div class="plan-detail-row"><span class="plan-detail-key">🔍 Causa raíz</span><span class="plan-detail-val">\${k['Plan_Causa']}</span></div>\` : '',
-              (k['Plan_Acciones']||'').trim() ? \`<div class="plan-detail-row"><span class="plan-detail-key">▶ Acciones</span><span class="plan-detail-val">\${k['Plan_Acciones']}</span></div>\` : '',
-              (k['Plan_Responsable']||'').trim() ? \`<div class="plan-detail-row"><span class="plan-detail-key">👤 Responsable</span><span class="plan-detail-val">\${k['Plan_Responsable']}</span></div>\` : '',
-              (k['Plan_Fecha']||'').trim() ? \`<div class="plan-detail-row"><span class="plan-detail-key">📅 Fecha compromiso</span><span class="plan-detail-val">\${k['Plan_Fecha']}</span></div>\` : '',
-              tieneComentario ? \`<div class="plan-detail-row"><span class="plan-detail-key">💬 Comentario</span><span class="plan-detail-val">\${k['Comentarios']}</span></div>\` : '',
-            ].filter(Boolean).join('');
-
-            const hasPlanDetail = planRows.length > 0;
-            const rowId = 'plan-row-' + kpiId.replace(/[^a-zA-Z0-9]/g,'_');
-
-            return \`<tr class="kpi-main-row\${hasPlanDetail?' kpi-expandable':''}" \${hasPlanDetail?\`onclick="togglePlanRow('\${rowId}')"\`:''} style="\${hasPlanDetail?'cursor:pointer':''}">
-              <td class="kpi-id">\${kpiId}</td>
-              <td class="kpi-name">\${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">\${k['Métrica']||''}</span>\${frecK!=='Q'?\`<br><span style="font-size:9px;color:#94a3b8">⏳ \${frecK}</span>\`:''}</td>
-              <td style="font-family:'JetBrains Mono',monospace;font-size:11px">\${comp} \${fmtVal(meta)}</td>
-              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">\${fmtVal(actual)}</td>
-              <td style="min-width:110px">\${progressBar(logro,cls)}</td>
-              <td>\${semBadge(logroSem(logro,frecK))}</td>
-              <td>\${gestionChips||\`<span style="color:var(--text3);font-size:11px">—</span>\`}\${hasPlanDetail?\`<span style="color:var(--text3);font-size:10px;margin-left:5px">▾</span>\`:''}</td>
-            </tr>
-            \${hasPlanDetail?\`<tr class="plan-detail-panel" id="\${rowId}" style="display:none"><td colspan="7"><div class="plan-detail-box">\${planRows}</div></td></tr>\`:''}
-            \`;
+            return `<tr>
+              <td class="kpi-id">${k['KPI_ID']||''}</td>
+              <td class="kpi-name">${k['Objetivo']||''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica']||''}</span>${frecK!=='Q'?`<br><span style="font-size:9px;color:#94a3b8">⏳ ${frecK}</span>`:''}<br>${k['Comentarios']?`<span style="font-size:10px;color:var(--text3)">💬 ${k['Comentarios']}</span>`:''}<br>${k['Motivo_No_Logro']?`<span style="font-size:10px;color:var(--rojo);font-style:italic">⚠ ${k['Motivo_No_Logro']}</span>`:''}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent)">${comp} ${fmtVal(metaAnual)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${fmtVal(meta)}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">${fmtVal(actual)}</td>
+              <td style="min-width:120px">${progressBar(logro,cls)}</td>
+              <td>${semBadge(logroSem(logro,frecK))}</td>
+            </tr>`;
           }).join('')||`<tr><td colspan="7" class="empty">Sin datos para ${currentQ}</td></tr>`}
         </tbody>
       </table>`;
