@@ -286,12 +286,17 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
 /* ── GERENCIA DRAWER ── */
 .drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:600;opacity:0;pointer-events:none;transition:opacity .25s}
 .drawer-overlay.open{opacity:1;pointer-events:all}
-.drawer{position:fixed;top:0;right:0;width:680px;max-width:100vw;height:100vh;background:#ffffff;border-left:1px solid #e5e7eb;z-index:700;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.drawer{position:fixed;top:0;right:0;width:780px;max-width:100vw;height:100vh;background:#ffffff;border-left:1px solid #e5e7eb;z-index:700;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1),width .25s ease;display:flex;flex-direction:column;overflow:hidden}
 .drawer.open{transform:translateX(0)}
-.drawer-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.drawer.expanded{width:100vw;border-left:none}
+.drawer-header{padding:18px 24px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
 .drawer-title-block{flex:1;min-width:0}
 .drawer-title{font-family:'Poppins',sans-serif;font-weight:600;font-size:20px;letter-spacing:-.5px;color:var(--text)}
 .drawer-subtitle{font-size:11px;color:var(--text3);margin-top:3px}
+.drawer-hdr-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.drawer-expand-btn{background:none;border:1px solid var(--border);color:var(--text2);height:32px;padding:0 10px;border-radius:6px;cursor:pointer;font-size:11px;font-family:'Poppins',sans-serif;font-weight:500;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap}
+.drawer-expand-btn:hover{border-color:var(--accent);color:var(--accent)}
+.drawer-expand-btn.active{background:rgba(249,115,22,.08);border-color:var(--accent);color:var(--accent)}
 .drawer-close{background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
 .drawer-close:hover{border-color:var(--text2);color:var(--text)}
 
@@ -316,6 +321,23 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
 .kpi-drawer-table tr:hover td{background:var(--surface2)}
 .kpi-drawer-table td.kpi-name{color:var(--text);max-width:200px;white-space:normal;line-height:1.35}
 .kpi-drawer-table td.kpi-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);white-space:nowrap}
+
+/* Modo expandido — tabla más espaciosa */
+.drawer.expanded .drawer-body{padding:24px 36px}
+.drawer.expanded .kpi-drawer-table{font-size:13px}
+.drawer.expanded .kpi-drawer-table th{font-size:11px;padding:10px 14px}
+.drawer.expanded .kpi-drawer-table td{padding:12px 14px}
+.drawer.expanded .kpi-drawer-table td.kpi-name{max-width:340px;font-size:13px}
+.drawer.expanded .drawer-stats{grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.drawer.expanded .dstat{padding:16px 18px}
+.drawer.expanded .dstat-num{font-size:30px}
+.drawer.expanded .dstat-lbl{font-size:11px}
+.drawer.expanded .progress-bar{height:10px}
+.drawer.expanded .dsection{font-size:12px;letter-spacing:.8px;margin:24px 0 12px}
+.drawer.expanded .drawer-tabs{padding:12px 36px 0}
+.drawer.expanded .drawer-header{padding:22px 36px 18px}
+.dsection{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.dsection::after{content:'';flex:1;height:1px;background:var(--border)}
 
 /* Q progress mini pills */
 .q-pills-row{display:flex;gap:4px;align-items:center}
@@ -1230,9 +1252,15 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
   <div class="drawer-header">
     <div class="drawer-title-block">
       <div class="drawer-title" id="drawer-ger-name">Gerencia</div>
-      <div class="drawer-subtitle" id="drawer-ger-sub">KPIs y avance trimestral</div>
+      <div class="drawer-subtitle" id="drawer-ger-sub">KPIs y avance trimestral 2026</div>
     </div>
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    <div class="drawer-hdr-actions">
+      <button class="drawer-expand-btn" id="drawer-expand-btn" onclick="toggleDrawerExpand()" title="Ampliar para presentación">
+        <span id="drawer-expand-icon">⤢</span>
+        <span id="drawer-expand-label">Ampliar</span>
+      </button>
+      <button class="drawer-close" onclick="closeDrawer()" title="Cerrar">✕</button>
+    </div>
   </div>
   <div class="drawer-tabs">
     <button class="dtab active" onclick="switchDrawerTab('resumen')">Resumen</button>
@@ -2095,9 +2123,33 @@ function openDrawer(gerName) {
 }
 
 function closeDrawer() {
+  const drawer = document.getElementById('gerencia-drawer');
+  drawer.classList.remove('open');
+  drawer.classList.remove('expanded');
   document.getElementById('drawer-overlay').classList.remove('open');
-  document.getElementById('gerencia-drawer').classList.remove('open');
   document.body.style.overflow = '';
+  // Reset expand btn
+  const btn = document.getElementById('drawer-expand-btn');
+  const icon = document.getElementById('drawer-expand-icon');
+  const lbl = document.getElementById('drawer-expand-label');
+  if (btn) btn.classList.remove('active');
+  if (icon) icon.textContent = '⤢';
+  if (lbl) lbl.textContent = 'Ampliar';
+}
+
+function toggleDrawerExpand() {
+  const drawer = document.getElementById('gerencia-drawer');
+  const overlay = document.getElementById('drawer-overlay');
+  const btn = document.getElementById('drawer-expand-btn');
+  const icon = document.getElementById('drawer-expand-icon');
+  const lbl = document.getElementById('drawer-expand-label');
+  const isExpanded = drawer.classList.toggle('expanded');
+  // Overlay: visible solo cuando NO está expandido (para no tapar el contenido)
+  overlay.style.background = isExpanded ? 'transparent' : '';
+  overlay.style.pointerEvents = isExpanded ? 'none' : '';
+  if (btn) btn.classList.toggle('active', isExpanded);
+  if (icon) icon.textContent = isExpanded ? '⤡' : '⤢';
+  if (lbl) lbl.textContent = isExpanded ? 'Reducir' : 'Ampliar';
 }
 
 function switchDrawerTab(tab) {
