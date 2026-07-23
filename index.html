@@ -7,16 +7,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* ── MODO CLARO (default) ── */
 :root {
   --bg:#f4f6f9; --surface:#ffffff; --surface2:#f8fafc; --surface3:#eef2f7;
-  --border:rgba(0,0,0,0.07); --text:#1a1f2e; --text2:#4a5568; --text3:#94a3b8;
+  --border:rgba(0,0,0,0.07); --border2:rgba(0,0,0,0.13);
+  --text:#1a1f2e; --text2:#4a5568; --text3:#94a3b8;
   --sidebar-bg:#1a1f2e; --sidebar-text:#e2e8f0; --sidebar-text2:#94a3b8;
   --sidebar-active-bg:#0f1420; --sidebar-accent:#fb923c;
   --accent:#f97316; --accent2:#fb923c;
-  --verde:#16a34a; --verde-bg:rgba(22,163,74,0.07); --verde-border:rgba(22,163,74,0.2);
-  --amarillo:#d97706; --amarillo-bg:rgba(217,119,6,0.07); --amarillo-border:rgba(217,119,6,0.2);
-  --rojo:#dc2626; --rojo-bg:rgba(220,38,38,0.07); --rojo-border:rgba(220,38,38,0.2);
+  --verde:#16a34a; --verde-bg:rgba(22,163,74,0.08); --verde-border:rgba(22,163,74,0.22);
+  --amarillo:#d97706; --amarillo-bg:rgba(217,119,6,0.08); --amarillo-border:rgba(217,119,6,0.22);
+  --rojo:#dc2626; --rojo-bg:rgba(220,38,38,0.08); --rojo-border:rgba(220,38,38,0.22);
   --neutro:#6b7280; --radius:10px; --radius-lg:16px;
+  --glow-verde:rgba(22,163,74,0.25); --glow-amarillo:rgba(217,119,6,0.25); --glow-rojo:rgba(220,38,38,0.25); --glow-accent:rgba(249,115,22,0.25);
+  --hero-bar-track:rgba(0,0,0,0.06); --q-bar-track:rgba(0,0,0,0.06);
+  --card-hover-border:rgba(0,0,0,0.15);
+}
+/* ── MODO OSCURO ── */
+body.dark {
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#21253a; --surface3:#2a2f45;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#f1f5f9; --text2:#94a3b8; --text3:#64748b;
+  --verde:#22c55e; --verde-bg:rgba(34,197,94,0.1); --verde-border:rgba(34,197,94,0.25);
+  --amarillo:#eab308; --amarillo-bg:rgba(234,179,8,0.1); --amarillo-border:rgba(234,179,8,0.25);
+  --rojo:#ef4444; --rojo-bg:rgba(239,68,68,0.1); --rojo-border:rgba(239,68,68,0.25);
+  --glow-verde:rgba(34,197,94,0.35); --glow-amarillo:rgba(234,179,8,0.35); --glow-rojo:rgba(239,68,68,0.35); --glow-accent:rgba(249,115,22,0.35);
+  --hero-bar-track:rgba(255,255,255,0.06); --q-bar-track:rgba(255,255,255,0.06);
+  --card-hover-border:rgba(255,255,255,0.15);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;line-height:1.5}
@@ -644,9 +661,120 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
 .plan-detail-val{font-size:12px;color:var(--text);line-height:1.5;flex:1}
 .plan-detail-val.motivo{color:var(--amarillo);font-style:italic}
 .plan-detail-val.accion{color:var(--verde)}
+
+/* ══════════════════════════════════════════════════
+   NUEVO DISEÑO UX — HERO KPIs + BARRAS VISUALES
+══════════════════════════════════════════════════ */
+
+/* Toggle modo oscuro */
+.theme-toggle{position:fixed;bottom:24px;right:24px;z-index:800;width:44px;height:44px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.15);transition:all .2s}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.1)}
+
+/* ── HERO KPIs ── */
+.hero-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.hero-kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s}
+.hero-kpi:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+body.dark .hero-kpi:hover{box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.hero-kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:10px}
+.hero-kpi-val{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:700;line-height:1;margin-bottom:8px}
+.hero-kpi-sub{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.delta-chip{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+.delta-up{background:var(--verde-bg);color:var(--verde);border:1px solid var(--verde-border)}
+.delta-dn{background:var(--rojo-bg);color:var(--rojo);border:1px solid var(--rojo-border)}
+.delta-fl{background:var(--surface3);color:var(--text3)}
+.hero-bar-wrap{margin-top:14px}
+.hero-bar-track{height:10px;border-radius:5px;background:var(--hero-bar-track);overflow:hidden}
+.hero-bar-fill{height:100%;border-radius:5px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.hero-bar-fill.hb-verde{background:linear-gradient(90deg,var(--verde),#22c55e);box-shadow:0 0 10px var(--glow-verde)}
+.hero-bar-fill.hb-amarillo{background:linear-gradient(90deg,var(--amarillo),#eab308);box-shadow:0 0 10px var(--glow-amarillo)}
+.hero-bar-fill.hb-rojo{background:linear-gradient(90deg,var(--rojo),#f87171);box-shadow:0 0 10px var(--glow-rojo)}
+.hero-bar-fill.hb-accent{background:linear-gradient(90deg,#ea580c,var(--accent));box-shadow:0 0 10px var(--glow-accent)}
+.hero-bar-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);margin-top:5px;text-align:right}
+
+/* ── OBJETIVOS — tarjetas con barra lateral semáforo ── */
+.obj-list-new{display:flex;flex-direction:column;gap:8px}
+.obj-card-new{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0;display:flex;align-items:stretch;overflow:hidden;transition:border-color .15s,box-shadow .15s,transform .15s;cursor:default}
+.obj-card-new:hover{border-color:var(--border2);box-shadow:0 4px 14px rgba(0,0,0,.07);transform:translateY(-1px)}
+body.dark .obj-card-new:hover{box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.obj-sem-stripe{width:5px;flex-shrink:0}
+.obj-sem-stripe.verde{background:linear-gradient(180deg,var(--verde),#22c55e);box-shadow:2px 0 8px var(--glow-verde)}
+.obj-sem-stripe.amarillo{background:linear-gradient(180deg,var(--amarillo),#eab308);box-shadow:2px 0 8px var(--glow-amarillo)}
+.obj-sem-stripe.rojo{background:linear-gradient(180deg,var(--rojo),#f87171);box-shadow:2px 0 8px var(--glow-rojo)}
+.obj-card-inner{flex:1;padding:12px 14px;display:grid;grid-template-columns:1fr 200px 90px;gap:12px;align-items:center}
+.obj-card-id{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)}
+.obj-card-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.35;margin-top:2px}
+.obj-card-area{font-size:10px;color:var(--text3);margin-top:2px}
+.obj-bar-new-wrap{display:flex;align-items:center;gap:8px}
+.obj-bar-new-track{flex:1;height:8px;border-radius:4px;background:var(--hero-bar-track);overflow:hidden}
+.obj-bar-new-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.obj-bar-new-pct{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;min-width:36px;text-align:right}
+
+/* ── GERENCIAS — gauge circular + barras verticales ── */
+.ger-grid-new{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:13px}
+.ger-card-new{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;cursor:pointer}
+.ger-card-new:hover{transform:translateY(-3px);border-color:var(--border2);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+body.dark .ger-card-new:hover{box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.ger-top-stripe{height:4px;width:100%;transition:box-shadow .2s}
+.ger-top-stripe.verde{background:linear-gradient(90deg,var(--verde),#22c55e);box-shadow:0 2px 10px var(--glow-verde)}
+.ger-top-stripe.amarillo{background:linear-gradient(90deg,var(--amarillo),#eab308);box-shadow:0 2px 10px var(--glow-amarillo)}
+.ger-top-stripe.rojo{background:linear-gradient(90deg,var(--rojo),#f87171);box-shadow:0 2px 10px var(--glow-rojo)}
+.ger-body{padding:15px}
+.ger-name-new{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.ger-meta-new{font-size:10px;color:var(--text3);margin-bottom:13px}
+.ger-gauge-row{display:flex;align-items:center;gap:13px;margin-bottom:13px}
+.ger-gauge-svg{flex-shrink:0}
+.ger-gauge-info{flex:1}
+.ger-gauge-ytd-val{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;line-height:1}
+.ger-gauge-ytd-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.ger-q-bars-new{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ger-q-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ger-q-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text3)}
+.ger-q-track{width:100%;height:44px;background:var(--q-bar-track);border-radius:5px;overflow:hidden;display:flex;align-items:flex-end}
+.ger-q-fill{width:100%;border-radius:5px;transition:height .7s cubic-bezier(.4,0,.2,1)}
+.ger-q-pct{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600}
+
+/* ── RIESGOS — heatmap ── */
+.risk-layout{display:grid;grid-template-columns:1fr 1.4fr;gap:20px}
+.heatmap-wrap{display:flex;gap:8px}
+.heatmap-y-axis{display:flex;flex-direction:column;justify-content:space-between;padding-bottom:2px}
+.heatmap-y-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);text-align:right;width:16px}
+.heatmap-grid{flex:1;display:flex;flex-direction:column;gap:5px}
+.heatmap-row{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.heat-cell{aspect-ratio:1;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:default;transition:transform .15s;position:relative}
+.heat-cell:hover{transform:scale(1.08)}
+.heat-cell .heat-count{font-size:9px;font-weight:600;opacity:.8;margin-top:1px}
+.h0{background:var(--surface3);color:var(--text3)}
+.h1{background:rgba(22,163,74,0.15);color:var(--verde)}
+body.dark .h1{background:rgba(34,197,94,0.12);color:#22c55e}
+.h2{background:rgba(217,119,6,0.15);color:var(--amarillo)}
+body.dark .h2{background:rgba(234,179,8,0.12);color:#eab308}
+.h3{background:rgba(220,38,38,0.15);color:var(--rojo)}
+body.dark .h3{background:rgba(239,68,68,0.12);color:#ef4444}
+.h4{background:rgba(220,38,38,0.3);color:var(--rojo);box-shadow:0 0 10px var(--glow-rojo)}
+body.dark .h4{background:rgba(239,68,68,0.28)}
+.heatmap-x-labels{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:5px}
+.heatmap-x-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);text-align:center}
+.risk-list-new{display:flex;flex-direction:column;gap:8px}
+.risk-card-new{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px;display:flex;gap:12px;align-items:flex-start;transition:border-color .15s}
+.risk-card-new:hover{border-color:var(--border2)}
+.risk-score{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;flex-shrink:0}
+.rs-alto{background:var(--rojo-bg);color:var(--rojo);border:1px solid var(--rojo-border)}
+.rs-med{background:var(--amarillo-bg);color:var(--amarillo);border:1px solid var(--amarillo-border)}
+.rs-bajo{background:var(--verde-bg);color:var(--verde);border:1px solid var(--verde-border)}
+.risk-info-new{flex:1;min-width:0}
+.risk-desc-new{font-size:12px;color:var(--text);line-height:1.4;margin-bottom:5px}
+.risk-tags-new{display:flex;gap:5px;flex-wrap:wrap}
+.risk-tag-new{font-size:9px;padding:2px 7px;border-radius:3px;background:var(--surface3);color:var(--text3);border:1px solid var(--border)}
+
+/* Transición suave entre modos */
+body{transition:background .3s,color .3s}
+.hero-kpi,.obj-card-new,.ger-card-new,.risk-card-new,.stat-card,.gerencia-card,.risk-panel,.kpi-carga-card{transition:background .3s,border-color .2s,box-shadow .2s,transform .15s}
 </style>
 </head>
 <body>
+
+<!-- THEME TOGGLE -->
+<button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema">🌙</button>
 
 <!-- LOADING -->
 <div class="loading-overlay" id="loading">
@@ -775,14 +903,17 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
         <div><div class="page-title">Dashboard</div><div class="page-subtitle">Tablero de Seguimiento SOOFT 2026</div></div>
         <div style="display:flex;align-items:center;gap:10px">
           <span class="q-badge" id="dash-q-badge">Q4</span>
-          <button class="btn-ia-gemini" id="btn-ia-dashboard" onclick="analizarDashboard()" title="Análisis IA — pendiente de activación en Workspace">
-            <div class="ia-gem-icon">G</div>
-            Analizar con IA
+          <button class="btn-ia-gemini" id="btn-ia-dashboard" onclick="analizarDashboard()">
+            <div class="ia-gem-icon">G</div>Analizar con IA
           </button>
         </div>
       </div>
       <div id="ia-panel-dashboard" style="display:none;margin-bottom:20px"></div>
-      <div class="stats-row" id="dash-stats"></div>
+
+      <!-- HERO KPIs -->
+      <div class="hero-kpis" id="hero-kpis"></div>
+
+      <!-- Drill-down panel (se mantiene) -->
       <div class="stat-panel" id="stat-drill-panel">
         <div class="stat-panel-inner">
           <div class="stat-panel-header">
@@ -799,15 +930,31 @@ textarea.form-input{resize:vertical;min-height:38px;overflow:hidden;word-break:b
           </div>
         </div>
       </div>
-      <div class="section">
-        <div class="section-title">Objetivos de Dirección</div>
-        <div class="dir-obj-grid">
-          <div class="dir-obj-row header">
-            <span>ID</span><span>Objetivo</span><span>Q sel.</span><span>YTD</span><span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
+
+      <!-- Objetivos nueva vista -->
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:20px" id="dash-main-grid">
+        <div>
+          <div class="section-title">Objetivos de Dirección</div>
+          <div class="obj-list-new" id="dash-dir-table-new"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div class="section-title">Evolución trimestral</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">
+              <div style="position:relative;height:140px"><canvas id="dash-trend-chart"></canvas></div>
+            </div>
           </div>
-          <div id="dash-dir-table"></div>
+          <div>
+            <div class="section-title">Distribución de estados</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:center;gap:16px">
+              <div style="position:relative;height:110px;width:110px;flex-shrink:0"><canvas id="dash-donut-chart"></canvas></div>
+              <div id="dash-donut-legend" style="flex:1"></div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Riesgos / Oportunidades -->
       <div class="risk-grid">
         <div class="risk-panel">
           <div class="risk-panel-header"><div class="risk-panel-title">🔴 Top 5 Riesgos</div><div class="risk-counters" id="risk-counters"></div></div>
@@ -1568,21 +1715,118 @@ function renderCurrentPage() {
 // ═══════════════════════════════════════════════════════
 // RENDER DASHBOARD
 // ═══════════════════════════════════════════════════════
+let _dashTrendChart = null;
+let _dashDonutChart = null;
+
 function renderDashboard() {
   const d = getData(); if (!d) return;
   const dirs = d.res_direccion || [];
+  const kpisQ = (d.carga_q||[]).filter(k=>(k['Q']||'')===currentQ&&k['Nivel']==='GERENCIA');
 
   const vals = dirs.map(r => getQVal(r, currentQ));
   const avg = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
   const verdes    = dirs.filter(r=>{const frec=r['Frecuencia']||r['Tipo']||'Q';return semColor(getQVal(r,currentQ),frec)==='verde';}).length;
   const amarillos = dirs.filter(r=>{const frec=r['Frecuencia']||r['Tipo']||'Q';return semColor(getQVal(r,currentQ),frec)==='amarillo';}).length;
   const rojos     = dirs.filter(r=>{const frec=r['Frecuencia']||r['Tipo']||'Q';return semColor(getQVal(r,currentQ),frec)==='rojo';}).length;
+  const kpisRojos = kpisQ.filter(k=>semColor(parseFloat(k['Logro_Q']||0),k['Frecuencia']||'Q')==='rojo').length;
+  const sinPlan   = kpisQ.filter(k=>{const cls=semColor(parseFloat(k['Logro_Q']||0),k['Frecuencia']||'Q');return (cls==='rojo'||cls==='amarillo')&&!(k['Plan_Causa']||'').trim()&&!(k['Plan_Acciones']||'').trim();}).length;
+  const risks     = (d.riesgos||[]).filter(r=>(r['Estado']||'')!=='Cerrado');
 
-  document.getElementById('dash-stats').innerHTML = `
-    <div class="stat-card" onclick="toggleStatPanel('all', this)"><div class="stat-num accent">${pct(avg)}</div><div class="stat-lbl">Avance ${currentQ}</div><div class="stat-hint">▾ clic para ver detalle</div></div>
-    <div class="stat-card" onclick="toggleStatPanel('verde', this)"><div class="stat-num verde">${verdes}</div><div class="stat-lbl">VERDE ≥90%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
-    <div class="stat-card" onclick="toggleStatPanel('amarillo', this)"><div class="stat-num amarillo">${amarillos}</div><div class="stat-lbl">AMARILLO 70-89%</div><div class="stat-hint">▾ clic para ver detalle</div></div>
-    <div class="stat-card" onclick="toggleStatPanel('rojo', this)"><div class="stat-num rojo">${rojos}</div><div class="stat-lbl">CRÍTICOS <70%</div><div class="stat-hint">▾ clic para ver detalle</div></div>`;
+  // Calcular delta vs Q anterior
+  const qs = ['Q1','Q2','Q3','Q4']; const qi = qs.indexOf(currentQ);
+  const prevQ2 = qi>0?qs[qi-1]:null;
+  const avgPrev = prevQ2 ? (()=>{const v2=dirs.map(r=>getQVal(r,prevQ2));return v2.length?v2.reduce((s,v)=>s+v,0)/v2.length:0;})() : null;
+  const delta = avgPrev!==null ? Math.round((avg-avgPrev)*100) : null;
+
+  const avgCls = avg>=0.9?'verde':avg>=0.7?'amarillo':'rojo';
+
+  // ── Hero KPIs ──
+  document.getElementById('hero-kpis').innerHTML = `
+    <div class="hero-kpi" onclick="toggleStatPanel('all',this)" style="cursor:pointer">
+      <div class="hero-kpi-label">Avance general ${currentQ}</div>
+      <div class="hero-kpi-val" style="color:var(--${avgCls})">${Math.round(avg*100)}<span style="font-size:18px;color:var(--text3)">%</span></div>
+      <div class="hero-kpi-sub">
+        ${delta!==null?`<span class="delta-chip ${delta>=0?'delta-up':'delta-dn'}">${delta>=0?'▲ +':'▼ '}${Math.abs(delta)}pp</span><span>vs ${prevQ2}</span>`:'<span class="delta-chip delta-fl">Primer Q</span>'}
+      </div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-${avgCls}" style="width:${Math.round(avg*100)}%"></div></div><div class="hero-bar-meta">▾ clic para desglose</div></div>
+    </div>
+    <div class="hero-kpi" onclick="toggleStatPanel('verde',this)" style="cursor:pointer">
+      <div class="hero-kpi-label">En verde ≥90%</div>
+      <div class="hero-kpi-val" style="color:var(--verde)">${verdes}<span style="font-size:18px;color:var(--text3)">/${dirs.length}</span></div>
+      <div class="hero-kpi-sub"><span class="delta-chip delta-up">↑ Objetivos en meta</span></div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-verde" style="width:${dirs.length?Math.round(verdes/dirs.length*100):0}%"></div></div><div class="hero-bar-meta">${dirs.length?Math.round(verdes/dirs.length*100):0}% del total · ▾ ver</div></div>
+    </div>
+    <div class="hero-kpi" onclick="toggleStatPanel('rojo',this)" style="cursor:pointer">
+      <div class="hero-kpi-label">KPIs críticos ${currentQ}</div>
+      <div class="hero-kpi-val" style="color:var(--rojo)">${kpisRojos}<span style="font-size:18px;color:var(--text3)"> KPIs</span></div>
+      <div class="hero-kpi-sub"><span class="delta-chip ${sinPlan>0?'delta-dn':'delta-up'}">${sinPlan>0?sinPlan+' sin plan':'Todos con plan'}</span></div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-rojo" style="width:${kpisQ.length?Math.round(kpisRojos/kpisQ.length*100):0}%"></div></div><div class="hero-bar-meta">${kpisQ.length?Math.round(kpisRojos/kpisQ.length*100):0}% del total · ▾ ver</div></div>
+    </div>
+    <div class="hero-kpi">
+      <div class="hero-kpi-label">Riesgos abiertos</div>
+      <div class="hero-kpi-val" style="color:var(--text2)">${risks.length}<span style="font-size:18px;color:var(--text3)"> activos</span></div>
+      <div class="hero-kpi-sub"><span class="delta-chip delta-dn">${risks.filter(r=>r['Semáforo']==='ROJO').length} críticos</span></div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-accent" style="width:${risks.length?Math.min(risks.length*10,100):0}%"></div></div><div class="hero-bar-meta">${risks.filter(r=>(r['Estado']||'')==='En mitigación').length} en mitigación</div></div>
+    </div>`;
+
+  // ── Objetivos — nueva vista con stripe ──
+  const dirEl = document.getElementById('dash-dir-table-new');
+  if (dirEl) {
+    dirEl.innerHTML = dirs.map(r=>{
+      const frec=r['Frecuencia']||r['Tipo']||'Q';
+      const qv=getQVal(r,currentQ); const cls=semColor(qv,frec);
+      const id=r['Obj_ID']||r.id||''; const obj=r['Objetivo']||r.obj||''; const area=r['Área']||r.area||'';
+      const barCol = cls==='verde'?'linear-gradient(90deg,var(--verde),#22c55e)':cls==='amarillo'?'linear-gradient(90deg,var(--amarillo),#eab308)':'linear-gradient(90deg,var(--rojo),#f87171)';
+      return `<div class="obj-card-new">
+        <div class="obj-sem-stripe ${cls}"></div>
+        <div class="obj-card-inner">
+          <div><div class="obj-card-id">${id}</div><div class="obj-card-name">${obj}</div><div class="obj-card-area">${area}</div></div>
+          <div class="obj-bar-new-wrap">
+            <div class="obj-bar-new-track"><div class="obj-bar-new-fill" style="width:${Math.min(qv*100,100)}%;height:100%;border-radius:4px;background:${barCol}"></div></div>
+            <div class="obj-bar-new-pct" style="color:var(--${cls})">${pct(qv)}</div>
+          </div>
+          ${semBadge(logroSem(qv,frec))}
+        </div>
+      </div>`;
+    }).join('')||'<div class="empty">Sin datos</div>';
+  }
+
+  // ── Trend chart ──
+  const trendEl = document.getElementById('dash-trend-chart');
+  if (trendEl) {
+    if (_dashTrendChart) { try{_dashTrendChart.destroy();}catch(e){} }
+    const isDark = document.body.classList.contains('dark');
+    const tc = isDark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)';
+    const gc = isDark?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)';
+    const qLabels = ['Q1','Q2','Q3','Q4'];
+    const qData = qLabels.map(q => {
+      const v2 = dirs.map(r=>getQVal(r,q));
+      return v2.length ? Math.round(v2.reduce((s,v)=>s+v,0)/v2.length*100) : 0;
+    });
+    _dashTrendChart = new Chart(trendEl, {
+      type:'line',
+      data:{labels:qLabels,datasets:[{label:'Avance %',data:qData,borderColor:'#f97316',backgroundColor:'rgba(249,115,22,0.08)',fill:true,tension:.4,pointRadius:5,pointBackgroundColor:'#f97316',borderWidth:2.5}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tc,font:{size:10}},grid:{color:gc}},y:{min:0,max:100,ticks:{color:tc,font:{size:10},callback:v=>v+'%'},grid:{color:gc}}}}
+    });
+  }
+
+  // ── Donut chart ──
+  const donutEl = document.getElementById('dash-donut-chart');
+  if (donutEl) {
+    if (_dashDonutChart) { try{_dashDonutChart.destroy();}catch(e){} }
+    _dashDonutChart = new Chart(donutEl, {
+      type:'doughnut',
+      data:{labels:['Verde','Alerta','Crítico'],datasets:[{data:[verdes,amarillos,rojos],backgroundColor:['#22c55e','#eab308','#ef4444'],borderWidth:0,hoverOffset:6}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:false}}}
+    });
+    const legEl = document.getElementById('dash-donut-legend');
+    if (legEl) legEl.innerHTML = [
+      {lbl:'Verde ≥90%',n:verdes,c:'verde'},{lbl:'Alerta 70-89%',n:amarillos,c:'amarillo'},{lbl:'Crítico <70%',n:rojos,c:'rojo'}
+    ].map(x=>`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:9px;height:9px;border-radius:50%;background:var(--${x.c})"></div><span style="font-size:11px;color:var(--text2)">${x.lbl}</span></div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--${x.c})">${x.n}</span>
+    </div>`).join('');
+  }
 
   document.getElementById('dash-dir-table').innerHTML = dirs.map(r => {
     const frec = r['Frecuencia']||r['Tipo']||'Q';
@@ -1838,28 +2082,57 @@ function renderGerencias() {
     const name = g['Gerencia']||'';
     const kpis = g['# KPIs']||0;
     const ytd = parseFloat(g['YTD Logro']||0);
-    const qs = ['Q1','Q2','Q3','Q4'];
     const qvCurrent = parseFloat(g[currentQ+' Logro']||ytd);
     const cls = semColor(qvCurrent);
-    const qRows = qs.map(q => {
-      const v = parseFloat(g[q+' Logro']||0);
-      const r = parseInt(g[q+' Rojos']||0);
-      return `<div class="gerencia-q-row"><span class="q-tag">${q}</span>${progressBar(v,semColor(v))}${r>0?`<span class="mini-rojo">${r}R</span>`:''}</div>`;
+    const pctYtd = Math.round(ytd*100);
+    // Gauge circular SVG
+    const R=26, C=2*Math.PI*R;
+    const offset = C-(ytd*C);
+    const strokeCol = cls==='verde'?'var(--verde)':cls==='amarillo'?'var(--amarillo)':'var(--rojo)';
+    const glowCol = cls==='verde'?'var(--glow-verde)':cls==='amarillo'?'var(--glow-amarillo)':'var(--glow-rojo)';
+    // Barras verticales Q
+    const qCols = ['Q1','Q2','Q3','Q4'].map(q=>{
+      const v=parseFloat(g[q+' Logro']||0);
+      const rojos=parseInt(g[q+' Rojos']||0);
+      const h=v>0?Math.round(v*100):0;
+      const qcls=semColor(v);
+      const bc=qcls==='verde'?'linear-gradient(180deg,var(--verde),#22c55e)':qcls==='amarillo'?'linear-gradient(180deg,var(--amarillo),#eab308)':v>0?'linear-gradient(180deg,var(--rojo),#f87171)':'var(--surface3)';
+      return '<div class="ger-q-col">'
+        +'<div class="ger-q-lbl">'+q+'</div>'
+        +'<div class="ger-q-track"><div class="ger-q-fill" style="height:'+h+'%;background:'+bc+(v>0?';box-shadow:0 0 6px '+glowCol:'')+'"></div></div>'
+        +'<div class="ger-q-pct" style="color:'+(v>0?'var(--'+qcls+')':'var(--text3)')+'">'+( v>0?h+'%':'—')+'</div>'
+        +(rojos>0?'<div style="font-size:8px;color:var(--rojo)">'+rojos+'R</div>':'')
+        +'</div>';
     }).join('');
-    return `<div class="gerencia-card clickable" style="min-height:0" onclick="openDrawer('${name}')">
-      <div class="gerencia-header">
-        <div class="gerencia-name"><span class="dot dot-${cls}"></span>${name}</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="gerencia-kpis">${kpis} KPIs</span>
-          <button class="btn-ia-sm" onclick="event.stopPropagation();analizarGerencia('${name}',this)">
-            <div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>IA
-          </button>
-        </div>
-      </div>
-      <div style="margin-bottom:10px"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">YTD</div>${progressBar(ytd,semColor(ytd))}</div>
-      <div>${qRows}</div>
-    </div>`;
+    return '<div class="ger-card-new" onclick="openDrawer(\''+name+'\')">'
+      +'<div class="ger-top-stripe '+cls+'"></div>'
+      +'<div class="ger-body">'
+        +'<div class="ger-name-new">'+name+'</div>'
+        +'<div class="ger-meta-new">'+kpis+' KPIs · '+currentQ+' 2026</div>'
+        +'<div class="ger-gauge-row">'
+          +'<svg class="ger-gauge-svg" width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg)">'
+            +'<circle cx="32" cy="32" r="'+R+'" fill="none" stroke="var(--surface3)" stroke-width="6"/>'
+            +'<circle cx="32" cy="32" r="'+R+'" fill="none" stroke="'+strokeCol+'" stroke-width="6" stroke-linecap="round"'
+            +' stroke-dasharray="'+C+'" stroke-dashoffset="'+offset+'" style="filter:drop-shadow(0 0 4px '+glowCol+')"/>'
+          +'</svg>'
+          +'<div style="position:absolute;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:700;color:'+strokeCol+'">'+pctYtd+'%</div>'
+          +'<div class="ger-gauge-info" style="margin-left:10px">'
+            +'<div class="ger-gauge-ytd-val" style="color:'+strokeCol+'">'+pctYtd+'<span style="font-size:13px;color:var(--text3)">%</span></div>'
+            +'<div class="ger-gauge-ytd-lbl">Logro YTD</div>'
+            +'<div style="margin-top:6px;display:flex;align-items:center;gap:5px">'
+              +'<button class="btn-ia-sm" onclick="event.stopPropagation();analizarGerencia(\''+name+'\',this)" style="font-size:10px;padding:3px 8px"><div class="ia-gem-icon" style="width:12px;height:12px;font-size:7px">G</div>IA</button>'
+            +'</div>'
+          +'</div>'
+        +'</div>'
+        +'<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:6px">Por trimestre</div>'
+        +'<div class="ger-q-bars-new">'+qCols+'</div>'
+      +'</div>'
+    +'</div>';
   }).join('');
+  // Corregir posición del gauge text (necesita posición relativa en el contenedor)
+  document.querySelectorAll('.ger-gauge-row').forEach(row=>{
+    row.style.position='relative';
+  });
 }
 
 // ═══════════════════════════════════════════════════════
@@ -4174,6 +4447,32 @@ document.getElementById('inp-password').addEventListener('input', function() {
   sessionStorage.setItem('sooft_pass', this.value);
 });
 
+// ═══════════════════════════════════════════════════════
+// TOGGLE TEMA OSCURO / CLARO
+// ═══════════════════════════════════════════════════════
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark');
+  const btn = document.getElementById('theme-toggle-btn');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('sooft_theme', isDark ? 'dark' : 'light');
+  // Re-renderizar charts con los nuevos colores
+  if (currentPage === 'dashboard') renderDashboard();
+  if (cqBarChart || cqDonutChart) {
+    const d = getData();
+    if (d) renderCqCharts(d.res_gerencia||[], cqPrevQ());
+  }
+}
+
+// Restaurar tema guardado
+(function() {
+  const saved = localStorage.getItem('sooft_theme');
+  if (saved === 'dark') {
+    document.body.classList.add('dark');
+    const btn = document.getElementById('theme-toggle-btn');
+    if (btn) btn.textContent = '☀️';
+  }
+})();
+
 init();
 </script>
 
@@ -4354,5 +4653,6 @@ init();
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </body>
 </html>
