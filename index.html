@@ -1849,15 +1849,15 @@ function renderDashboard() {
     </div>`;
   }).join('');
 
-  // Risks
-  const risks = (d.riesgos||[])
+  // Risks top5
+  const risksTop5 = (d.riesgos||[])
     .filter(r=>(r['Estado']||'')!=='Cerrado')
     .sort((a,b)=>(b['Nivel (P×I)']||0)-(a['Nivel (P×I)']||0)).slice(0,5);
-  const rR=risks.filter(r=>r['Semáforo']==='ROJO').length;
-  const rA=risks.filter(r=>r['Semáforo']==='AMARILLO').length;
-  const rV=risks.filter(r=>r['Semáforo']==='VERDE').length;
+  const rR=risksTop5.filter(r=>r['Semáforo']==='ROJO').length;
+  const rA=risksTop5.filter(r=>r['Semáforo']==='AMARILLO').length;
+  const rV=risksTop5.filter(r=>r['Semáforo']==='VERDE').length;
   document.getElementById('risk-counters').innerHTML = `<span class="risk-counter rojo">🔴 ${rR}</span><span class="risk-counter amarillo">🟡 ${rA}</span><span class="risk-counter verde">🟢 ${rV}</span>`;
-  document.getElementById('top-risks').innerHTML = risks.map((r,i)=>{
+  document.getElementById('top-risks').innerHTML = risksTop5.map((r,i)=>{
     const sem=r['Semáforo']||''; const nivel=r['Nivel (P×I)']||0;
     const col=sem==='ROJO'?'rojo':sem==='AMARILLO'?'amarillo':'verde';
     return `<div class="risk-item"><div class="risk-rank">${i+1}</div><div class="risk-info">
