@@ -2082,44 +2082,47 @@ function renderGerencias() {
     const name = g['Gerencia']||'';
     const kpis = g['# KPIs']||0;
     const ytd = parseFloat(g['YTD Logro']||0);
-    const qvCurrent = parseFloat(g[currentQ+' Logro']||ytd);
+    const qvCurrent = parseFloat(g[currentQ+' Logro']||0) || ytd;
     const cls = semColor(qvCurrent);
-    const pctYtd = Math.round(ytd*100);
-    // Gauge circular SVG
+    const pctGauge = Math.round(qvCurrent*100);
     const R=26, C=2*Math.PI*R;
-    const offset = C-(ytd*C);
+    const offset = C-(qvCurrent*C);
     const strokeCol = cls==='verde'?'var(--verde)':cls==='amarillo'?'var(--amarillo)':'var(--rojo)';
     const glowCol = cls==='verde'?'var(--glow-verde)':cls==='amarillo'?'var(--glow-amarillo)':'var(--glow-rojo)';
-    // Barras verticales Q
+    const savedCQ = currentQ;
     const qCols = ['Q1','Q2','Q3','Q4'].map(q=>{
-      const v=parseFloat(g[q+' Logro']||0);
-      const rojos=parseInt(g[q+' Rojos']||0);
-      const h=v>0?Math.round(v*100):0;
-      const qcls=semColor(v);
-      const bc=qcls==='verde'?'linear-gradient(180deg,var(--verde),#22c55e)':qcls==='amarillo'?'linear-gradient(180deg,var(--amarillo),#eab308)':v>0?'linear-gradient(180deg,var(--rojo),#f87171)':'var(--surface3)';
+      const v = parseFloat(g[q+' Logro']||0);
+      const rojos = parseInt(g[q+' Rojos']||0);
+      const h = v>0 ? Math.round(v*100) : 0;
+      const qcls = v>=0.9?'verde':v>=0.7?'amarillo':v>0?'rojo':'neutro';
+      const isActive = q===savedCQ;
+      const bc = qcls==='verde'?'linear-gradient(180deg,var(--verde),#22c55e)'
+        :qcls==='amarillo'?'linear-gradient(180deg,var(--amarillo),#eab308)'
+        :v>0?'linear-gradient(180deg,var(--rojo),#f87171)':'var(--surface3)';
       return '<div class="ger-q-col">'
-        +'<div class="ger-q-lbl">'+q+'</div>'
-        +'<div class="ger-q-track"><div class="ger-q-fill" style="height:'+h+'%;background:'+bc+(v>0?';box-shadow:0 0 6px '+glowCol:'')+'"></div></div>'
-        +'<div class="ger-q-pct" style="color:'+(v>0?'var(--'+qcls+')':'var(--text3)')+'">'+( v>0?h+'%':'—')+'</div>'
+        +'<div class="ger-q-lbl" style="'+(isActive?'color:var(--accent);font-weight:700':'')+'">'+q+'</div>'
+        +'<div class="ger-q-track" style="'+(isActive?'outline:1px solid rgba(249,115,22,0.4);border-radius:5px':'')+'"><div class="ger-q-fill" style="height:'+h+'%;background:'+bc+(v>0?';box-shadow:0 0 6px '+glowCol:'')+';border-radius:5px"></div></div>'
+        +'<div class="ger-q-pct" style="color:'+(v>0?'var(--'+qcls+')':'var(--text3)')+';'+(isActive?'font-weight:700':'')+'">'+( v>0?h+'%':'—')+'</div>'
         +(rojos>0?'<div style="font-size:8px;color:var(--rojo)">'+rojos+'R</div>':'')
         +'</div>';
     }).join('');
-    return '<div class="ger-card-new" onclick="openDrawer(\''+name+'\')">'
+    return '<div class="ger-card-new" onclick="openDrawer(\'' + name + '\')">'
       +'<div class="ger-top-stripe '+cls+'"></div>'
       +'<div class="ger-body">'
         +'<div class="ger-name-new">'+name+'</div>'
         +'<div class="ger-meta-new">'+kpis+' KPIs · '+currentQ+' 2026</div>'
-        +'<div class="ger-gauge-row">'
-          +'<svg class="ger-gauge-svg" width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg)">'
+        +'<div class="ger-gauge-row" style="position:relative">'
+          +'<svg class="ger-gauge-svg" width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg);flex-shrink:0">'
             +'<circle cx="32" cy="32" r="'+R+'" fill="none" stroke="var(--surface3)" stroke-width="6"/>'
             +'<circle cx="32" cy="32" r="'+R+'" fill="none" stroke="'+strokeCol+'" stroke-width="6" stroke-linecap="round"'
             +' stroke-dasharray="'+C+'" stroke-dashoffset="'+offset+'" style="filter:drop-shadow(0 0 4px '+glowCol+')"/>'
           +'</svg>'
-          +'<div style="position:absolute;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:700;color:'+strokeCol+'">'+pctYtd+'%</div>'
+          +'<div style="position:absolute;left:0;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:700;color:'+strokeCol+'">'+pctGauge+'%</div>'
           +'<div class="ger-gauge-info" style="margin-left:10px">'
-            +'<div class="ger-gauge-ytd-val" style="color:'+strokeCol+'">'+pctYtd+'<span style="font-size:13px;color:var(--text3)">%</span></div>'
-            +'<div class="ger-gauge-ytd-lbl">Logro YTD</div>'
-            +'<div style="margin-top:6px;display:flex;align-items:center;gap:5px">'
+            +'<div class="ger-gauge-ytd-val" style="color:'+strokeCol+'">'+pctGauge+'<span style="font-size:13px;color:var(--text3)">%</span></div>'
+            +'<div class="ger-gauge-ytd-lbl">Logro '+currentQ+'</div>'
+            +'<div style="font-size:10px;color:var(--text3);margin-top:1px">YTD: '+Math.round(ytd*100)+'%</div>'
+            +'<div style="margin-top:6px">'
               +'<button class="btn-ia-sm" onclick="event.stopPropagation();analizarGerencia(\''+name+'\',this)" style="font-size:10px;padding:3px 8px"><div class="ia-gem-icon" style="width:12px;height:12px;font-size:7px">G</div>IA</button>'
             +'</div>'
           +'</div>'
@@ -2129,10 +2132,6 @@ function renderGerencias() {
       +'</div>'
     +'</div>';
   }).join('');
-  // Corregir posición del gauge text (necesita posición relativa en el contenedor)
-  document.querySelectorAll('.ger-gauge-row').forEach(row=>{
-    row.style.position='relative';
-  });
 }
 
 // ═══════════════════════════════════════════════════════
