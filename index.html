@@ -4308,9 +4308,9 @@ Sé muy específico, citá KPIs y números reales.`;
     if (!respuesta) return;
     const secciones = parsearRespuestaIA(respuesta);
     // Buscar el card padre para insertar el panel
-    const card = btnEl.closest('.gerencia-card');
+    const card = btnEl.closest('.ger-card-new') || btnEl.closest('.gerencia-card');
     let iaEl = card?.querySelector('.ia-ger-panel');
-    if (!iaEl) { iaEl = document.createElement('div'); iaEl.className='ia-ger-panel'; card?.appendChild(iaEl); }
+    if (!iaEl) { iaEl = document.createElement('div'); iaEl.className='ia-ger-panel'; iaEl.style.cssText='margin:12px 15px 15px;'; card?.appendChild(iaEl); }
     const now = new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     iaEl.innerHTML = renderIAPanel(secciones, `IA · ${gerencia}`, now);
     btnEl.innerHTML = '<div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div> ✓';
