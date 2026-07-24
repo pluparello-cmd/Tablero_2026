@@ -2497,6 +2497,11 @@ function switchDrawerTab(tab) {
 function renderDrawerContent() {
   const d = getData(); if (!d || !drawerGerencia) return;
   const body = document.getElementById('drawer-body');
+  // DEBUG temporal — ver valores reales KPIs
+  const _dbgName = drawerGerencia;
+  const _dbgKPIs = (getData()?.carga_q||[]).filter(k=>(k['Responsable']||'')=== _dbgName && k['Nivel']==='GERENCIA' && k['Q']===currentQ);
+  if (_dbgKPIs.length) console.table(_dbgKPIs.map(k=>({ID:k['KPI_ID'],Und:k['Unidad'],Meta:k['Meta_Q (editable)']??k['Meta_Q'],Actual:k['Actual_Q (cargar)']??k['Actual_Q'],Logro:k['Logro_Q']})));
+
   const name = drawerGerencia;
 
   // Find gerencia summary row
