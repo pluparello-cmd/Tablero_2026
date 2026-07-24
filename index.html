@@ -1828,7 +1828,8 @@ function renderDashboard() {
     </div>`).join('');
   }
 
-  document.getElementById('dash-dir-table').innerHTML = dirs.map(r => {
+  const oldTableEl = document.getElementById('dash-dir-table');
+  if (oldTableEl) { oldTableEl.innerHTML = dirs.map(r => {
     const frec = r['Frecuencia']||r['Tipo']||'Q';
     const qv = getQVal(r, currentQ); const cls = semColor(qv,frec);
     const q1=getQVal(r,'Q1'),q2=getQVal(r,'Q2'),q3=getQVal(r,'Q3'),q4=getQVal(r,'Q4'),ytd=getQVal(r,'YTD');
@@ -1847,7 +1848,7 @@ function renderDashboard() {
       <div class="mono" style="color:var(--${c3()})">${pct(q3)}</div>
       <div class="mono" style="color:var(--${semColor(q4)})">${pct(q4)}</div>
     </div>`;
-  }).join('');
+  }).join(''); }
 
   // Risks top5
   const risksTop5 = (d.riesgos||[])
@@ -2078,16 +2079,48 @@ function renderDireccion() {
 // ═══════════════════════════════════════════════════════
 function renderGerencias() {
   const d = getData(); if (!d) return;
-  // DEBUG: ver campos de la primera gerencia
-  if (d.res_gerencia && d.res_gerencia[0]) {
-    console.log('RES_GERENCIA campos:', Object.keys(d.res_gerencia[0]));
-    console.log('FINANZAS row:', JSON.stringify((d.res_gerencia||[]).find(g=>g['Gerencia']==='FINANZAS')||{}));
+
+  // Helper: calcular logro promedio de una gerencia en un Q dado desde carga_q
+  function calcLogroGerQ(gerName, q) {
+    const kpis = (d.carga_q||[]).filter(k =>
+      (k['Responsable']||'') === gerName &&
+      k['Nivel'] === 'GERENCIA' &&
+      (k['Q']||'') === q
+    );
+    if (!kpis.length) return null; // null = sin datos
+    const vals = kpis.map(k => parseFloat(k['Logro_Q']||0));
+    return vals.reduce((s,v)=>s+v,0) / vals.length;
   }
+
+  // Helper: contar rojos de una gerencia en un Q desde carga_q
+  function calcRojosGerQ(gerName, q) {
+    return (d.carga_q||[]).filter(k =>
+      (k['Responsable']||'') === gerName &&
+      k['Nivel'] === 'GERENCIA' &&
+      (k['Q']||'') === q &&
+      semColor(parseFloat(k['Logro_Q']||0)) === 'rojo'
+    ).length;
+  }
+
   document.getElementById('gerencias-grid').innerHTML = (d.res_gerencia||[]).map(g => {
     const name = g['Gerencia']||'';
     const kpis = g['# KPIs']||0;
-    const ytd = getQVal(g,'YTD');
-    const qvCurrent = getQVal(g, currentQ) || ytd;
+
+    // Para cada Q: usar res_gerencia si tiene dato, sino calcular desde carga_q
+    function qVal(q) {
+      const fromRes = getQVal(g, q);
+      if (fromRes > 0) return fromRes;
+      const fromCarga = calcLogroGerQ(name, q);
+      return fromCarga !== null ? fromCarga : 0;
+    }
+    function qRojos(q) {
+      const fromRes = parseInt(g[q+' Rojos']||0);
+      if (fromRes > 0) return fromRes;
+      return calcRojosGerQ(name, q);
+    }
+
+    const ytd = getQVal(g,'YTD') || qVal(currentQ);
+    const qvCurrent = qVal(currentQ) || ytd;
     const cls = semColor(qvCurrent);
     const pctGauge = Math.round(qvCurrent*100);
     const R=26, C=2*Math.PI*R;
@@ -2096,9 +2129,10 @@ function renderGerencias() {
     const glowCol = cls==='verde'?'var(--glow-verde)':cls==='amarillo'?'var(--glow-amarillo)':'var(--glow-rojo)';
     const savedCQ = currentQ;
     const qCols = ['Q1','Q2','Q3','Q4'].map(q=>{
-      const v = getQVal(g, q);
-      const rojos = parseInt(g[q+' Rojos']||g[q+'_Rojos']||g['Rojos_'+q]||0);
-      const h = v>0 ? Math.round(v*100) : 0;
+      const v = qVal(q);
+      const rojos = qRojos(q);
+      const hasData = v > 0 || calcLogroGerQ(name, q) !== null;
+      const h = v > 0 ? Math.round(v*100) : 0;
       const qcls = v>=0.9?'verde':v>=0.7?'amarillo':v>0?'rojo':'neutro';
       const isActive = q===savedCQ;
       const bc = qcls==='verde'?'linear-gradient(180deg,var(--verde),#22c55e)'
@@ -2107,7 +2141,7 @@ function renderGerencias() {
       return '<div class="ger-q-col">'
         +'<div class="ger-q-lbl" style="'+(isActive?'color:var(--accent);font-weight:700':'')+'">'+q+'</div>'
         +'<div class="ger-q-track" style="'+(isActive?'outline:1px solid rgba(249,115,22,0.4);border-radius:5px':'')+'"><div class="ger-q-fill" style="height:'+h+'%;background:'+bc+(v>0?';box-shadow:0 0 6px '+glowCol:'')+';border-radius:5px"></div></div>'
-        +'<div class="ger-q-pct" style="color:'+(v>0?'var(--'+qcls+')':'var(--text3)')+';'+(isActive?'font-weight:700':'')+'">'+( v>0?h+'%':'—')+'</div>'
+        +'<div class="ger-q-pct" style="color:'+(v>0?'var(--'+qcls+')':'var(--text3)')+';'+(isActive?'font-weight:700':'')+'">'+( v>0?h+'%': hasData?'0%': '—')+'</div>'
         +(rojos>0?'<div style="font-size:8px;color:var(--rojo)">'+rojos+'R</div>':'')
         +'</div>';
     }).join('');
