@@ -2793,8 +2793,9 @@ function renderCarga() {
           <div>
             <label class="form-label">Actual Q (valor real)</label>
             <input type="number" step="any" class="form-input" id="actual-${key}"
-              value="${actual}" placeholder="Ingresá el valor real"
+              value="${actual}" placeholder="${unidad==='%'?'Ej: 85.21 (sin el %)':unidad==='ARS'||unidad==='USD'?'Ej: 1500000':'Ingresá el valor real'}"
               oninput="previewLogro('${key}','${meta}','${comparador}')">
+            ${unidad==='%'?'<div style="font-size:10px;color:var(--text3);margin-top:3px">⚠ Ingresá el número sin %, por ejemplo: <b>85.21</b> para 85.21%</div>':''}
           </div>
           <div>
             <label class="form-label">Evidencia (URL)</label>
@@ -2910,7 +2911,7 @@ function previewLogro(key, meta, comparador) {
 
 async function guardarKPI(key, comparador, meta) {
   if (!SESSION) return;
-  const actual = document.getElementById('actual-'+key)?.value?.trim();
+  let actual = document.getElementById('actual-'+key)?.value?.trim();
   const comentarios = document.getElementById('comentarios-'+key)?.value || '';
   const evidencia = document.getElementById('evidencia-'+key)?.value || '';
   const motivo_no_logro = document.getElementById('motivo-'+key)?.value || '';
@@ -2918,6 +2919,19 @@ async function guardarKPI(key, comparador, meta) {
   const plan_acciones = document.getElementById('acciones-'+key)?.value || '';
   const plan_responsable = document.getElementById('plan-resp-'+key)?.value || '';
   const plan_fecha = document.getElementById('plan-fecha-'+key)?.value || '';
+
+  // Normalizar: si el valor es proporción (< 1.5) y la meta también es < 1.5,
+  // asumir que el usuario ingresó la proporción directa y no multiplicar.
+  // Si el valor es > 1.5, asumimos que ya viene como número real (ej: 85.21 para %).
+  // El servidor espera el valor tal como se almacena en Sheets (número real, no proporción).
+  const actualNum = parseFloat(actual);
+  const metaNum = parseFloat(meta);
+  if (!isNaN(actualNum) && !isNaN(metaNum)) {
+    // Si ambos son < 1.5, probablemente son proporciones (0.8521, 0.65) → convertir a porcentaje real
+    if (actualNum < 1.5 && metaNum < 1.5 && metaNum > 0) {
+      actual = (actualNum * 100).toString();
+    }
+  }
   const btn = document.getElementById('btn-'+key);
   const msg = document.getElementById('msg-'+key);
 
