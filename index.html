@@ -2078,6 +2078,11 @@ function renderDireccion() {
 // ═══════════════════════════════════════════════════════
 function renderGerencias() {
   const d = getData(); if (!d) return;
+  // DEBUG: ver campos de la primera gerencia
+  if (d.res_gerencia && d.res_gerencia[0]) {
+    console.log('RES_GERENCIA campos:', Object.keys(d.res_gerencia[0]));
+    console.log('FINANZAS row:', JSON.stringify((d.res_gerencia||[]).find(g=>g['Gerencia']==='FINANZAS')||{}));
+  }
   document.getElementById('gerencias-grid').innerHTML = (d.res_gerencia||[]).map(g => {
     const name = g['Gerencia']||'';
     const kpis = g['# KPIs']||0;
