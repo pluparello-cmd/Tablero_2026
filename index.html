@@ -2081,8 +2081,8 @@ function renderGerencias() {
   document.getElementById('gerencias-grid').innerHTML = (d.res_gerencia||[]).map(g => {
     const name = g['Gerencia']||'';
     const kpis = g['# KPIs']||0;
-    const ytd = parseFloat(g['YTD Logro']||0);
-    const qvCurrent = parseFloat(g[currentQ+' Logro']||0) || ytd;
+    const ytd = getQVal(g,'YTD');
+    const qvCurrent = getQVal(g, currentQ) || ytd;
     const cls = semColor(qvCurrent);
     const pctGauge = Math.round(qvCurrent*100);
     const R=26, C=2*Math.PI*R;
@@ -2091,8 +2091,8 @@ function renderGerencias() {
     const glowCol = cls==='verde'?'var(--glow-verde)':cls==='amarillo'?'var(--glow-amarillo)':'var(--glow-rojo)';
     const savedCQ = currentQ;
     const qCols = ['Q1','Q2','Q3','Q4'].map(q=>{
-      const v = parseFloat(g[q+' Logro']||0);
-      const rojos = parseInt(g[q+' Rojos']||0);
+      const v = getQVal(g, q);
+      const rojos = parseInt(g[q+' Rojos']||g[q+'_Rojos']||g['Rojos_'+q]||0);
       const h = v>0 ? Math.round(v*100) : 0;
       const qcls = v>=0.9?'verde':v>=0.7?'amarillo':v>0?'rojo':'neutro';
       const isActive = q===savedCQ;
@@ -2121,7 +2121,7 @@ function renderGerencias() {
           +'<div class="ger-gauge-info" style="margin-left:10px">'
             +'<div class="ger-gauge-ytd-val" style="color:'+strokeCol+'">'+pctGauge+'<span style="font-size:13px;color:var(--text3)">%</span></div>'
             +'<div class="ger-gauge-ytd-lbl">Logro '+currentQ+'</div>'
-            +'<div style="font-size:10px;color:var(--text3);margin-top:1px">YTD: '+Math.round(ytd*100)+'%</div>'
+            +'<div style="font-size:10px;color:var(--text3);margin-top:1px">YTD: '+Math.round(getQVal(g,'YTD')*100)+'%</div>'
             +'<div style="margin-top:6px">'
               +'<button class="btn-ia-sm" onclick="event.stopPropagation();analizarGerencia(\''+name+'\',this)" style="font-size:10px;padding:3px 8px"><div class="ia-gem-icon" style="width:12px;height:12px;font-size:7px">G</div>IA</button>'
             +'</div>'
