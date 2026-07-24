@@ -2327,10 +2327,10 @@ function renderCqDetalle(gerName) {
     if (v===undefined||v===null||v==='') return '—';
     const n = parseFloat(v);
     if (isNaN(n)) return v;
-    if (unidad==='%') return (n*100).toFixed(1)+'%';
+    if (unidad==='%') return n.toFixed(2)+'%';
     if (unidad==='ARS') return '$'+n.toLocaleString('es-AR',{maximumFractionDigits:0});
     if (unidad==='USD') return 'U$'+n.toLocaleString('es-AR',{maximumFractionDigits:0});
-    return n.toLocaleString('es-AR',{maximumFractionDigits:1})+(unidad?' '+unidad:'');
+    return n.toLocaleString('es-AR',{maximumFractionDigits:2})+(unidad?' '+unidad:'');
   };
 
   const objRows = kpisGer.map(k => {
@@ -2581,9 +2581,9 @@ function renderDrawerContent() {
               if (v === '—' || v === undefined || v === null) return '—';
               const n = parseFloat(v);
               if (isNaN(n)) return v;
-              if (unidad === '%') return (n*100).toFixed(1)+'%';
+              if (unidad === '%') return n.toFixed(2)+'%';
               if (unidad === 'ARS' || unidad === 'USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
-              return n+' '+unidad;
+              return n.toLocaleString('es-AR',{maximumFractionDigits:2})+' '+unidad;
             };
             const tienePlan = !!(k['Plan_Causa']||'').trim() || !!(k['Plan_Acciones']||'').trim();
             const tieneMotivo = !!(k['Motivo_No_Logro']||'').trim();
@@ -2649,7 +2649,7 @@ function renderDrawerContent() {
               if (v===undefined||v===null||v==='') return '—';
               const n = parseFloat(v);
               if (isNaN(n)) return v;
-              if (unidad==='%') return (n*100).toFixed(1)+'%';
+              if (unidad==='%') return n.toFixed(2)+'%';
               if (unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
               return n+(unidad?' '+unidad:'');
             };
@@ -2920,18 +2920,7 @@ async function guardarKPI(key, comparador, meta) {
   const plan_responsable = document.getElementById('plan-resp-'+key)?.value || '';
   const plan_fecha = document.getElementById('plan-fecha-'+key)?.value || '';
 
-  // Normalizar: si el valor es proporción (< 1.5) y la meta también es < 1.5,
-  // asumir que el usuario ingresó la proporción directa y no multiplicar.
-  // Si el valor es > 1.5, asumimos que ya viene como número real (ej: 85.21 para %).
-  // El servidor espera el valor tal como se almacena en Sheets (número real, no proporción).
-  const actualNum = parseFloat(actual);
-  const metaNum = parseFloat(meta);
-  if (!isNaN(actualNum) && !isNaN(metaNum)) {
-    // Si ambos son < 1.5, probablemente son proporciones (0.8521, 0.65) → convertir a porcentaje real
-    if (actualNum < 1.5 && metaNum < 1.5 && metaNum > 0) {
-      actual = (actualNum * 100).toString();
-    }
-  }
+  // El servidor y Sheets esperan el valor real tal como lo ingresa el usuario
   const btn = document.getElementById('btn-'+key);
   const msg = document.getElementById('msg-'+key);
 
@@ -3664,7 +3653,7 @@ function renderGestionar() {
     const fmt = v => {
       if (v==='—'||v===undefined||v===null||v==='') return '—';
       const n=parseFloat(v); if(isNaN(n)) return v;
-      if(unidad==='%') return (n*100).toFixed(1)+'%';
+      if(unidad==='%') return n.toFixed(2)+'%';
       if(unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
       return n+(unidad?' '+unidad:'');
     };
