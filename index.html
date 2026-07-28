@@ -1447,7 +1447,7 @@ let currentPage = 'dashboard';
 let SESSION = null;   // { usuario, gerencia, rol }
 let DATA = null;      // datos del sheet
 
-const API_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbzgLGjUqzrb5TODGJJzGVjDTMAHZoMAGW7xqBe0ilQQ9nso6WyvuwrT5I34b6kBA6zNBw/exec';
+const API_URL_DEFAULT = 'https://script.google.com/macros/s/AKfycbyMdP3Wecz9PwKIcQHyhaxsaKsZ2-rwrxHC43zdjCLrxpnGhGJZcmQ8z0VyTQxQsrewAg/exec';
 
 function getApiUrl() { return localStorage.getItem(API_KEY) || API_URL_DEFAULT; }
 
@@ -2327,7 +2327,7 @@ function renderCqDetalle(gerName) {
     if (v===undefined||v===null||v==='') return '—';
     const n = parseFloat(v);
     if (isNaN(n)) return v;
-    if (unidad==='%') return n.toFixed(2)+'%';
+    if (unidad==='%') { const pv = n>1.5 ? n : n*100; return pv.toFixed(1)+'%'; }
     if (unidad==='ARS') return '$'+n.toLocaleString('es-AR',{maximumFractionDigits:0});
     if (unidad==='USD') return 'U$'+n.toLocaleString('es-AR',{maximumFractionDigits:0});
     return n.toLocaleString('es-AR',{maximumFractionDigits:2})+(unidad?' '+unidad:'');
@@ -2498,10 +2498,6 @@ function renderDrawerContent() {
   const d = getData(); if (!d || !drawerGerencia) return;
   const body = document.getElementById('drawer-body');
   // DEBUG temporal — ver valores reales KPIs
-  const _dbgName = drawerGerencia;
-  const _dbgKPIs = (getData()?.carga_q||[]).filter(k=>(k['Responsable']||'')=== _dbgName && k['Nivel']==='GERENCIA' && k['Q']===currentQ);
-  if (_dbgKPIs.length) console.table(_dbgKPIs.map(k=>({ID:k['KPI_ID'],Und:k['Unidad'],Meta:k['Meta_Q (editable)']??k['Meta_Q'],Actual:k['Actual_Q (cargar)']??k['Actual_Q'],Logro:k['Logro_Q']})));
-
   const name = drawerGerencia;
 
   // Find gerencia summary row
@@ -2586,7 +2582,7 @@ function renderDrawerContent() {
               if (v === '—' || v === undefined || v === null) return '—';
               const n = parseFloat(v);
               if (isNaN(n)) return v;
-              if (unidad === '%') return n.toFixed(2)+'%';
+              if (unidad === '%') { const pv = n>1.5 ? n : n*100; return pv.toFixed(1)+'%'; }
               if (unidad === 'ARS' || unidad === 'USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
               return n.toLocaleString('es-AR',{maximumFractionDigits:2})+' '+unidad;
             };
@@ -2654,7 +2650,7 @@ function renderDrawerContent() {
               if (v===undefined||v===null||v==='') return '—';
               const n = parseFloat(v);
               if (isNaN(n)) return v;
-              if (unidad==='%') return n.toFixed(2)+'%';
+              if (unidad==='%') { const pv = n>1.5 ? n : n*100; return pv.toFixed(1)+'%'; }
               if (unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
               return n+(unidad?' '+unidad:'');
             };
@@ -3658,7 +3654,7 @@ function renderGestionar() {
     const fmt = v => {
       if (v==='—'||v===undefined||v===null||v==='') return '—';
       const n=parseFloat(v); if(isNaN(n)) return v;
-      if(unidad==='%') return n.toFixed(2)+'%';
+      if(unidad==='%') { const pv = n>1.5 ? n : n*100; return pv.toFixed(1)+'%'; }
       if(unidad==='ARS'||unidad==='USD') return n.toLocaleString('es-AR',{maximumFractionDigits:0})+' '+unidad;
       return n+(unidad?' '+unidad:'');
     };
