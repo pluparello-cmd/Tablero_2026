@@ -1439,7 +1439,7 @@ body{transition:background .3s,color .3s}
 // ═══════════════════════════════════════════════════════
 const API_KEY = 'sooft_api_url';
 // Gerencias ocultas — se mantienen en Sheets pero no se muestran en el tablero
-const GERENCIAS_OCULTAS = ['COMERCIAL_CL','MARKETING'];
+const GERENCIAS_OCULTAS = ['COMERCIAL_CL'];
 function filtrarGerencias(gers) {
   return (gers||[]).filter(g => !GERENCIAS_OCULTAS.includes(g['Gerencia']||''));
 }
