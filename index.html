@@ -1438,6 +1438,11 @@ body{transition:background .3s,color .3s}
 // CONFIG
 // ═══════════════════════════════════════════════════════
 const API_KEY = 'sooft_api_url';
+// Gerencias ocultas — se mantienen en Sheets pero no se muestran en el tablero
+const GERENCIAS_OCULTAS = ['COMERCIAL_CL'];
+function filtrarGerencias(gers) {
+  return (gers||[]).filter(g => !GERENCIAS_OCULTAS.includes(g['Gerencia']||''));
+}
 const DATA_KEY = 'sooft_data';
 const DATA_TS_KEY = 'sooft_ts';
 const SESSION_KEY = 'sooft_session';
@@ -1992,7 +1997,7 @@ function renderDireccion() {
       if (!objGerMap[resp]) objGerMap[resp] = true;
     }
   });
-  const gerencias = (d.res_gerencia||[]).map(g => g['Gerencia']||'').filter(Boolean);
+  const gerencias = filtrarGerencias(d.res_gerencia).map(g => g['Gerencia']||'').filter(Boolean);
 
   document.getElementById('dir-table').innerHTML = dirs.map(r => {
     const frec=r['Frecuencia']||r['Tipo']||'Q';
@@ -2054,7 +2059,7 @@ function renderDireccion() {
   // Render gerencias clickable cards below
   const gerEl = document.getElementById('dir-gerencias-grid');
   if (!gerEl) return;
-  gerEl.innerHTML = (d.res_gerencia||[]).map(g => {
+  gerEl.innerHTML = filtrarGerencias(d.res_gerencia).map(g => {
     const name = g['Gerencia']||'';
     const kpis = g['# KPIs']||0;
     const ytd = parseFloat(g['YTD Logro']||0);
@@ -2102,7 +2107,7 @@ function renderGerencias() {
     ).length;
   }
 
-  document.getElementById('gerencias-grid').innerHTML = (d.res_gerencia||[]).map(g => {
+  document.getElementById('gerencias-grid').innerHTML = filtrarGerencias(d.res_gerencia).map(g => {
     const name = g['Gerencia']||'';
     const kpis = g['# KPIs']||0;
 
@@ -2224,7 +2229,7 @@ function cqPrevQ() {
 
 function renderCierreQ() {
   const d = getData(); if (!d) return;
-  const gers = d.res_gerencia || [];
+  const gers = filtrarGerencias(d.res_gerencia);
   const prevQ = cqPrevQ();
 
   // ── KPI strip global ──
@@ -3632,7 +3637,7 @@ const PREFIJOS_GERENCIA = {
 
 function renderGestionar() {
   const d = getData(); if (!d || !SESSION || SESSION.rol !== 'admin') return;
-  const gerencias = (d.res_gerencia||[]).map(g=>g['Gerencia']||'').filter(Boolean);
+  const gerencias = filtrarGerencias(d.res_gerencia).map(g=>g['Gerencia']||'').filter(Boolean);
   const filterSel = document.getElementById('gest-ger-filter');
   if (filterSel && filterSel.options.length <= 1) {
     gerencias.forEach(g => { const o=document.createElement('option'); o.value=g; o.text=g; filterSel.appendChild(o); });
@@ -4205,7 +4210,7 @@ async function analizarDashboard() {
     .join('\n');
 
   // Avance por gerencia
-  const gerenResumen = (d.res_gerencia||[]).map(g =>
+  const gerenResumen = filtrarGerencias(d.res_gerencia).map(g =>
     `• ${g['Gerencia']||''}: YTD ${pct(parseFloat(g['YTD Logro']||0))} | ${currentQ} ${pct(parseFloat(g[currentQ+' Logro']||0))} | KPIs rojos: ${g[currentQ+' Rojos']||0}`
   ).join('\n');
 
