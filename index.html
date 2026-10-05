@@ -4701,5 +4701,881 @@ init();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<!-- ═══════════════════════════════════════════════════════════════
+     PARCHE TABLERO SOOFT 2026 — v1 (05/10/2026)
+     Pegar este bloque COMPLETO justo antes de </body> en index.html
+     (después de las líneas de Chart.js).
+     Corrige:
+       1. Trimestres sin datos: se muestran "—" en gris, no 0% en rojo
+       2. "LOGRO Qx" ya no muestra el YTD cuando el Q está vacío
+       3. DIR-02 (Chile) excluido de los objetivos de Dirección
+       4. Marketing marcado como gerencia vacante
+       5. Fechas de compromiso visibles en los formularios
+       6. Al guardar un KPI ya no se borran el plan ni la fecha si no estaban en pantalla
+       7. Porcentajes: el gerente escribe 67 (o 67,5) y se guarda 0,67 / 0,675
+       8. Decimales con coma aceptados
+       9. Rojos contados igual que en el Sheet (sin vacíos ni EN CURSO)
+════════════════════════════════════════════════════════════════ -->
+<style>
+.obj-sem-stripe.neutro{background:var(--surface3)}
+.ger-top-stripe.neutro{background:var(--surface3)}
+.dot-neutro{background:#94a3b8}
+.vacante-tag{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;background:var(--surface3);color:var(--text3);border:1px solid var(--border);margin-left:6px;text-transform:uppercase;letter-spacing:.4px}
+</style>
+<script>
+// ─── CONFIGURACIÓN ──────────────────────────────────────────────
+const DIR_OCULTOS = ['DIR-02'];                       // Objetivos de Dirección fuera del tablero (Chile, no alcanzado por ISO)
+const GERENCIAS_VACANTES = { 'MARKETING': 'Vacante desde Q2' };
+
+// ─── HELPERS ────────────────────────────────────────────────────
+function num(v) {
+  if (v === null || v === undefined) return null;
+  if (typeof v === 'number') return isNaN(v) ? null : v;
+  const s = String(v).trim().replace('%', '').replace(',', '.');
+  if (s === '') return null;
+  const n = Number(s);
+  return isNaN(n) ? null : n;
+}
+function avgOf(arr) {
+  const v = arr.filter(x => x !== null && x !== undefined && !isNaN(x));
+  return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null;
+}
+function esGerOculta(name) { return GERENCIAS_OCULTAS.includes(name || ''); }
+function vacanteTag(name) { return GERENCIAS_VACANTES[name] ? `<span class="vacante-tag">${GERENCIAS_VACANTES[name]}</span>` : ''; }
+function fechaInput(v) {
+  if (!v) return '';
+  const s = String(v).trim();
+  let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  return '';
+}
+function fechaDisplay(v) {
+  const f = fechaInput(v);
+  if (!f) return v ? String(v) : '';
+  const [y, mo, d] = f.split('-');
+  return `${d}/${mo}/${y}`;
+}
+function fixDateInputs() {
+  document.querySelectorAll('input[type=date]').forEach(i => {
+    const a = i.getAttribute('value') || '';
+    if (!i.value && a) { const f = fechaInput(a); if (f) i.value = f; }
+  });
+}
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+// Datos con DIR-02 excluido (afecta a todas las vistas, IA y formularios)
+let _dSrc = null, _dView = null;
+function getData() {
+  if (!DATA) return DATA;
+  if (_dSrc !== DATA) {
+    _dSrc = DATA;
+    _dView = Object.assign({}, DATA, {
+      res_direccion: (DATA.res_direccion || []).filter(r => !DIR_OCULTOS.includes(r['Obj_ID'] || r.id || ''))
+    });
+  }
+  return _dView;
+}
+
+// ─── SEMÁFORO (null = sin datos → gris) ─────────────────────────
+function pct(v) { return (v === null || v === undefined || v === '' || isNaN(v)) ? '—' : (v * 100).toFixed(1) + '%'; }
+function getQVal(row, q) {
+  if (!row) return null;
+  const keys = q === 'YTD' ? ['YTD', 'YTD Total', 'YTD Logro'] : [q, q + ' Total', q + ' Logro'];
+  for (const k of keys) {
+    if (row[k] !== undefined && row[k] !== null && row[k] !== '') return num(row[k]);
+  }
+  return null;
+}
+function semColor(v, frecuencia, q) {
+  const qq = q || currentQ;
+  if (frecuencia === 'Milestone' && qq !== 'Q4') return 'neutro';
+  if (v === null || v === undefined || v === '' || isNaN(v)) return 'neutro';
+  return v >= 0.9 ? 'verde' : v >= 0.7 ? 'amarillo' : 'rojo';
+}
+function logroSem(v, frecuencia, q) {
+  const qq = q || currentQ;
+  if (frecuencia === 'Milestone' && qq !== 'Q4') return 'EN CURSO';
+  if (v === null || v === undefined || v === '' || isNaN(v)) return '';
+  return v >= 0.9 ? 'VERDE' : v >= 0.7 ? 'AMARILLO' : 'ROJO';
+}
+function calcLogroLocal(actual, meta, comparador) {
+  const a = num(actual), m = num(meta);
+  if (a === null || m === null) return null;
+  const c = String(comparador || '>=').trim();
+  if (c === '<=' || c === '<' || c === '≤') { if (a <= m) return 1; return a === 0 ? 1 : Math.min(1, m / a); }
+  if (c === '=' || c === '==') return a === m ? 1 : 0;
+  if (m === 0) return 1;
+  return Math.min(1, a / m);
+}
+function kpiLogro(k) { return num(k['Logro_Q'] ?? k['Logro_lookup'] ?? k['Logro lookup']); }
+function kpiFrec(k) { return k['Frecuencia'] || k['Tipo'] || 'Q'; }
+function barGrad(cls) {
+  return cls === 'verde' ? 'linear-gradient(90deg,var(--verde),#22c55e)'
+       : cls === 'amarillo' ? 'linear-gradient(90deg,var(--amarillo),#eab308)'
+       : cls === 'rojo' ? 'linear-gradient(90deg,var(--rojo),#f87171)' : 'var(--surface3)';
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function renderDashboard() {
+  const d = getData(); if (!d) return;
+  const dirs = d.res_direccion || [];
+  const kpisQ = (d.carga_q || []).filter(k => (k['Q'] || '') === currentQ && k['Nivel'] === 'GERENCIA' && !esGerOculta(k['Responsable']));
+  const frecOf = r => r['Frecuencia'] || r['Tipo'] || 'Q';
+
+  const avg = avgOf(dirs.map(r => getQVal(r, currentQ)));
+  const cuenta = c => dirs.filter(r => semColor(getQVal(r, currentQ), frecOf(r)) === c).length;
+  const verdes = cuenta('verde'), amarillos = cuenta('amarillo'), rojos = cuenta('rojo');
+  const sinDatos = dirs.filter(r => getQVal(r, currentQ) === null).length;
+
+  const kCls = k => semColor(kpiLogro(k), kpiFrec(k));
+  const kpisConDato = kpisQ.filter(k => kpiLogro(k) !== null).length;
+  const kpisRojos = kpisQ.filter(k => kCls(k) === 'rojo').length;
+  const sinPlan = kpisQ.filter(k => { const c = kCls(k); return (c === 'rojo' || c === 'amarillo') && !(k['Plan_Causa'] || '').trim() && !(k['Plan_Acciones'] || '').trim(); }).length;
+  const risks = (d.riesgos || []).filter(r => (r['Estado'] || '') !== 'Cerrado');
+
+  const qs = ['Q1', 'Q2', 'Q3', 'Q4']; const qi = qs.indexOf(currentQ);
+  const prevQ2 = qi > 0 ? qs[qi - 1] : null;
+  const avgPrev = prevQ2 ? avgOf(dirs.map(r => getQVal(r, prevQ2))) : null;
+  const delta = (avg !== null && avgPrev !== null) ? Math.round((avg - avgPrev) * 100) : null;
+  const avgCls = semColor(avg);
+  const avgTxt = avg === null ? '—' : Math.round(avg * 100);
+
+  document.getElementById('hero-kpis').innerHTML = `
+    <div class="hero-kpi" onclick="toggleStatPanel('all',this)" style="cursor:pointer">
+      <div class="hero-kpi-label">Avance general ${currentQ}</div>
+      <div class="hero-kpi-val" style="color:var(--${avgCls})">${avgTxt}<span style="font-size:18px;color:var(--text3)">${avg === null ? '' : '%'}</span></div>
+      <div class="hero-kpi-sub">
+        ${avg === null ? '<span class="delta-chip delta-fl">Sin datos cargados</span>'
+          : delta !== null ? `<span class="delta-chip ${delta >= 0 ? 'delta-up' : 'delta-dn'}">${delta >= 0 ? '▲ +' : '▼ '}${Math.abs(delta)}pp</span><span>vs ${prevQ2}</span>`
+          : '<span class="delta-chip delta-fl">Sin comparación</span>'}
+        ${sinDatos ? `<span style="font-size:10px">${sinDatos} sin datos</span>` : ''}
+      </div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-${avgCls === 'neutro' ? 'accent' : avgCls}" style="width:${avg === null ? 0 : Math.round(avg * 100)}%"></div></div><div class="hero-bar-meta">▾ clic para desglose</div></div>
+    </div>
+    <div class="hero-kpi" onclick="toggleStatPanel('verde',this)" style="cursor:pointer">
+      <div class="hero-kpi-label">En verde ≥90%</div>
+      <div class="hero-kpi-val" style="color:var(--verde)">${verdes}<span style="font-size:18px;color:var(--text3)">/${dirs.length}</span></div>
+      <div class="hero-kpi-sub"><span class="delta-chip delta-up">↑ Objetivos en meta</span></div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-verde" style="width:${dirs.length ? Math.round(verdes / dirs.length * 100) : 0}%"></div></div><div class="hero-bar-meta">${dirs.length ? Math.round(verdes / dirs.length * 100) : 0}% del total · ▾ ver</div></div>
+    </div>
+    <div class="hero-kpi" onclick="toggleStatPanel('rojo',this)" style="cursor:pointer">
+      <div class="hero-kpi-label">KPIs críticos ${currentQ}</div>
+      <div class="hero-kpi-val" style="color:var(--rojo)">${kpisRojos}<span style="font-size:18px;color:var(--text3)"> KPIs</span></div>
+      <div class="hero-kpi-sub"><span class="delta-chip ${sinPlan > 0 ? 'delta-dn' : 'delta-up'}">${sinPlan > 0 ? sinPlan + ' sin plan' : 'Todos con plan'}</span><span style="font-size:10px">${kpisConDato}/${kpisQ.length} cargados</span></div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-rojo" style="width:${kpisConDato ? Math.round(kpisRojos / kpisConDato * 100) : 0}%"></div></div><div class="hero-bar-meta">${kpisConDato ? Math.round(kpisRojos / kpisConDato * 100) : 0}% de los cargados · ▾ ver</div></div>
+    </div>
+    <div class="hero-kpi">
+      <div class="hero-kpi-label">Riesgos abiertos</div>
+      <div class="hero-kpi-val" style="color:var(--text2)">${risks.length}<span style="font-size:18px;color:var(--text3)"> activos</span></div>
+      <div class="hero-kpi-sub"><span class="delta-chip delta-dn">${risks.filter(r => r['Semáforo'] === 'ROJO').length} críticos</span></div>
+      <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-accent" style="width:${risks.length ? Math.min(risks.length * 10, 100) : 0}%"></div></div><div class="hero-bar-meta">${risks.filter(r => (r['Estado'] || '') === 'En mitigación').length} en mitigación</div></div>
+    </div>`;
+
+  const dirEl = document.getElementById('dash-dir-table-new');
+  if (dirEl) {
+    dirEl.innerHTML = dirs.map(r => {
+      const frec = frecOf(r);
+      const qv = getQVal(r, currentQ); const cls = semColor(qv, frec);
+      return `<div class="obj-card-new">
+        <div class="obj-sem-stripe ${cls}"></div>
+        <div class="obj-card-inner">
+          <div><div class="obj-card-id">${r['Obj_ID'] || ''}</div><div class="obj-card-name">${r['Objetivo'] || ''}</div><div class="obj-card-area">${r['Área'] || ''}</div></div>
+          <div class="obj-bar-new-wrap">
+            <div class="obj-bar-new-track"><div class="obj-bar-new-fill" style="width:${qv === null ? 0 : Math.min(qv * 100, 100)}%;height:100%;border-radius:4px;background:${barGrad(cls)}"></div></div>
+            <div class="obj-bar-new-pct" style="color:var(--${cls})">${pct(qv)}</div>
+          </div>
+          ${qv === null ? '<span class="badge badge-neutro">Sin datos</span>' : semBadge(logroSem(qv, frec))}
+        </div>
+      </div>`;
+    }).join('') || '<div class="empty">Sin datos</div>';
+  }
+
+  const trendEl = document.getElementById('dash-trend-chart');
+  if (trendEl && typeof Chart !== 'undefined') {
+    if (_dashTrendChart) { try { _dashTrendChart.destroy(); } catch (e) {} }
+    const isDark = document.body.classList.contains('dark');
+    const tc = isDark ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.4)';
+    const gc = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+    const qData = qs.map(q => { const a = avgOf(dirs.map(r => getQVal(r, q))); return a === null ? null : Math.round(a * 100); });
+    _dashTrendChart = new Chart(trendEl, {
+      type: 'line',
+      data: { labels: qs, datasets: [{ label: 'Avance %', data: qData, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.08)', fill: true, tension: .4, pointRadius: 5, pointBackgroundColor: '#f97316', borderWidth: 2.5, spanGaps: false }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { color: tc, font: { size: 10 } }, grid: { color: gc } }, y: { min: 0, max: 100, ticks: { color: tc, font: { size: 10 }, callback: v => v + '%' }, grid: { color: gc } } } }
+    });
+  }
+
+  const donutEl = document.getElementById('dash-donut-chart');
+  if (donutEl && typeof Chart !== 'undefined') {
+    if (_dashDonutChart) { try { _dashDonutChart.destroy(); } catch (e) {} }
+    const enCurso = dirs.length - verdes - amarillos - rojos;
+    _dashDonutChart = new Chart(donutEl, {
+      type: 'doughnut',
+      data: { labels: ['Verde', 'Alerta', 'Crítico', 'Sin datos / en curso'], datasets: [{ data: [verdes, amarillos, rojos, enCurso], backgroundColor: ['#22c55e', '#eab308', '#ef4444', '#cbd5e1'], borderWidth: 0, hoverOffset: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '68%', plugins: { legend: { display: false } } }
+    });
+    const legEl = document.getElementById('dash-donut-legend');
+    if (legEl) legEl.innerHTML = [
+      { lbl: 'Verde ≥90%', n: verdes, c: 'verde' }, { lbl: 'Alerta 70-89%', n: amarillos, c: 'amarillo' },
+      { lbl: 'Crítico <70%', n: rojos, c: 'rojo' }, { lbl: 'Sin datos / en curso', n: enCurso, c: 'neutro' }
+    ].filter(x => x.c !== 'neutro' || x.n > 0).map(x => `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:6px"><div style="width:9px;height:9px;border-radius:50%;background:${x.c === 'neutro' ? '#cbd5e1' : 'var(--' + x.c + ')'}"></div><span style="font-size:11px;color:var(--text2)">${x.lbl}</span></div>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--${x.c})">${x.n}</span>
+    </div>`).join('');
+  }
+
+  // Riesgos y oportunidades (sin cambios respecto al original)
+  const risksTop5 = (d.riesgos || []).filter(r => (r['Estado'] || '') !== 'Cerrado')
+    .sort((a, b) => (b['Nivel (P×I)'] || 0) - (a['Nivel (P×I)'] || 0)).slice(0, 5);
+  document.getElementById('risk-counters').innerHTML = `<span class="risk-counter rojo">🔴 ${risksTop5.filter(r => r['Semáforo'] === 'ROJO').length}</span><span class="risk-counter amarillo">🟡 ${risksTop5.filter(r => r['Semáforo'] === 'AMARILLO').length}</span><span class="risk-counter verde">🟢 ${risksTop5.filter(r => r['Semáforo'] === 'VERDE').length}</span>`;
+  document.getElementById('top-risks').innerHTML = risksTop5.map((r, i) => {
+    const sem = r['Semáforo'] || ''; const col = sem === 'ROJO' ? 'rojo' : sem === 'AMARILLO' ? 'amarillo' : 'verde';
+    return `<div class="risk-item"><div class="risk-rank">${i + 1}</div><div class="risk-info">
+      <div class="risk-desc">${r['Riesgo (descripción)'] || ''}</div>
+      <div class="risk-meta">${semBadge(sem)}<span>${r['Objetivo Dirección'] || ''}</span><span style="color:var(--text3)">${r['Gerencia responsable'] || r['Gerencia'] || ''}</span></div>
+    </div><div class="risk-nivel" style="color:var(--${col})">${r['Nivel (P×I)'] || 0}</div></div>`;
+  }).join('') || '<div class="empty">Sin riesgos abiertos</div>';
+  const oports = (d.oportunidades || []).filter(o => (o['Estado'] || '') !== 'Descartada')
+    .sort((a, b) => (b['Valor (P×B)'] || 0) - (a['Valor (P×B)'] || 0)).slice(0, 5);
+  document.getElementById('oport-counters').innerHTML = `<span class="risk-counter verde">🟢 ${oports.filter(o => o['Semáforo'] === 'VERDE').length}</span><span class="risk-counter amarillo">🟡 ${oports.filter(o => o['Semáforo'] === 'AMARILLO').length}</span><span class="risk-counter rojo">🔴 ${oports.filter(o => o['Semáforo'] === 'ROJO').length}</span>`;
+  document.getElementById('top-oports').innerHTML = oports.map((o, i) => {
+    const sem = o['Semáforo'] || ''; const col = sem === 'VERDE' ? 'verde' : sem === 'AMARILLO' ? 'amarillo' : 'rojo';
+    return `<div class="risk-item"><div class="risk-rank">${i + 1}</div><div class="risk-info">
+      <div class="risk-desc">${o['Oportunidad (descripción)'] || ''}</div>
+      <div class="risk-meta">${semBadge(sem)}<span>${o['Objetivo Dirección'] || ''}</span></div>
+    </div><div class="risk-nivel" style="color:var(--${col})">${o['Valor (P×B)'] || 0}</div></div>`;
+  }).join('') || '<div class="empty">Sin oportunidades activas</div>';
+}
+
+// Panel de desglose del dashboard
+function toggleStatPanel(tipo, card) {
+  const panel = document.getElementById('stat-drill-panel');
+  if (_statPanelActive === tipo && panel.classList.contains('open')) { cerrarStatPanel(); return; }
+  _statPanelActive = tipo;
+  const d = getData();
+  const dirs = d?.res_direccion || [];
+  const kpisQ = (d?.carga_q || []).filter(k => (k['Q'] || '') === currentQ && !esGerOculta(k['Responsable']));
+  const frecOf = r => r['Frecuencia'] || r['Tipo'] || 'Q';
+  const labels = { all: `Todos los objetivos (${currentQ})`, verde: `Objetivos en verde — ≥90% (${currentQ})`, amarillo: `Objetivos en riesgo — 70–89% (${currentQ})`, rojo: `Objetivos críticos — <70% (${currentQ})` };
+  const filtered = tipo === 'all' ? dirs : dirs.filter(r => semColor(getQVal(r, currentQ), frecOf(r)) === tipo);
+  document.getElementById('stat-drill-title').textContent = labels[tipo];
+  const qCell = (v, q) => `<div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--${semColor(v, null, q)})">${pct(v)}</div>`;
+  document.getElementById('stat-drill-rows').innerHTML = filtered.length ? filtered.map(r => {
+    const qv = getQVal(r, currentQ); const cls = semColor(qv, frecOf(r)); const ytd = getQVal(r, 'YTD');
+    let comentariosHtml = '';
+    if (tipo === 'rojo' || tipo === 'amarillo') {
+      const kpisRel = kpisQ.filter(k => semColor(kpiLogro(k), kpiFrec(k)) === tipo && (k['Comentarios'] || '').trim());
+      if (kpisRel.length) {
+        comentariosHtml = `<div style="grid-column:1/-1;margin-top:6px;border-top:1px solid var(--border);padding-top:8px">
+          <div style="font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Comentarios de KPIs relacionados (${currentQ})</div>
+          ${kpisRel.slice(0, 5).map(k => { const l = kpiLogro(k); const col = semColor(l);
+            return `<div style="display:flex;gap:10px;padding:7px 10px;border-radius:6px;background:var(--${col}-bg);border:1px solid var(--${col}-border);margin-bottom:5px"><div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">${k['KPI_ID'] || ''}</span><span style="font-size:11px;color:var(--text);font-weight:500">${k['Objetivo'] || ''}</span><span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--${col})">${pct(l)}</span></div>
+              <div style="font-size:11px;color:var(--text2)"><span style="color:var(--text3);font-size:10px">Gerencia:</span> <span style="font-weight:500">${k['Responsable'] || ''}</span> &nbsp;·&nbsp; <span style="color:var(--text3);font-size:10px">Comentario:</span> ${k['Comentarios']}</div>
+            </div></div>`; }).join('')}
+        </div>`;
+      }
+    }
+    return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px 14px;display:grid;grid-template-columns:65px 1fr 110px 110px 55px 55px 55px 55px;gap:8px;align-items:start;margin-bottom:1px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">${r['Obj_ID'] || ''}</div>
+      <div style="font-size:11px;color:var(--text);line-height:1.3">${r['Objetivo'] || ''}<br><span style="font-size:10px;padding:1px 5px;border-radius:3px;background:var(--surface3);color:var(--text3);font-family:'JetBrains Mono',monospace">${r['Área'] || ''}</span></div>
+      <div>${progressBar(qv, cls)}</div><div>${progressBar(ytd, semColor(ytd, null, 'Q4'))}</div>
+      ${qCell(getQVal(r, 'Q1'), 'Q1')}${qCell(getQVal(r, 'Q2'), 'Q2')}${qCell(getQVal(r, 'Q3'), 'Q3')}${qCell(getQVal(r, 'Q4'), 'Q4')}
+      ${comentariosHtml}
+    </div>`;
+  }).join('') : `<div style="padding:20px 16px;color:var(--text3);font-size:13px">Sin objetivos en esta categoría para ${currentQ}</div>`;
+  panel.classList.add('open');
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+}
+
+// ═══════════════════════════════════════════════════════
+// OBJETIVOS DE DIRECCIÓN
+// ═══════════════════════════════════════════════════════
+function renderDireccion() {
+  const d = getData(); if (!d) return;
+  const sub = document.querySelector('#page-direccion .page-subtitle');
+  if (sub) sub.textContent = `${(d.res_direccion || []).length} objetivos estratégicos 2026`;
+  const areaF = document.getElementById('dir-area-filter')?.value || '';
+  let dirs = d.res_direccion || [];
+  if (areaF) dirs = dirs.filter(r => (r['Área'] || '').includes(areaF));
+  document.getElementById('dir-count').textContent = `${dirs.length} objetivos`;
+
+  document.getElementById('dir-table').innerHTML = dirs.map(r => {
+    const frec = r['Frecuencia'] || r['Tipo'] || 'Q';
+    const qv = getQVal(r, currentQ); const cls = semColor(qv, frec);
+    const qvals = ['Q1', 'Q2', 'Q3', 'Q4'].map(q => getQVal(r, q));
+    const ytd = getQVal(r, 'YTD');
+    const objId = r['Obj_ID'] || '';
+    const needsPlan = cls === 'rojo' || cls === 'amarillo';
+    const planHtml = needsPlan ? `
+      <div id="dir-plan-${objId}" style="display:none;grid-column:1/-1;margin-top:10px;border-top:1px solid var(--border);padding-top:12px">
+        <div class="plan-accion-box ${cls}">
+          <div class="plan-accion-header"><div class="plan-accion-icon ${cls}">!</div><div class="plan-accion-title ${cls}">Plan de acción</div></div>
+          <div class="plan-accion-grid">
+            <div class="plan-accion-full"><label class="plan-form-label">Causa raíz</label>
+              <textarea class="plan-form-input" id="dir-causa-${objId}" rows="2" placeholder="¿Por qué no se alcanzó el objetivo?">${r['Plan_Causa'] || ''}</textarea></div>
+            <div class="plan-accion-full"><label class="plan-form-label">Acciones a tomar</label>
+              <textarea class="plan-form-input" id="dir-acciones-${objId}" rows="2" placeholder="Acciones concretas a implementar">${r['Plan_Acciones'] || ''}</textarea></div>
+            <div><label class="plan-form-label">Responsable del plan</label>
+              <input type="text" class="plan-form-input" id="dir-resp-${objId}" value="${esc(r['Plan_Responsable'])}" placeholder="Gerencia o persona"></div>
+            <div><label class="plan-form-label">Fecha compromiso</label>
+              <input type="date" class="plan-form-input" id="dir-fecha-${objId}" value="${fechaInput(r['Plan_Fecha'])}"></div>
+          </div>
+          <button class="btn-save" style="margin-top:10px" onclick="guardarPlanDir('${objId}')">Guardar plan en Sheets</button>
+          <span class="save-msg" id="dir-plan-msg-${objId}"></span>
+        </div>
+      </div>` : '';
+    return `<div class="dir-obj-row" style="${needsPlan ? 'display:grid;grid-template-columns:75px 1fr 120px 120px 70px 70px 70px 70px;align-items:start' : ''}">
+      <div class="obj-id">${objId}</div>
+      <div class="obj-name">${r['Objetivo'] || ''}<br><span class="area-tag">${r['Área'] || ''}</span>
+        ${needsPlan ? `<button onclick="toggleDirPlan('${objId}')" style="display:inline-flex;align-items:center;gap:4px;margin-top:5px;padding:2px 8px;border-radius:4px;border:1px solid var(--${cls}-border);background:var(--${cls}-bg);color:var(--${cls});font-size:10px;cursor:pointer;font-family:'Poppins',sans-serif">! Plan de acción</button>` : ''}
+      </div>
+      <div>${progressBar(qv, cls)}</div><div>${progressBar(ytd, semColor(ytd, frec, 'Q4'))}</div>
+      ${qvals.map((v, i) => `<div class="mono" style="color:var(--${semColor(v, frec, 'Q' + (i + 1))})">${pct(v)}</div>`).join('')}
+      ${planHtml}
+    </div>`;
+  }).join('') || '<div class="empty">Sin datos</div>';
+
+  const gerEl = document.getElementById('dir-gerencias-grid');
+  if (!gerEl) return;
+  gerEl.innerHTML = filtrarGerencias(d.res_gerencia).map(g => {
+    const name = g['Gerencia'] || '';
+    const ytd = num(g['YTD Logro']);
+    const qv = num(g[currentQ + ' Logro']);
+    const cls = semColor(qv);
+    const vals = ['Q1', 'Q2', 'Q3', 'Q4'].map(q => num(g[q + ' Logro']));
+    return `<div class="gerencia-card clickable" style="min-height:0" onclick="openDrawer('${name}')">
+      <div class="gerencia-header">
+        <div class="gerencia-name"><span class="dot dot-${cls}"></span>${name}${vacanteTag(name)}</div>
+        <span class="gerencia-kpis">${g['# KPIs'] || 0} KPIs · Ver detalle →</span>
+      </div>
+      <div style="margin-bottom:10px">${progressBar(ytd, semColor(ytd, null, 'Q4'))}</div>
+      <div class="q-pills-row">
+        ${['Q1', 'Q2', 'Q3', 'Q4'].map((q, i) => { const v = vals[i]; const c = semColor(v, null, q);
+          return `<div class="q-mini"><div class="q-mini-label">${q}</div><div class="q-mini-bar"><div class="q-mini-fill fill-${c}" style="width:${v === null ? 0 : Math.min(v * 100, 100)}%"></div></div><div class="q-mini-pct" style="color:var(--${c})">${pct(v)}</div></div>`; }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  fixDateInputs();
+}
+
+// ═══════════════════════════════════════════════════════
+// GERENCIAS — vista estándar
+// ═══════════════════════════════════════════════════════
+function renderGerencias() {
+  const d = getData(); if (!d) return;
+  document.getElementById('gerencias-grid').innerHTML = filtrarGerencias(d.res_gerencia).map(g => {
+    const name = g['Gerencia'] || '';
+    const qVal = q => num(g[q + ' Logro']);
+    const qRojos = q => parseInt(g[q + ' Rojos'] || 0) || 0;
+    const ytd = num(g['YTD Logro']);
+    const qv = qVal(currentQ);
+    const cls = semColor(qv);
+    const R = 26, C = 2 * Math.PI * R;
+    const offset = qv === null ? C : C - (Math.min(qv, 1) * C);
+    const strokeCol = cls === 'verde' ? 'var(--verde)' : cls === 'amarillo' ? 'var(--amarillo)' : cls === 'rojo' ? 'var(--rojo)' : 'var(--text3)';
+    const glowCol = cls === 'verde' ? 'var(--glow-verde)' : cls === 'amarillo' ? 'var(--glow-amarillo)' : cls === 'rojo' ? 'var(--glow-rojo)' : 'transparent';
+    const centro = qv === null ? '—' : Math.round(qv * 100) + '%';
+    const qCols = ['Q1', 'Q2', 'Q3', 'Q4'].map(q => {
+      const v = qVal(q); const rojos = v === null ? 0 : qRojos(q);
+      const qcls = semColor(v, null, q); const isActive = q === currentQ;
+      const h = v === null ? 0 : Math.round(Math.min(v, 1) * 100);
+      const bc = qcls === 'verde' ? 'linear-gradient(180deg,var(--verde),#22c55e)' : qcls === 'amarillo' ? 'linear-gradient(180deg,var(--amarillo),#eab308)' : qcls === 'rojo' ? 'linear-gradient(180deg,var(--rojo),#f87171)' : 'var(--surface3)';
+      return `<div class="ger-q-col">
+        <div class="ger-q-lbl" style="${isActive ? 'color:var(--accent);font-weight:700' : ''}">${q}</div>
+        <div class="ger-q-track" style="${isActive ? 'outline:1px solid rgba(249,115,22,0.4);border-radius:5px' : ''}"><div class="ger-q-fill" style="height:${h}%;background:${bc};border-radius:5px"></div></div>
+        <div class="ger-q-pct" style="color:var(--${qcls});${isActive ? 'font-weight:700' : ''}">${v === null ? '—' : Math.round(v * 100) + '%'}</div>
+        ${rojos > 0 ? `<div style="font-size:8px;color:var(--rojo)">${rojos}R</div>` : ''}
+      </div>`;
+    }).join('');
+    return `<div class="ger-card-new" onclick="openDrawer('${name}')">
+      <div class="ger-top-stripe ${cls}"></div>
+      <div class="ger-body">
+        <div class="ger-name-new">${name}${vacanteTag(name)}</div>
+        <div class="ger-meta-new">${g['# KPIs'] || 0} KPIs · ${currentQ} 2026</div>
+        <div class="ger-gauge-row" style="position:relative">
+          <svg class="ger-gauge-svg" width="64" height="64" viewBox="0 0 64 64" style="transform:rotate(-90deg);flex-shrink:0">
+            <circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--surface3)" stroke-width="6"/>
+            <circle cx="32" cy="32" r="${R}" fill="none" stroke="${strokeCol}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${offset}" style="filter:drop-shadow(0 0 4px ${glowCol})"/>
+          </svg>
+          <div style="position:absolute;left:0;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${strokeCol}">${centro}</div>
+          <div class="ger-gauge-info" style="margin-left:10px">
+            <div class="ger-gauge-ytd-val" style="color:${strokeCol}">${qv === null ? '<span style="font-size:14px">Sin datos</span>' : Math.round(qv * 100) + '<span style="font-size:13px;color:var(--text3)">%</span>'}</div>
+            <div class="ger-gauge-ytd-lbl">Logro ${currentQ}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:1px">YTD: ${ytd === null ? '—' : Math.round(ytd * 100) + '%'}</div>
+            <div style="margin-top:6px"><button class="btn-ia-sm" onclick="event.stopPropagation();analizarGerencia('${name}',this)" style="font-size:10px;padding:3px 8px"><div class="ia-gem-icon" style="width:12px;height:12px;font-size:7px">G</div>IA</button></div>
+          </div>
+        </div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:6px">Por trimestre</div>
+        <div class="ger-q-bars-new">${qCols}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+// GERENCIAS — Cierre Q (vista directorio)
+// ═══════════════════════════════════════════════════════
+function cqBarColor(v) { if (v === null || v === undefined) return '#cbd5e1'; return v >= 0.75 ? '#16a34a' : v >= 0.55 ? '#d97706' : '#dc2626'; }
+function cqPctColor(v) { if (v === null || v === undefined) return 'var(--text3)'; return v >= 0.75 ? 'var(--verde)' : v >= 0.55 ? 'var(--amarillo)' : 'var(--rojo)'; }
+function cqStatus(v) {
+  if (v === null || v === undefined) return { cls: 'badge-neutro', txt: 'Sin datos' };
+  if (v >= 0.75) return { cls: 'badge-verde', txt: 'En meta' };
+  if (v >= 0.55) return { cls: 'badge-amarillo', txt: 'Alerta' };
+  return { cls: 'badge-rojo', txt: 'En riesgo' };
+}
+function cqDeltaHtml(curr, prev) {
+  if (curr === null || prev === null || curr === undefined || prev === undefined) return '<span class="cq-obj-delta fl">—</span>';
+  const dd = Math.round((curr - prev) * 100);
+  if (dd > 0) return `<span class="cq-obj-delta up">+${dd}pp</span>`;
+  if (dd < 0) return `<span class="cq-obj-delta dn">${dd}pp</span>`;
+  return '<span class="cq-obj-delta fl">—</span>';
+}
+function cqGerDelta(curr, prev) {
+  if (curr === null || prev === null) return '<span style="color:var(--text3);font-size:11px">—</span>';
+  const dd = Math.round((curr - prev) * 100);
+  if (dd > 0) return `<span style="color:var(--verde);font-size:11px">▲ +${dd}pp</span>`;
+  if (dd < 0) return `<span style="color:var(--rojo);font-size:11px">▼ ${dd}pp</span>`;
+  return '<span style="color:var(--text3);font-size:11px">—</span>';
+}
+
+function renderCierreQ() {
+  const d = getData(); if (!d) return;
+  const gers = filtrarGerencias(d.res_gerencia);
+  const prevQ = cqPrevQ();
+  const val = (g, q) => num(g[q + ' Logro']);
+  const conDato = gers.filter(g => val(g, currentQ) !== null);
+  const enMeta = conDato.filter(g => val(g, currentQ) >= 0.75).length;
+  const enAlerta = conDato.filter(g => { const v = val(g, currentQ); return v >= 0.55 && v < 0.75; }).length;
+  const enRiesgo = conDato.filter(g => val(g, currentQ) < 0.55).length;
+  const sinDatos = gers.length - conDato.length;
+  const avgActual = avgOf(gers.map(g => val(g, currentQ)));
+  const avgPrev = prevQ ? avgOf(gers.map(g => val(g, prevQ))) : null;
+  const avgDelta = (avgActual !== null && avgPrev !== null) ? Math.round((avgActual - avgPrev) * 100) : null;
+
+  document.getElementById('cq-kpi-strip').innerHTML = `
+    <div class="cq-kpi"><div class="cq-kpi-lbl">Avance global ${currentQ}</div>
+      <div class="cq-kpi-val" style="color:${cqPctColor(avgActual)}">${avgActual === null ? '—' : Math.round(avgActual * 100) + '%'}</div>
+      ${avgDelta !== null ? `<div class="cq-kpi-delta ${avgDelta > 0 ? 'up' : avgDelta < 0 ? 'dn' : 'fl'}">${avgDelta > 0 ? '▲ +' : '▼ '}${Math.abs(avgDelta)}pp vs ${prevQ}</div>` : '<div class="cq-kpi-delta fl">—</div>'}</div>
+    <div class="cq-kpi"><div class="cq-kpi-lbl">En meta</div><div class="cq-kpi-val verde">${enMeta}<span style="font-size:14px;color:var(--text3)">/${conDato.length}</span></div><div class="cq-kpi-delta fl">≥ 75% logro${sinDatos ? ' · ' + sinDatos + ' sin datos' : ''}</div></div>
+    <div class="cq-kpi"><div class="cq-kpi-lbl">En alerta</div><div class="cq-kpi-val amarillo">${enAlerta}</div><div class="cq-kpi-delta fl">55–74% logro</div></div>
+    <div class="cq-kpi"><div class="cq-kpi-lbl">En riesgo</div><div class="cq-kpi-val rojo">${enRiesgo}</div><div class="cq-kpi-delta fl">&lt; 55% logro</div></div>`;
+
+  if (!cqSelGer && gers.length) cqSelGer = gers[0]['Gerencia'] || '';
+  document.getElementById('cq-ger-grid').innerHTML = gers.map(g => {
+    const name = g['Gerencia'] || '';
+    const curr = val(g, currentQ); const prev = prevQ ? val(g, prevQ) : null;
+    const st = cqStatus(curr);
+    return `<div class="cq-ger-card${name === cqSelGer ? ' cq-sel' : ''}" onclick="cqSelectGer('${name}')">
+      <div class="cq-ger-top"><div class="cq-ger-name"><span class="dot dot-${semColor(curr)}"></span>${name}${vacanteTag(name)}</div><span class="badge ${st.cls}">${st.txt}</span></div>
+      <div class="cq-bar-bg"><div class="cq-bar-fill" style="width:${curr === null ? 0 : Math.min(curr * 100, 100)}%;background:${cqBarColor(curr)}"></div></div>
+      <div class="cq-ger-foot">
+        <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${cqPctColor(curr)}">${curr === null ? '—' : Math.round(curr * 100) + '%'}</span>
+        <span style="color:var(--text3)">${g['# KPIs'] || 0} KPIs</span>
+        ${prevQ ? cqGerDelta(curr, prev) : ''}
+      </div>
+    </div>`;
+  }).join('');
+  renderCqDetalle(cqSelGer);
+  renderCqCharts(gers, prevQ);
+}
+
+function renderCqDetalle(gerName) {
+  const d = getData(); if (!d || !gerName) return;
+  const det = document.getElementById('cq-det'); if (!det) return;
+  det.style.display = '';
+  const gRow = (d.res_gerencia || []).find(g => (g['Gerencia'] || '') === gerName) || {};
+  const prevQ = cqPrevQ();
+  const curr = num(gRow[currentQ + ' Logro']);
+  const prev = prevQ ? num(gRow[prevQ + ' Logro']) : null;
+  const delta = (curr !== null && prev !== null) ? Math.round((curr - prev) * 100) : null;
+  const st = cqStatus(curr);
+  const kpisGer = (d.carga_q || []).filter(k => (k['Responsable'] || '') === gerName && k['Nivel'] === 'GERENCIA' && (k['Q'] || '') === currentQ);
+  const prevMap = {};
+  if (prevQ) (d.carga_q || []).filter(k => (k['Responsable'] || '') === gerName && k['Nivel'] === 'GERENCIA' && (k['Q'] || '') === prevQ)
+    .forEach(k => { prevMap[k['KPI_ID'] || ''] = kpiLogro(k); });
+  const fmtVal = (v, unidad, meta) => {
+    const n = num(v); if (n === null) return '—';
+    if ((unidad || '').trim() === '%') { const m = num(meta); const pv = (m !== null && Math.abs(m) <= 1.5) ? n * 100 : n; return pv.toFixed(1) + '%'; }
+    if (unidad === 'ARS') return '$' + n.toLocaleString('es-AR', { maximumFractionDigits: 0 });
+    if (unidad === 'USD') return 'U$' + n.toLocaleString('es-AR', { maximumFractionDigits: 0 });
+    return n.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + (unidad ? ' ' + unidad : '');
+  };
+  const objRows = kpisGer.map(k => {
+    const logro = kpiLogro(k); const frec = kpiFrec(k);
+    const enCurso = frec === 'Milestone' && currentQ !== 'Q4';
+    const p = logro === null ? null : Math.round(logro * 100);
+    return `<div class="cq-obj-row">
+      <div class="cq-obj-nm">${k['Objetivo'] || k['KPI_ID'] || ''}${enCurso ? ' <span style="font-size:9px;color:var(--text3)">⏳</span>' : ''}</div>
+      <div class="cq-obj-bar-bg"><div class="cq-obj-bar-f" style="width:${p === null ? 0 : Math.min(p, 100)}%;background:${enCurso ? '#cbd5e1' : cqBarColor(logro)}"></div></div>
+      <div class="cq-obj-nums">
+        <span class="cq-obj-pct" style="color:${enCurso ? 'var(--text3)' : cqPctColor(logro)}">${p === null ? '—' : p + '%'}</span>
+        <span class="cq-obj-cifra">${fmtVal(k['Actual_Q (cargar)'] ?? k['Actual_Q'], k['Unidad'], k['Meta_Q (editable)'] ?? k['Meta_Q'])}</span>
+        ${cqDeltaHtml(logro, prevMap[k['KPI_ID'] || ''] ?? null)}
+      </div>
+    </div>`;
+  }).join('') || `<div style="color:var(--text3);font-size:12px;padding:8px 0">Sin KPIs cargados para ${currentQ}</div>`;
+  det.innerHTML = `
+    <div class="cq-det-hdr">
+      <div>
+        <div class="cq-det-title"><span class="dot dot-${semColor(curr)}"></span>${gerName}${vacanteTag(gerName)}<span class="badge ${st.cls}">${st.txt}</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">${gRow['# KPIs'] || 0} KPIs · ${currentQ} 2026${prevQ ? ` · vs ${prevQ}` : ''}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="cq-det-pct" style="color:${cqPctColor(curr)}">${curr === null ? '—' : Math.round(curr * 100) + '%'}</div>
+        ${delta !== null ? `<div class="cq-det-meta" style="color:${delta > 0 ? 'var(--verde)' : delta < 0 ? 'var(--rojo)' : 'var(--text3)'}">${delta > 0 ? '▲ +' : '▼ '}${Math.abs(delta)} pp vs ${prevQ}</div>` : ''}
+      </div>
+    </div>
+    <div class="cq-col-hdr"><span style="width:30px;text-align:right">Av.</span><span style="width:60px;text-align:right">Cifra</span><span style="width:34px;text-align:right">${prevQ ? 'vs ' + prevQ : 'Δ'}</span></div>
+    <div class="cq-obj-list">${objRows}</div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center">
+      <button class="btn-ia-gemini" onclick="analizarGerencia('${gerName}',this)"><div class="ia-gem-icon">G</div> Analizar con Gemini IA</button>
+      <span style="font-size:11px;color:var(--text3)">Diagnóstico, sugerencias y alertas para ${currentQ}</span>
+    </div>
+    <div id="cq-ia-${gerName.replace(/[^a-zA-Z0-9]/g, '_')}" style="margin-top:12px"></div>`;
+}
+
+function renderCqCharts(gers, prevQ) {
+  if (typeof Chart === 'undefined') return;
+  gers = filtrarGerencias(gers);
+  const labels = gers.map(g => (g['Gerencia'] || '').replace('COMERCIAL_', 'COM.').replace('PEOPLE_RRHH', 'RRHH').substring(0, 8));
+  const toPct = (g, q) => { const v = num(g[q + ' Logro']); return v === null ? null : Math.round(v * 100); };
+  const currData = gers.map(g => toPct(g, currentQ));
+  const prevData = prevQ ? gers.map(g => toPct(g, prevQ)) : null;
+  const barEl = document.getElementById('cq-bar'); if (!barEl) return;
+  if (cqBarChart) { try { cqBarChart.destroy(); } catch (e) {} }
+  const ds = [];
+  if (prevData) ds.push({ label: prevQ, data: prevData, backgroundColor: '#94a3b8', borderRadius: 3, barPercentage: .4 });
+  ds.push({ label: currentQ, data: currData, backgroundColor: '#f97316', borderRadius: 3, barPercentage: .4 });
+  const tc = 'rgba(0,0,0,0.4)', gc = 'rgba(0,0,0,0.07)';
+  cqBarChart = new Chart(barEl, { type: 'bar', data: { labels, datasets: ds },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { x: { ticks: { color: tc, font: { size: 9 } }, grid: { color: gc }, autoSkip: false, maxRotation: 30 }, y: { min: 0, max: 100, ticks: { color: tc, font: { size: 9 }, callback: v => v + '%' }, grid: { color: gc } } } } });
+  document.getElementById('cq-bar-legend').innerHTML = (prevData ? `<span><span class="cq-leg-sq" style="background:#94a3b8"></span>${prevQ}</span>` : '') + `<span><span class="cq-leg-sq" style="background:#f97316"></span>${currentQ}</span>`;
+  const donutEl = document.getElementById('cq-donut'); if (!donutEl) return;
+  if (cqDonutChart) { try { cqDonutChart.destroy(); } catch (e) {} }
+  const vals = gers.map(g => num(g[currentQ + ' Logro']));
+  const meta = vals.filter(v => v !== null && v >= 0.75).length;
+  const alerta = vals.filter(v => v !== null && v >= 0.55 && v < 0.75).length;
+  const riesgo = vals.filter(v => v !== null && v < 0.55).length;
+  const sinD = vals.filter(v => v === null).length;
+  cqDonutChart = new Chart(donutEl, { type: 'doughnut',
+    data: { labels: ['En meta', 'Alerta', 'En riesgo', 'Sin datos'], datasets: [{ data: [meta, alerta, riesgo, sinD], backgroundColor: ['#16a34a', '#d97706', '#dc2626', '#cbd5e1'], borderWidth: 0, hoverOffset: 5 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { display: false } } } });
+  const tot = (meta + alerta + riesgo) || 1;
+  document.getElementById('cq-donut-legend').innerHTML =
+    `<span><span class="cq-leg-sq" style="background:#16a34a"></span>En meta ${Math.round(meta / tot * 100)}%</span>` +
+    `<span><span class="cq-leg-sq" style="background:#d97706"></span>Alerta ${Math.round(alerta / tot * 100)}%</span>` +
+    `<span><span class="cq-leg-sq" style="background:#dc2626"></span>Riesgo ${Math.round(riesgo / tot * 100)}%</span>` +
+    (sinD ? `<span><span class="cq-leg-sq" style="background:#cbd5e1"></span>Sin datos ${sinD}</span>` : '');
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAWER — detalle de gerencia
+// ═══════════════════════════════════════════════════════
+function renderDrawerContent() {
+  const d = getData(); if (!d || !drawerGerencia) return;
+  const body = document.getElementById('drawer-body');
+  const name = drawerGerencia;
+  const gRow = (d.res_gerencia || []).find(g => (g['Gerencia'] || '') === name) || {};
+  const ytd = num(gRow['YTD Logro']);
+  const qVals = ['Q1', 'Q2', 'Q3', 'Q4'].map(q => num(gRow[q + ' Logro']));
+  const nKPIs = gRow['# KPIs'] || 0;
+  const allKPIs = (d.carga_q || []).filter(k => (k['Responsable'] || '') === name && k['Nivel'] === 'GERENCIA');
+  const unidadFmt = (v, unidad, meta) => {
+    const n = num(v); if (n === null) return '—';
+    if ((unidad || '').trim() === '%') { const m = num(meta); const pv = (m !== null && Math.abs(m) <= 1.5) ? n * 100 : n; return pv.toFixed(1) + '%'; }
+    if (unidad === 'ARS' || unidad === 'USD') return n.toLocaleString('es-AR', { maximumFractionDigits: 0 }) + ' ' + unidad;
+    return n.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + (unidad ? ' ' + unidad : '');
+  };
+
+  if (drawerTab === 'resumen') {
+    const kq = allKPIs.filter(k => (k['Q'] || '') === currentQ);
+    const rojoReal = kq.filter(k => semColor(kpiLogro(k), kpiFrec(k)) === 'rojo').length;
+    const verdeReal = kq.filter(k => semColor(kpiLogro(k), kpiFrec(k)) === 'verde').length;
+    const enCurso = kq.filter(k => kpiFrec(k) === 'Milestone' && currentQ !== 'Q4').length;
+    const sinDato = kq.filter(k => kpiLogro(k) === null && !(kpiFrec(k) === 'Milestone' && currentQ !== 'Q4')).length;
+    body.innerHTML = `
+      ${GERENCIAS_VACANTES[name] ? `<div style="padding:8px 12px;margin-bottom:14px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);font-size:12px;color:var(--text2)">ℹ ${GERENCIAS_VACANTES[name]}: los trimestres sin carga se muestran sin datos.</div>` : ''}
+      <div class="drawer-stats" style="grid-template-columns:repeat(4,1fr)">
+        <div class="dstat"><div class="dstat-num accent">${pct(ytd)}</div><div class="dstat-lbl">YTD</div></div>
+        <div class="dstat"><div class="dstat-num verde">${verdeReal}</div><div class="dstat-lbl">Verde ${currentQ}</div></div>
+        <div class="dstat"><div class="dstat-num rojo">${rojoReal}</div><div class="dstat-lbl">Rojo ${currentQ}</div></div>
+        <div class="dstat"><div class="dstat-num" style="color:#94a3b8">${enCurso + sinDato}</div><div class="dstat-lbl">En curso / sin dato</div></div>
+      </div>
+      <div class="dsection">Avance por trimestre</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        ${['Q1', 'Q2', 'Q3', 'Q4'].map((q, i) => { const v = qVals[i]; const cls = semColor(v, null, q); const rojos = v === null ? 0 : (parseInt(gRow[q + ' Rojos'] || 0) || 0);
+          return `<div style="display:flex;align-items:center;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text2);min-width:22px">${q}</span>
+            <div style="flex:1">${progressBar(v, cls)}</div>
+            ${rojos > 0 ? `<span class="mini-rojo">${rojos} KPI rojo</span>` : ''}
+            ${v === null ? '<span class="badge badge-neutro">Sin datos</span>' : semBadge(logroSem(v, null, q))}
+          </div>`; }).join('')}
+        <div style="display:flex;align-items:center;gap:12px;padding-top:8px;border-top:1px solid var(--border)">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--text);min-width:22px">YTD</span>
+          <div style="flex:1">${progressBar(ytd, semColor(ytd, null, 'Q4'))}</div>
+          ${ytd === null ? '<span class="badge badge-neutro">Sin datos</span>' : semBadge(logroSem(ytd, null, 'Q4'))}
+        </div>
+      </div>
+      <div class="dsection">KPIs del trimestre actual (${currentQ})</div>
+      <table class="kpi-drawer-table">
+        <thead><tr><th>ID</th><th>KPI</th><th>Meta Q</th><th>Actual Q</th><th>Logro</th><th>Estado</th><th>Gestión</th></tr></thead>
+        <tbody>
+          ${kq.map(k => {
+            const frecK = kpiFrec(k); const logro = kpiLogro(k); const cls = semColor(logro, frecK);
+            const meta = k['Meta_Q (editable)'] ?? k['Meta_Q'] ?? ''; const actual = k['Actual_Q (cargar)'] ?? k['Actual_Q'] ?? '';
+            const unidad = k['Unidad'] || ''; const kpiId = k['KPI_ID'] || '';
+            const tienePlan = !!(k['Plan_Causa'] || '').trim() || !!(k['Plan_Acciones'] || '').trim();
+            const tieneMotivo = !!(k['Motivo_No_Logro'] || '').trim();
+            const tieneComentario = !!(k['Comentarios'] || '').trim();
+            let chips = '';
+            if (tienePlan) chips += '<span class="gestion-chip chip-plan">✓ Plan</span>';
+            else if (cls === 'rojo' || cls === 'amarillo') chips += '<span class="gestion-chip chip-missing">! Sin plan</span>';
+            if (tieneMotivo) chips += '<span class="gestion-chip chip-motivo">⚠ Motivo</span>';
+            if (tieneComentario) chips += '<span class="gestion-chip chip-comment">💬</span>';
+            let planHtml = '';
+            const row = (ic, lbl, val, extra) => `<div class="plan-detail-row"><span class="plan-detail-key">${ic} ${lbl}</span><span class="plan-detail-val ${extra || ''}">${val}</span></div>`;
+            if (tieneMotivo) planHtml += row('⚠', 'Motivo de no logro', k['Motivo_No_Logro'], 'motivo');
+            if ((k['Plan_Causa'] || '').trim()) planHtml += row('🔍', 'Causa raíz', k['Plan_Causa']);
+            if ((k['Plan_Acciones'] || '').trim()) planHtml += row('▶', 'Acciones', k['Plan_Acciones'], 'accion');
+            if ((k['Plan_Responsable'] || '').trim()) planHtml += row('👤', 'Responsable', k['Plan_Responsable']);
+            if (k['Plan_Fecha']) planHtml += row('📅', 'Fecha compromiso', fechaDisplay(k['Plan_Fecha']));
+            if (tieneComentario) planHtml += row('💬', 'Comentario', k['Comentarios']);
+            const hasPlan = planHtml.length > 0;
+            const rowId = 'pr-' + kpiId.replace(/[^a-zA-Z0-9]/g, '_');
+            const estadoTxt = logroSem(logro, frecK);
+            return `<tr class="${hasPlan ? 'kpi-expandable' : ''}" ${hasPlan ? `onclick="togglePlanRow('${rowId}')" style="cursor:pointer"` : ''}>
+                <td class="kpi-id">${kpiId}</td>
+                <td class="kpi-name">${k['Objetivo'] || ''}<br><span style="font-size:10px;color:var(--text3)">${k['Métrica'] || ''}</span>${frecK !== 'Q' ? `<br><span style="font-size:9px;color:#94a3b8">⏳ ${frecK}</span>` : ''}</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${k['Comparador'] || ''} ${unidadFmt(meta, unidad, meta)}</td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--text)">${unidadFmt(actual, unidad, meta)}</td>
+                <td style="min-width:110px">${progressBar(logro, cls)}</td>
+                <td>${estadoTxt ? semBadge(estadoTxt) : '<span class="badge badge-neutro">Sin dato</span>'}</td>
+                <td>${chips || '<span style="color:var(--text3);font-size:11px">—</span>'}${hasPlan ? '<span style="color:var(--text3);font-size:10px;margin-left:4px">▾</span>' : ''}</td>
+              </tr>${hasPlan ? `<tr class="plan-detail-panel" id="${rowId}" style="display:none"><td colspan="7"><div class="plan-detail-box">${planHtml}</div></td></tr>` : ''}`;
+          }).join('') || `<tr><td colspan="7" class="empty">Sin datos para ${currentQ}</td></tr>`}
+        </tbody>
+      </table>`;
+  } else if (drawerTab === 'kpis') {
+    const ids = [...new Set(allKPIs.map(k => k['KPI_ID']))];
+    body.innerHTML = `
+      <div class="dsection">${nKPIs} KPIs · todos los trimestres</div>
+      <table class="kpi-drawer-table">
+        <thead><tr><th>ID</th><th>KPI</th><th>Meta Anual</th><th>Comp.</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>YTD</th></tr></thead>
+        <tbody>
+          ${ids.map(kid => {
+            const rows = allKPIs.filter(k => k['KPI_ID'] === kid);
+            const first = rows[0] || {}; const frec = kpiFrec(first);
+            const ls = ['Q1', 'Q2', 'Q3', 'Q4'].map(q => { const r = rows.find(x => x['Q'] === q); return r ? kpiLogro(r) : null; });
+            const ytdKpi = avgOf(ls);
+            const mini = (v, q) => { if (v === null) return '<span style="color:var(--text3);font-size:11px">—</span>';
+              const c = semColor(v, frec, q);
+              return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px"><div class="q-mini-bar" style="width:48px"><div class="q-mini-fill fill-${c}" style="width:${Math.min(v * 100, 100)}%"></div></div><div class="q-mini-pct" style="color:var(--${c});font-size:10px;font-family:'JetBrains Mono',monospace">${pct(v)}</div></div>`; };
+            return `<tr>
+              <td class="kpi-id">${kid}</td>
+              <td class="kpi-name">${first['Objetivo'] || ''}<br><span style="font-size:10px;color:var(--text3)">${first['Métrica'] || ''}</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);white-space:nowrap">${unidadFmt(first['Meta_Anual'], first['Unidad'], first['Meta_Anual'])}</td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">${first['Comparador'] || ''}</td>
+              ${ls.map((v, i) => `<td>${mini(v, 'Q' + (i + 1))}</td>`).join('')}
+              <td style="min-width:110px">${progressBar(ytdKpi, semColor(ytdKpi, frec, 'Q4'))}</td>
+            </tr>`;
+          }).join('') || '<tr><td colspan="9" class="empty">Sin datos de KPIs</td></tr>'}
+        </tbody>
+      </table>`;
+  } else if (drawerTab === 'riesgos') {
+    const risks = (d.riesgos || []).filter(r => (r['Gerencia responsable'] || r['Gerencia'] || r['Responsable'] || '') === name);
+    const oports = (d.oportunidades || []).filter(o => (o['Gerencia responsable'] || o['Gerencia'] || o['Responsable'] || '') === name);
+    const cnt = s => risks.filter(r => r['Semáforo'] === s).length;
+    body.innerHTML = `
+      <div class="drawer-stats" style="grid-template-columns:repeat(3,1fr)">
+        <div class="dstat"><div class="dstat-num rojo">${cnt('ROJO')}</div><div class="dstat-lbl">Rojos</div></div>
+        <div class="dstat"><div class="dstat-num amarillo">${cnt('AMARILLO')}</div><div class="dstat-lbl">Amarillos</div></div>
+        <div class="dstat"><div class="dstat-num verde">${cnt('VERDE')}</div><div class="dstat-lbl">Verdes</div></div>
+      </div>
+      <div class="dsection">Riesgos (${risks.length})</div>
+      <table class="kpi-drawer-table"><thead><tr><th>ID</th><th>Q</th><th>Riesgo</th><th>P×I</th><th>Semáforo</th><th>Estado</th></tr></thead><tbody>
+        ${risks.sort((a, b) => (b['Nivel (P×I)'] || 0) - (a['Nivel (P×I)'] || 0)).map(r => { const sem = r['Semáforo'] || ''; const col = sem === 'ROJO' ? 'rojo' : sem === 'AMARILLO' ? 'amarillo' : 'verde';
+          return `<tr><td class="kpi-id">${r['ID'] || ''}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r['Q'] || ''}</td><td class="kpi-name">${r['Riesgo (descripción)'] || ''}</td><td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--${col})">${r['Nivel (P×I)'] || 0}</td><td>${semBadge(sem)}</td><td style="font-size:11px;color:var(--text3)">${r['Estado'] || ''}</td></tr>`; }).join('') || '<tr><td colspan="6" class="empty">Sin riesgos registrados</td></tr>'}
+      </tbody></table>
+      <div class="dsection" style="margin-top:24px">Oportunidades (${oports.length})</div>
+      <table class="kpi-drawer-table"><thead><tr><th>ID</th><th>Q</th><th>Oportunidad</th><th>P×B</th><th>Semáforo</th><th>Estado</th></tr></thead><tbody>
+        ${oports.sort((a, b) => (b['Valor (P×B)'] || 0) - (a['Valor (P×B)'] || 0)).map(o => { const sem = o['Semáforo'] || ''; const col = sem === 'VERDE' ? 'verde' : sem === 'AMARILLO' ? 'amarillo' : 'rojo';
+          return `<tr><td class="kpi-id">${o['ID'] || ''}</td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${o['Q'] || ''}</td><td class="kpi-name">${o['Oportunidad (descripción)'] || ''}</td><td style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--${col})">${o['Valor (P×B)'] || 0}</td><td>${semBadge(sem)}</td><td style="font-size:11px;color:var(--text3)">${o['Estado'] || ''}</td></tr>`; }).join('') || '<tr><td colspan="6" class="empty">Sin oportunidades registradas</td></tr>'}
+      </tbody></table>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CARGA DE AVANCE
+// ═══════════════════════════════════════════════════════
+function _kpiPorKey(key) {
+  const d = getData();
+  return (d?.carga_q || []).find(k => (k['KEY'] || `${k['Q']}|${k['KPI_ID']}`) === key) || null;
+}
+function _esPct(unidad, meta) { const m = num(meta); return (unidad || '').trim() === '%' && m !== null && Math.abs(m) <= 1.5; }
+
+function renderCarga() {
+  const d = getData(); if (!d || !SESSION) return;
+  const qSel = document.getElementById('carga-q-filter')?.value || currentQ;
+  document.getElementById('carga-q-badge').textContent = qSel;
+  document.getElementById('carga-subtitle').textContent = SESSION.rol === 'admin' ? 'Vista de todas las gerencias' : `Gerencia: ${SESSION.gerencia}`;
+  let kpis = (d.carga_q || []).filter(r => (r['Q'] || '') === qSel && r['Nivel'] === 'GERENCIA');
+  if (SESSION.rol !== 'admin') kpis = kpis.filter(r => (r['Responsable'] || '') === SESSION.gerencia);
+  else kpis = kpis.filter(r => !esGerOculta(r['Responsable']));
+  document.getElementById('carga-count').textContent = `${kpis.length} KPIs`;
+  if (!kpis.length) { document.getElementById('carga-grid').innerHTML = '<div class="empty">No hay KPIs para cargar en este Q</div>'; return; }
+
+  document.getElementById('carga-grid').innerHTML = kpis.map(k => {
+    const key = k['KEY'] || `${k['Q']}|${k['KPI_ID']}`;
+    const frec = kpiFrec(k);
+    const esMilestone = frec === 'Milestone' && qSel !== 'Q4';
+    const logro = kpiLogro(k);
+    const cls = semColor(logro, frec, qSel);
+    const estado = esMilestone ? 'EN CURSO' : (logro === null ? '' : (k['Estado_lookup'] || k['Estado'] || logroSem(logro, frec, qSel)));
+    const meta = k['Meta_Q (editable)'] ?? k['Meta_Q'] ?? '';
+    const actual = k['Actual_Q (cargar)'] ?? k['Actual_Q'] ?? '';
+    const comparador = k['Comparador'] || '>=';
+    const unidad = k['Unidad'] || '';
+    const esPct = _esPct(unidad, meta);
+    const actualN = num(actual);
+    const actualShow = actualN === null ? '' : (esPct ? String(+(actualN * 100).toFixed(4)).replace('.', ',') : String(actualN).replace('.', ','));
+    const metaShow = num(meta) === null ? meta : (esPct ? (num(meta) * 100).toLocaleString('es-AR', { maximumFractionDigits: 2 }) + '%' : num(meta).toLocaleString('es-AR', { maximumFractionDigits: 2 }) + (unidad ? ' ' + unidad : ''));
+    const metaAnualN = num(k['Meta_Anual']);
+    const metaAnualShow = metaAnualN === null ? (k['Meta_Anual'] || '') : (esPct ? (metaAnualN * 100).toLocaleString('es-AR', { maximumFractionDigits: 2 }) + '%' : metaAnualN.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + (unidad ? ' ' + unidad : ''));
+    const placeholder = esPct ? 'Ej: 85,2 (para 85,2%)' : (unidad === 'ARS' || unidad === 'USD') ? 'Ej: 1500000' : 'Ingresá el valor real';
+    const planBox = (cls === 'rojo' || cls === 'amarillo') ? `
+        <div class="plan-accion-box ${cls}">
+          <div class="plan-accion-header"><div class="plan-accion-icon ${cls}">!</div><div class="plan-accion-title ${cls}">Plan de acción requerido</div></div>
+          <div class="plan-accion-grid">
+            <div class="plan-accion-full"><label class="plan-form-label">Causa raíz</label>
+              <textarea class="plan-form-input" id="causa-${key}" rows="2" placeholder="¿Por qué no se alcanzó el objetivo?">${k['Plan_Causa'] || ''}</textarea></div>
+            <div class="plan-accion-full"><label class="plan-form-label">Acciones a tomar</label>
+              <textarea class="plan-form-input" id="acciones-${key}" rows="2" placeholder="Acciones concretas que se van a implementar">${k['Plan_Acciones'] || ''}</textarea></div>
+            <div><label class="plan-form-label">Responsable del plan</label>
+              <input type="text" class="plan-form-input" id="plan-resp-${key}" value="${esc(k['Plan_Responsable'])}" placeholder="Gerencia o persona"></div>
+            <div><label class="plan-form-label">Fecha compromiso</label>
+              <input type="date" class="plan-form-input" id="plan-fecha-${key}" value="${fechaInput(k['Plan_Fecha'])}"></div>
+          </div>
+        </div>` : ((k['Plan_Causa'] || k['Plan_Acciones'] || k['Plan_Fecha']) ? `
+        <div style="margin-top:10px;padding:8px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);font-size:11px;color:var(--text2)">
+          Plan de acción registrado${k['Plan_Fecha'] ? ' · compromiso ' + fechaDisplay(k['Plan_Fecha']) : ''}. Se conserva al guardar.
+        </div>` : '');
+
+    return `<div class="kpi-carga-card" id="card-${key}">
+      <div class="kpi-carga-header" onclick="toggleCard('${key}')">
+        <div class="kpi-carga-id">${k['KPI_ID'] || ''}</div>
+        <div class="kpi-carga-name">${k['Objetivo'] || ''}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          ${estado ? semBadge(estado) : '<span class="badge badge-neutro">Sin cargar</span>'}
+          <div class="kpi-carga-meta">${pct(logro)}</div>
+          <div class="kpi-carga-expand">▾</div>
+        </div>
+      </div>
+      <div class="kpi-carga-body">
+        <div class="kpi-meta-info">
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Gerencia</div><div class="kpi-meta-val">${k['Responsable'] || ''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Métrica</div><div class="kpi-meta-val">${k['Métrica'] || ''}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Meta ${qSel}</div><div class="kpi-meta-val">${comparador} ${metaShow}</div></div>
+          <div class="kpi-meta-item"><div class="kpi-meta-key">Meta anual</div><div class="kpi-meta-val">${metaAnualShow}</div></div>
+        </div>
+        ${esMilestone ? `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;margin-top:8px;border-radius:7px;background:rgba(107,114,128,.07);border:1px solid rgba(107,114,128,.2);font-size:11px;color:#64748b"><span>⏳</span><span><strong>KPI anual / hito:</strong> el semáforo es informativo hasta el cierre del año (Q4).</span></div>` : ''}
+        <div class="kpi-form-grid">
+          <div>
+            <label class="form-label">Actual ${qSel} (valor real)</label>
+            <input type="text" inputmode="decimal" class="form-input" id="actual-${key}" value="${esc(actualShow)}" placeholder="${placeholder}"
+              data-meta="${esc(meta)}" data-comp="${esc(comparador)}" data-pct="${esPct ? '1' : ''}" oninput="previewLogro('${key}')">
+            ${esPct ? '<div style="font-size:10px;color:var(--text3);margin-top:3px">Ingresá el porcentaje sin el signo: <b>85,2</b> para 85,2%. Se puede usar coma o punto.</div>' : '<div style="font-size:10px;color:var(--text3);margin-top:3px">Se puede usar coma o punto decimal.</div>'}
+          </div>
+          <div>
+            <label class="form-label">Evidencia (URL)</label>
+            <input type="url" class="form-input" id="evidencia-${key}" value="${esc(k['Evidencia (URL)'])}" placeholder="https://drive.google.com/...">
+          </div>
+          <div class="kpi-form-full">
+            <label class="form-label">Comentarios</label>
+            <textarea class="form-input" id="comentarios-${key}" rows="2" placeholder="Observaciones, contexto, etc." style="resize:vertical;min-height:38px">${k['Comentarios'] || ''}</textarea>
+          </div>
+          ${(cls === 'rojo' || cls === 'amarillo') ? `
+          <div class="kpi-form-full" style="margin-top:2px">
+            <label class="form-label" style="display:flex;align-items:center;gap:6px"><span style="background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo);font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600">REQUERIDO</span>¿Por qué no se logró el objetivo este trimestre?</label>
+            <textarea class="form-input" id="motivo-${key}" rows="2" placeholder="Describí brevemente la causa del incumplimiento..." style="resize:vertical;min-height:38px">${k['Motivo_No_Logro'] || ''}</textarea>
+          </div>` : ''}
+        </div>
+        <div class="logro-preview" id="preview-${key}"><span class="logro-preview-lbl">Logro estimado:</span>${progressBar(logro, cls)}</div>
+        ${planBox}
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button class="btn-save" onclick="guardarKPI('${key}')" id="btn-${key}">Guardar en Sheets</button>
+          <button class="btn-ia-sm" onclick="analizarKPI('${key}',this)" id="ia-btn-${key}"><div class="ia-gem-icon" style="width:14px;height:14px;font-size:8px">G</div>Analizar con IA</button>
+          <span class="save-msg" id="msg-${key}"></span>
+        </div>
+        <div id="ia-kpi-${key}" style="display:none" class="ia-kpi-result"></div>
+      </div>
+    </div>`;
+  }).join('');
+  fixDateInputs();
+}
+
+function previewLogro(key) {
+  const el = document.getElementById('actual-' + key);
+  const previewEl = document.getElementById('preview-' + key);
+  if (!el || !previewEl) return;
+  let a = num(el.value);
+  if (a !== null && el.dataset.pct === '1') a = a / 100;
+  const logro = calcLogroLocal(a, el.dataset.meta, el.dataset.comp);
+  if (logro === null) { previewEl.innerHTML = '<span class="logro-preview-lbl">Logro estimado: —</span>'; return; }
+  previewEl.innerHTML = `<span class="logro-preview-lbl">Logro estimado:</span>${progressBar(logro, semColor(logro, null, 'Q4'))}`;
+}
+
+async function guardarKPI(key) {
+  if (!SESSION) return;
+  const row = _kpiPorKey(key) || {};
+  const el = document.getElementById('actual-' + key);
+  const btn = document.getElementById('btn-' + key);
+  const msg = document.getElementById('msg-' + key);
+  const raw = (el?.value || '').trim();
+  let a = num(raw);
+  if (raw !== '' && a === null) { msg.textContent = '✗ El valor real debe ser un número'; msg.className = 'save-msg err'; return; }
+  if (a !== null && el?.dataset.pct === '1') a = +(a / 100).toFixed(8);
+  // Si un campo no está en pantalla, se reenvía el valor que ya tenía (no se borra)
+  const campo = (id, actualValor) => { const e = document.getElementById(id); return e ? e.value : (actualValor || ''); };
+
+  btn.disabled = true; msg.textContent = 'Guardando...'; msg.className = 'save-msg';
+  try {
+    const res = await apiPost({
+      accion: 'actualizar_kpi', usuario: SESSION.usuario, password: getPass(), key,
+      actual_q: a === null ? '' : a,
+      comentarios: campo('comentarios-' + key, row['Comentarios']),
+      evidencia: campo('evidencia-' + key, row['Evidencia (URL)']),
+      motivo_no_logro: campo('motivo-' + key, row['Motivo_No_Logro']),
+      plan_causa: campo('causa-' + key, row['Plan_Causa']),
+      plan_acciones: campo('acciones-' + key, row['Plan_Acciones']),
+      plan_responsable: campo('plan-resp-' + key, row['Plan_Responsable']),
+      plan_fecha: campo('plan-fecha-' + key, fechaInput(row['Plan_Fecha']))
+    });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    msg.textContent = '✓ Guardado'; msg.className = 'save-msg ok';
+    toast('KPI actualizado en Google Sheets ✓');
+    setTimeout(syncData, 1000);
+  } catch (e) {
+    msg.textContent = '✗ ' + e.message; msg.className = 'save-msg err';
+    toast(e.message, 'err');
+  } finally { btn.disabled = false; }
+}
+
+// Riesgos: corregir fechas en el formulario después de renderizar
+if (typeof renderRiesgosCarga === 'function') {
+  (function () {
+    const orig = renderRiesgosCarga;
+    renderRiesgosCarga = function () { orig(); fixDateInputs(); };
+  })();
+}
+
+// Re-render con el parche aplicado
+if (typeof DATA !== 'undefined' && DATA && typeof renderCurrentPage === 'function') renderCurrentPage();
+</script>
+
 </body>
 </html>
