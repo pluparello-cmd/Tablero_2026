@@ -4682,7 +4682,7 @@ init();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     PARCHE TABLERO SOOFT 2026 — v2 (05/10/2026)
+     PARCHE TABLERO SOOFT 2026 — v3 (06/10/2026)
      (integrado en index.html)
      Corrige:
        1. Trimestres sin datos: se muestran "—" en gris, no 0% en rojo
@@ -4696,6 +4696,8 @@ init();
        9. Rojos contados igual que en el Sheet (sin vacíos ni EN CURSO)
       10. Plan de acción unificado (KPIs y Dirección): Motivo del no logro, Plan de acción,
           Responsable y Fecha compromiso — los 4 obligatorios para objetivos no cumplidos
+      11. Vistas de Dirección (desglose del Dashboard y Cierre Q) muestran Motivo, Plan,
+          Responsable y Fecha de cada KPI no cumplido, y marcan lo que falta
 ════════════════════════════════════════════════════════════════ -->
 <style>
 .obj-sem-stripe.neutro{background:var(--surface3)}
@@ -4797,6 +4799,21 @@ function planEstado(k) {
   const c = [motivoDe(k), String(k['Plan_Acciones'] || '').trim(), String(k['Plan_Responsable'] || '').trim(), fechaInput(k['Plan_Fecha'])];
   const n = c.filter(Boolean).length;
   return n === 4 ? 'completo' : n === 0 ? 'vacio' : 'incompleto';
+}
+function planResumenHtml(k, compacto) {
+  const campos = [
+    ['Motivo', motivoDe(k)], ['Plan de acción', String(k['Plan_Acciones'] || '').trim()],
+    ['Responsable', String(k['Plan_Responsable'] || '').trim()], ['Fecha compromiso', fechaDisplay(k['Plan_Fecha'])]
+  ];
+  const faltan = campos.filter(c => !c[1]).map(c => c[0]);
+  if (compacto) {
+    const resp = campos[2][1], fecha = campos[3][1];
+    if (faltan.length === 4) return '<div style="font-size:10px;color:var(--rojo);margin:-4px 0 4px 0">! Sin plan de acción</div>';
+    return `<div style="font-size:10px;color:var(--text3);margin:-4px 0 4px 0">👤 ${resp ? esc(resp) : '<span style="color:var(--rojo)">sin responsable</span>'} · 📅 ${fecha || '<span style="color:var(--rojo)">sin fecha</span>'}${faltan.length ? ` · <span style="color:var(--rojo)">falta: ${faltan.join(', ').toLowerCase()}</span>` : ''}</div>`;
+  }
+  return `<div style="display:grid;grid-template-columns:120px 1fr;gap:3px 10px;font-size:11px;margin-top:4px">` +
+    campos.map(c => `<span style="color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.4px">${c[0]}</span><span style="color:${c[1] ? 'var(--text2)' : 'var(--rojo)'}">${c[1] ? esc(c[1]) : 'Falta completar'}</span>`).join('') +
+    `</div>`;
 }
 const PLAN_ERR_ = 'Para objetivos no cumplidos son obligatorios: Motivo del no logro, Plan de acción, Responsable y Fecha compromiso.';
 function marcarFaltantes_(ids) {
@@ -4961,14 +4978,15 @@ function toggleStatPanel(tipo, card) {
     const qv = getQVal(r, currentQ); const cls = semColor(qv, frecOf(r)); const ytd = getQVal(r, 'YTD');
     let comentariosHtml = '';
     if (tipo === 'rojo' || tipo === 'amarillo') {
-      const kpisRel = kpisQ.filter(k => semColor(kpiLogro(k), kpiFrec(k)) === tipo && (k['Comentarios'] || '').trim());
+      const kpisRel = kpisQ.filter(k => semColor(kpiLogro(k), kpiFrec(k)) === tipo);
       if (kpisRel.length) {
         comentariosHtml = `<div style="grid-column:1/-1;margin-top:6px;border-top:1px solid var(--border);padding-top:8px">
-          <div style="font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Comentarios de KPIs relacionados (${currentQ})</div>
-          ${kpisRel.slice(0, 5).map(k => { const l = kpiLogro(k); const col = semColor(l);
+          <div style="font-size:9px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Planes de acción de KPIs no cumplidos (${currentQ})</div>
+          ${kpisRel.slice(0, 8).map(k => { const l = kpiLogro(k); const col = semColor(l);
             return `<div style="display:flex;gap:10px;padding:7px 10px;border-radius:6px;background:var(--${col}-bg);border:1px solid var(--${col}-border);margin-bottom:5px"><div style="flex:1;min-width:0">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)">${k['KPI_ID'] || ''}</span><span style="font-size:11px;color:var(--text);font-weight:500">${k['Objetivo'] || ''}</span><span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;color:var(--${col})">${pct(l)}</span></div>
-              <div style="font-size:11px;color:var(--text2)"><span style="color:var(--text3);font-size:10px">Gerencia:</span> <span style="font-weight:500">${k['Responsable'] || ''}</span> &nbsp;·&nbsp; <span style="color:var(--text3);font-size:10px">Comentario:</span> ${k['Comentarios']}</div>
+              <div style="font-size:11px;color:var(--text2)"><span style="color:var(--text3);font-size:10px">Gerencia:</span> <span style="font-weight:500">${k['Responsable'] || ''}</span></div>
+              ${planResumenHtml(k, false)}
             </div></div>`; }).join('')}
         </div>`;
       }
@@ -5210,7 +5228,7 @@ function renderCqDetalle(gerName) {
         <span class="cq-obj-cifra">${fmtVal(k['Actual_Q (cargar)'] ?? k['Actual_Q'], k['Unidad'], k['Meta_Q (editable)'] ?? k['Meta_Q'])}</span>
         ${cqDeltaHtml(logro, prevMap[k['KPI_ID'] || ''] ?? null)}
       </div>
-    </div>`;
+    </div>${(!enCurso && (semColor(logro) === 'rojo' || semColor(logro) === 'amarillo')) ? planResumenHtml(k, true) : ''}`;
   }).join('') || `<div style="color:var(--text3);font-size:12px;padding:8px 0">Sin KPIs cargados para ${currentQ}</div>`;
   det.innerHTML = `
     <div class="cq-det-hdr">
@@ -5443,7 +5461,11 @@ function renderCarga() {
     const placeholder = esPct ? 'Ej: 85,2 (para 85,2%)' : (unidad === 'ARS' || unidad === 'USD') ? 'Ej: 1500000' : 'Ingresá el valor real';
     const necesitaPlan = (cls === 'rojo' || cls === 'amarillo');
     const boxCls = necesitaPlan ? cls : 'rojo';
-    const planBox = esMilestone ? '' : `
+    const planBox = esMilestone ? (planEstado(k) !== 'vacio' ? `
+        <div style="margin-top:10px;padding:8px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border)">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3)">Plan registrado (hito en curso)</div>
+          ${planResumenHtml(k, false)}
+        </div>` : '') : `
         <div class="plan-accion-box ${boxCls}" id="plan-wrap-${key}" data-cls="${necesitaPlan ? cls : ''}" style="${necesitaPlan ? '' : 'display:none'}">
           <div class="plan-accion-header"><div class="plan-accion-icon ${boxCls}">!</div><div class="plan-accion-title ${boxCls}">Objetivo no cumplido — plan de acción obligatorio</div></div>
           <div class="plan-accion-grid">
