@@ -1505,26 +1505,7 @@ async function doLogin() {
   errEl.textContent = '';
 
   const apiUrl = getApiUrl();
-  if (!apiUrl) {
-    // Sin API → validación local de demo
-    const DEMO = [
-      {usuario:'admin',password:'sooft2026',gerencia:'Dirección',rol:'admin'},
-      {usuario:'rrhh',password:'rrhh2026',gerencia:'PEOPLE_RRHH',rol:'gerente'},
-      {usuario:'finanzas',password:'fin2026',gerencia:'FINANZAS',rol:'gerente'},
-      {usuario:'marketing',password:'mkt2026',gerencia:'MARKETING',rol:'gerente'},
-      {usuario:'operaciones',password:'ops2026',gerencia:'OPERACIONES',rol:'gerente'},
-      {usuario:'comercial_ar',password:'comar2026',gerencia:'COMERCIAL_AR',rol:'gerente'},
-      {usuario:'comercial_cl',password:'comcl2026',gerencia:'COMERCIAL_CL',rol:'gerente'},
-      {usuario:'calidad',password:'cal2026',gerencia:'CALIDAD',rol:'gerente'},
-      {usuario:'admin_ger',password:'admin2026',gerencia:'ADMIN',rol:'gerente'},
-      {usuario:'reclutamiento',password:'rec2026',gerencia:'RECLUTAMIENTO',rol:'gerente'},
-    ];
-    const u = DEMO.find(u => u.usuario === usuario && u.password === password);
-    if (!u) { errEl.textContent = 'Usuario o contraseña incorrectos'; return; }
-    startSession(u);
-    toast('Modo demo — conectá Google Sheets para guardar cambios reales', 'err');
-    return;
-  }
+  if (!apiUrl) { errEl.textContent = 'Sin conexión con Google Sheets configurada'; return; }
 
   btn.disabled = true;
   setLoading(true, 'Verificando credenciales...');
@@ -4700,11 +4681,9 @@ init();
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <!-- ═══════════════════════════════════════════════════════════════
-     PARCHE TABLERO SOOFT 2026 — v1 (05/10/2026)
-     Pegar este bloque COMPLETO justo antes de </body> en index.html
-     (después de las líneas de Chart.js).
+     PARCHE TABLERO SOOFT 2026 — v2 (05/10/2026)
+     (integrado en index.html)
      Corrige:
        1. Trimestres sin datos: se muestran "—" en gris, no 0% en rojo
        2. "LOGRO Qx" ya no muestra el YTD cuando el Q está vacío
@@ -4715,6 +4694,8 @@ init();
        7. Porcentajes: el gerente escribe 67 (o 67,5) y se guarda 0,67 / 0,675
        8. Decimales con coma aceptados
        9. Rojos contados igual que en el Sheet (sin vacíos ni EN CURSO)
+      10. Plan de acción unificado (KPIs y Dirección): Motivo del no logro, Plan de acción,
+          Responsable y Fecha compromiso — los 4 obligatorios para objetivos no cumplidos
 ════════════════════════════════════════════════════════════════ -->
 <style>
 .obj-sem-stripe.neutro{background:var(--surface3)}
@@ -4811,6 +4792,19 @@ function calcLogroLocal(actual, meta, comparador) {
 }
 function kpiLogro(k) { return num(k['Logro_Q'] ?? k['Logro_lookup'] ?? k['Logro lookup']); }
 function kpiFrec(k) { return k['Frecuencia'] || k['Tipo'] || 'Q'; }
+function motivoDe(k) { return String(k['Motivo_No_Logro'] || k['Plan_Causa'] || '').trim(); }
+function planEstado(k) {
+  const c = [motivoDe(k), String(k['Plan_Acciones'] || '').trim(), String(k['Plan_Responsable'] || '').trim(), fechaInput(k['Plan_Fecha'])];
+  const n = c.filter(Boolean).length;
+  return n === 4 ? 'completo' : n === 0 ? 'vacio' : 'incompleto';
+}
+const PLAN_ERR_ = 'Para objetivos no cumplidos son obligatorios: Motivo del no logro, Plan de acción, Responsable y Fecha compromiso.';
+function marcarFaltantes_(ids) {
+  let faltan = 0;
+  ids.forEach(id => { const e = document.getElementById(id); if (!e) return;
+    const vacio = !String(e.value || '').trim(); e.style.borderColor = vacio ? 'var(--rojo)' : ''; if (vacio) faltan++; });
+  return faltan;
+}
 function barGrad(cls) {
   return cls === 'verde' ? 'linear-gradient(90deg,var(--verde),#22c55e)'
        : cls === 'amarillo' ? 'linear-gradient(90deg,var(--amarillo),#eab308)'
@@ -4834,7 +4828,7 @@ function renderDashboard() {
   const kCls = k => semColor(kpiLogro(k), kpiFrec(k));
   const kpisConDato = kpisQ.filter(k => kpiLogro(k) !== null).length;
   const kpisRojos = kpisQ.filter(k => kCls(k) === 'rojo').length;
-  const sinPlan = kpisQ.filter(k => { const c = kCls(k); return (c === 'rojo' || c === 'amarillo') && !(k['Plan_Causa'] || '').trim() && !(k['Plan_Acciones'] || '').trim(); }).length;
+  const sinPlan = kpisQ.filter(k => { const c = kCls(k); return (c === 'rojo' || c === 'amarillo') && planEstado(k) !== 'completo'; }).length;
   const risks = (d.riesgos || []).filter(r => (r['Estado'] || '') !== 'Cerrado');
 
   const qs = ['Q1', 'Q2', 'Q3', 'Q4']; const qi = qs.indexOf(currentQ);
@@ -4865,7 +4859,7 @@ function renderDashboard() {
     <div class="hero-kpi" onclick="toggleStatPanel('rojo',this)" style="cursor:pointer">
       <div class="hero-kpi-label">KPIs críticos ${currentQ}</div>
       <div class="hero-kpi-val" style="color:var(--rojo)">${kpisRojos}<span style="font-size:18px;color:var(--text3)"> KPIs</span></div>
-      <div class="hero-kpi-sub"><span class="delta-chip ${sinPlan > 0 ? 'delta-dn' : 'delta-up'}">${sinPlan > 0 ? sinPlan + ' sin plan' : 'Todos con plan'}</span><span style="font-size:10px">${kpisConDato}/${kpisQ.length} cargados</span></div>
+      <div class="hero-kpi-sub"><span class="delta-chip ${sinPlan > 0 ? 'delta-dn' : 'delta-up'}">${sinPlan > 0 ? sinPlan + ' sin plan completo' : 'Todos con plan'}</span><span style="font-size:10px">${kpisConDato}/${kpisQ.length} cargados</span></div>
       <div class="hero-bar-wrap"><div class="hero-bar-track"><div class="hero-bar-fill hb-rojo" style="width:${kpisConDato ? Math.round(kpisRojos / kpisConDato * 100) : 0}%"></div></div><div class="hero-bar-meta">${kpisConDato ? Math.round(kpisRojos / kpisConDato * 100) : 0}% de los cargados · ▾ ver</div></div>
     </div>
     <div class="hero-kpi">
@@ -5015,13 +5009,13 @@ function renderDireccion() {
         <div class="plan-accion-box ${cls}">
           <div class="plan-accion-header"><div class="plan-accion-icon ${cls}">!</div><div class="plan-accion-title ${cls}">Plan de acción</div></div>
           <div class="plan-accion-grid">
-            <div class="plan-accion-full"><label class="plan-form-label">Causa raíz</label>
+            <div class="plan-accion-full"><label class="plan-form-label">Motivo del no logro *</label>
               <textarea class="plan-form-input" id="dir-causa-${objId}" rows="2" placeholder="¿Por qué no se alcanzó el objetivo?">${r['Plan_Causa'] || ''}</textarea></div>
-            <div class="plan-accion-full"><label class="plan-form-label">Acciones a tomar</label>
+            <div class="plan-accion-full"><label class="plan-form-label">Plan de acción *</label>
               <textarea class="plan-form-input" id="dir-acciones-${objId}" rows="2" placeholder="Acciones concretas a implementar">${r['Plan_Acciones'] || ''}</textarea></div>
-            <div><label class="plan-form-label">Responsable del plan</label>
+            <div><label class="plan-form-label">Responsable *</label>
               <input type="text" class="plan-form-input" id="dir-resp-${objId}" value="${esc(r['Plan_Responsable'])}" placeholder="Gerencia o persona"></div>
-            <div><label class="plan-form-label">Fecha compromiso</label>
+            <div><label class="plan-form-label">Fecha compromiso *</label>
               <input type="date" class="plan-form-input" id="dir-fecha-${objId}" value="${fechaInput(r['Plan_Fecha'])}"></div>
           </div>
           <button class="btn-save" style="margin-top:10px" onclick="guardarPlanDir('${objId}')">Guardar plan en Sheets</button>
@@ -5329,19 +5323,19 @@ function renderDrawerContent() {
             const frecK = kpiFrec(k); const logro = kpiLogro(k); const cls = semColor(logro, frecK);
             const meta = k['Meta_Q (editable)'] ?? k['Meta_Q'] ?? ''; const actual = k['Actual_Q (cargar)'] ?? k['Actual_Q'] ?? '';
             const unidad = k['Unidad'] || ''; const kpiId = k['KPI_ID'] || '';
-            const tienePlan = !!(k['Plan_Causa'] || '').trim() || !!(k['Plan_Acciones'] || '').trim();
-            const tieneMotivo = !!(k['Motivo_No_Logro'] || '').trim();
+            const pe = planEstado(k);
+            const tieneMotivo = false;
             const tieneComentario = !!(k['Comentarios'] || '').trim();
             let chips = '';
-            if (tienePlan) chips += '<span class="gestion-chip chip-plan">✓ Plan</span>';
+            if (pe === 'completo') chips += '<span class="gestion-chip chip-plan">✓ Plan</span>';
+            else if (pe === 'incompleto') chips += '<span class="gestion-chip chip-motivo">! Plan incompleto</span>';
             else if (cls === 'rojo' || cls === 'amarillo') chips += '<span class="gestion-chip chip-missing">! Sin plan</span>';
             if (tieneMotivo) chips += '<span class="gestion-chip chip-motivo">⚠ Motivo</span>';
             if (tieneComentario) chips += '<span class="gestion-chip chip-comment">💬</span>';
             let planHtml = '';
             const row = (ic, lbl, val, extra) => `<div class="plan-detail-row"><span class="plan-detail-key">${ic} ${lbl}</span><span class="plan-detail-val ${extra || ''}">${val}</span></div>`;
-            if (tieneMotivo) planHtml += row('⚠', 'Motivo de no logro', k['Motivo_No_Logro'], 'motivo');
-            if ((k['Plan_Causa'] || '').trim()) planHtml += row('🔍', 'Causa raíz', k['Plan_Causa']);
-            if ((k['Plan_Acciones'] || '').trim()) planHtml += row('▶', 'Acciones', k['Plan_Acciones'], 'accion');
+            if (motivoDe(k)) planHtml += row('⚠', 'Motivo del no logro', motivoDe(k), 'motivo');
+            if ((k['Plan_Acciones'] || '').trim()) planHtml += row('▶', 'Plan de acción', k['Plan_Acciones'], 'accion');
             if ((k['Plan_Responsable'] || '').trim()) planHtml += row('👤', 'Responsable', k['Plan_Responsable']);
             if (k['Plan_Fecha']) planHtml += row('📅', 'Fecha compromiso', fechaDisplay(k['Plan_Fecha']));
             if (tieneComentario) planHtml += row('💬', 'Comentario', k['Comentarios']);
@@ -5447,23 +5441,22 @@ function renderCarga() {
     const metaAnualN = num(k['Meta_Anual']);
     const metaAnualShow = metaAnualN === null ? (k['Meta_Anual'] || '') : (esPct ? (metaAnualN * 100).toLocaleString('es-AR', { maximumFractionDigits: 2 }) + '%' : metaAnualN.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + (unidad ? ' ' + unidad : ''));
     const placeholder = esPct ? 'Ej: 85,2 (para 85,2%)' : (unidad === 'ARS' || unidad === 'USD') ? 'Ej: 1500000' : 'Ingresá el valor real';
-    const planBox = (cls === 'rojo' || cls === 'amarillo') ? `
-        <div class="plan-accion-box ${cls}">
-          <div class="plan-accion-header"><div class="plan-accion-icon ${cls}">!</div><div class="plan-accion-title ${cls}">Plan de acción requerido</div></div>
+    const necesitaPlan = (cls === 'rojo' || cls === 'amarillo');
+    const boxCls = necesitaPlan ? cls : 'rojo';
+    const planBox = esMilestone ? '' : `
+        <div class="plan-accion-box ${boxCls}" id="plan-wrap-${key}" data-cls="${necesitaPlan ? cls : ''}" style="${necesitaPlan ? '' : 'display:none'}">
+          <div class="plan-accion-header"><div class="plan-accion-icon ${boxCls}">!</div><div class="plan-accion-title ${boxCls}">Objetivo no cumplido — plan de acción obligatorio</div></div>
           <div class="plan-accion-grid">
-            <div class="plan-accion-full"><label class="plan-form-label">Causa raíz</label>
-              <textarea class="plan-form-input" id="causa-${key}" rows="2" placeholder="¿Por qué no se alcanzó el objetivo?">${k['Plan_Causa'] || ''}</textarea></div>
-            <div class="plan-accion-full"><label class="plan-form-label">Acciones a tomar</label>
+            <div class="plan-accion-full"><label class="plan-form-label">Motivo del no logro *</label>
+              <textarea class="plan-form-input" id="motivo-${key}" rows="2" placeholder="¿Por qué no se alcanzó el objetivo este trimestre?">${motivoDe(k)}</textarea></div>
+            <div class="plan-accion-full"><label class="plan-form-label">Plan de acción *</label>
               <textarea class="plan-form-input" id="acciones-${key}" rows="2" placeholder="Acciones concretas que se van a implementar">${k['Plan_Acciones'] || ''}</textarea></div>
-            <div><label class="plan-form-label">Responsable del plan</label>
+            <div><label class="plan-form-label">Responsable *</label>
               <input type="text" class="plan-form-input" id="plan-resp-${key}" value="${esc(k['Plan_Responsable'])}" placeholder="Gerencia o persona"></div>
-            <div><label class="plan-form-label">Fecha compromiso</label>
+            <div><label class="plan-form-label">Fecha compromiso *</label>
               <input type="date" class="plan-form-input" id="plan-fecha-${key}" value="${fechaInput(k['Plan_Fecha'])}"></div>
           </div>
-        </div>` : ((k['Plan_Causa'] || k['Plan_Acciones'] || k['Plan_Fecha']) ? `
-        <div style="margin-top:10px;padding:8px 12px;border-radius:7px;background:var(--surface2);border:1px solid var(--border);font-size:11px;color:var(--text2)">
-          Plan de acción registrado${k['Plan_Fecha'] ? ' · compromiso ' + fechaDisplay(k['Plan_Fecha']) : ''}. Se conserva al guardar.
-        </div>` : '');
+        </div>`;
 
     return `<div class="kpi-carga-card" id="card-${key}">
       <div class="kpi-carga-header" onclick="toggleCard('${key}')">
@@ -5498,11 +5491,7 @@ function renderCarga() {
             <label class="form-label">Comentarios</label>
             <textarea class="form-input" id="comentarios-${key}" rows="2" placeholder="Observaciones, contexto, etc." style="resize:vertical;min-height:38px">${k['Comentarios'] || ''}</textarea>
           </div>
-          ${(cls === 'rojo' || cls === 'amarillo') ? `
-          <div class="kpi-form-full" style="margin-top:2px">
-            <label class="form-label" style="display:flex;align-items:center;gap:6px"><span style="background:var(--rojo-bg);border:1px solid var(--rojo-border);color:var(--rojo);font-size:9px;padding:1px 6px;border-radius:3px;font-weight:600">REQUERIDO</span>¿Por qué no se logró el objetivo este trimestre?</label>
-            <textarea class="form-input" id="motivo-${key}" rows="2" placeholder="Describí brevemente la causa del incumplimiento..." style="resize:vertical;min-height:38px">${k['Motivo_No_Logro'] || ''}</textarea>
-          </div>` : ''}
+
         </div>
         <div class="logro-preview" id="preview-${key}"><span class="logro-preview-lbl">Logro estimado:</span>${progressBar(logro, cls)}</div>
         ${planBox}
@@ -5525,8 +5514,22 @@ function previewLogro(key) {
   let a = num(el.value);
   if (a !== null && el.dataset.pct === '1') a = a / 100;
   const logro = calcLogroLocal(a, el.dataset.meta, el.dataset.comp);
-  if (logro === null) { previewEl.innerHTML = '<span class="logro-preview-lbl">Logro estimado: —</span>'; return; }
-  previewEl.innerHTML = `<span class="logro-preview-lbl">Logro estimado:</span>${progressBar(logro, semColor(logro, null, 'Q4'))}`;
+  const wrap = document.getElementById('plan-wrap-' + key);
+  if (logro === null) {
+    previewEl.innerHTML = '<span class="logro-preview-lbl">Logro estimado: —</span>';
+    if (wrap) wrap.style.display = wrap.dataset.cls ? '' : 'none';
+    return;
+  }
+  const c = semColor(logro, null, 'Q4');
+  previewEl.innerHTML = `<span class="logro-preview-lbl">Logro estimado:</span>${progressBar(logro, c)}`;
+  if (wrap) {
+    const mostrar = c === 'rojo' || c === 'amarillo';
+    wrap.style.display = mostrar ? '' : 'none';
+    if (mostrar) {
+      wrap.className = 'plan-accion-box ' + c;
+      wrap.querySelectorAll('.plan-accion-icon,.plan-accion-title').forEach(el => { el.classList.remove('rojo', 'amarillo'); el.classList.add(c); });
+    }
+  }
 }
 
 async function guardarKPI(key) {
@@ -5539,6 +5542,12 @@ async function guardarKPI(key) {
   let a = num(raw);
   if (raw !== '' && a === null) { msg.textContent = '✗ El valor real debe ser un número'; msg.className = 'save-msg err'; return; }
   if (a !== null && el?.dataset.pct === '1') a = +(a / 100).toFixed(8);
+  // Validación: objetivo no cumplido → los 4 campos del plan son obligatorios
+  const wrap = document.getElementById('plan-wrap-' + key);
+  if (wrap && wrap.style.display !== 'none') {
+    const faltan = marcarFaltantes_(['motivo-' + key, 'acciones-' + key, 'plan-resp-' + key, 'plan-fecha-' + key]);
+    if (faltan) { msg.textContent = '✗ ' + PLAN_ERR_; msg.className = 'save-msg err'; toast(PLAN_ERR_, 'err'); return; }
+  }
   // Si un campo no está en pantalla, se reenvía el valor que ya tenía (no se borra)
   const campo = (id, actualValor) => { const e = document.getElementById(id); return e ? e.value : (actualValor || ''); };
 
@@ -5563,6 +5572,27 @@ async function guardarKPI(key) {
     msg.textContent = '✗ ' + e.message; msg.className = 'save-msg err';
     toast(e.message, 'err');
   } finally { btn.disabled = false; }
+}
+
+// Plan de Dirección con validación de los 4 campos
+async function guardarPlanDir(objId) {
+  if (!SESSION) return;
+  const ids = ['dir-causa-' + objId, 'dir-acciones-' + objId, 'dir-resp-' + objId, 'dir-fecha-' + objId];
+  const msg = document.getElementById('dir-plan-msg-' + objId);
+  if (marcarFaltantes_(ids)) { if (msg) { msg.textContent = '✗ ' + PLAN_ERR_; msg.className = 'save-msg err'; } toast(PLAN_ERR_, 'err'); return; }
+  const val = id => document.getElementById(id)?.value || '';
+  if (msg) { msg.textContent = 'Guardando...'; msg.className = 'save-msg'; }
+  try {
+    const res = await apiPost({ accion: 'actualizar_plan_dir', usuario: SESSION.usuario, password: getPass(), obj_id: objId,
+      plan_causa: val(ids[0]), plan_acciones: val(ids[1]), plan_responsable: val(ids[2]), plan_fecha: val(ids[3]) });
+    if (res.status !== 'ok') throw new Error(res.mensaje);
+    if (msg) { msg.textContent = '✓ Plan guardado'; msg.className = 'save-msg ok'; }
+    toast('Plan de acción guardado en Google Sheets ✓');
+    setTimeout(syncData, 1000);
+  } catch (e) {
+    if (msg) { msg.textContent = '✗ ' + e.message; msg.className = 'save-msg err'; }
+    toast(e.message, 'err');
+  }
 }
 
 // Riesgos: corregir fechas en el formulario después de renderizar
