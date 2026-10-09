@@ -4682,7 +4682,7 @@ init();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════
-     PARCHE TABLERO SOOFT 2026 — v3.1 (06/10/2026)
+     PARCHE TABLERO SOOFT 2026 — v3.2 (09/10/2026)
      (integrado en index.html)
      Corrige:
        1. Trimestres sin datos: se muestran "—" en gris, no 0% en rojo
@@ -4705,6 +4705,9 @@ init();
 .dot-neutro{background:#94a3b8}
 .plan-detail-panel td,.plan-detail-val,.plan-detail-key{white-space:normal!important;word-break:break-word}
 .kpi-drawer-table td.kpi-name{white-space:normal}
+body.dark .drawer{background:var(--surface);border-left-color:var(--border)}
+body.dark .dtab.active{background:var(--surface);border-color:var(--border);border-bottom-color:var(--surface)}
+body.dark .drawer-tabs{border-bottom-color:var(--border)}
 .vacante-tag{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;background:var(--surface3);color:var(--text3);border:1px solid var(--border);margin-left:6px;text-transform:uppercase;letter-spacing:.4px}
 </style>
 <script>
@@ -5354,10 +5357,13 @@ function renderDrawerContent() {
             if (tieneComentario) chips += '<span class="gestion-chip chip-comment">💬</span>';
             let planHtml = '';
             const row = (ic, lbl, val, extra) => `<div class="plan-detail-row"><span class="plan-detail-key">${ic} ${lbl}</span><span class="plan-detail-val ${extra || ''}">${val}</span></div>`;
-            if (motivoDe(k)) planHtml += row('⚠', 'Motivo del no logro', motivoDe(k), 'motivo');
-            if ((k['Plan_Acciones'] || '').trim()) planHtml += row('▶', 'Plan de acción', k['Plan_Acciones'], 'accion');
-            if ((k['Plan_Responsable'] || '').trim()) planHtml += row('👤', 'Responsable', k['Plan_Responsable']);
-            if (k['Plan_Fecha']) planHtml += row('📅', 'Fecha compromiso', fechaDisplay(k['Plan_Fecha']));
+            const noCumple = cls === 'rojo' || cls === 'amarillo';
+            const falta = '<span style="color:var(--rojo);font-style:normal;font-weight:600">Falta completar</span>';
+            const campoPlan = (ic, lbl, val, extra) => { if (val) planHtml += row(ic, lbl, esc(val), extra); else if (noCumple) planHtml += row(ic, lbl, falta, ''); };
+            campoPlan('⚠', 'Motivo del no logro', motivoDe(k), 'motivo');
+            campoPlan('▶', 'Plan de acción', String(k['Plan_Acciones'] || '').trim(), 'accion');
+            campoPlan('👤', 'Responsable', String(k['Plan_Responsable'] || '').trim());
+            campoPlan('📅', 'Fecha compromiso', fechaDisplay(k['Plan_Fecha']));
             if (tieneComentario) planHtml += row('💬', 'Comentario', k['Comentarios']);
             const hasPlan = planHtml.length > 0;
             const rowId = 'pr-' + kpiId.replace(/[^a-zA-Z0-9]/g, '_');
